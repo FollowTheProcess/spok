@@ -11,8 +11,8 @@ builds:
     binary: "spok"
     ldflags:
       - -s -w
-      - -X github.com/FollowTheProcess/spok/cli/cmd.version={{.Version}}
-      - -X github.com/FollowTheProcess/spok/cli/cmd.commit={{.Commit}}
+      - -X github.com/FollowTheProcess/spok/cli/app.version={{.Version}}
+      - -X github.com/FollowTheProcess/spok/cli/app.commit={{.Commit}}
     env:
       - CGO_ENABLED=0
     goos:

@@ -6,25 +6,33 @@ import (
 	"fmt"
 	"io"
 	"os"
+)
 
-	"github.com/FollowTheProcess/spok/pkg/hello"
+var (
+	version = "dev" // spok version, set at compile time by ldflags
+	commit  = ""    // spok version's commit hash, set at compile time by ldflags
 )
 
 // App represents the spok program
 type App struct {
-	Out io.Writer
+	Out   io.Writer
+	Flags *Flags
+}
+
+// Flags holds all the flag options for spok
+type Flags struct {
+	Show      string
+	Version   bool
+	Variables bool
 }
 
 // New creates a new default App configured to talk to os.Stdout
-func New() *App {
-	return &App{Out: os.Stdout}
+func New(flags *Flags) *App {
+	return &App{Out: os.Stdout, Flags: flags}
 }
 
-// Hello is the handler for the spok hello command
-func (a *App) Hello() error {
-
-	message := hello.Say("A Thing")
-
-	fmt.Fprintln(a.Out, message)
+func (a *App) Run(args []string) error {
+	fmt.Fprintf(a.Out, "spok called with args: %v\n", args)
+	fmt.Fprintf(a.Out, "Flags: %#v\n", a.Flags)
 	return nil
 }
