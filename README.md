@@ -1,5 +1,5 @@
 <p align="center">
-<img src="./img/logo.png" alt="logo" width=75%>
+<img src="https://github.com/FollowTheProcess/spok/raw/main/img/logo.png" alt="logo" width=75%>
 </p>
 
 # Spok
@@ -9,13 +9,13 @@
 [![GitHub](https://img.shields.io/github/v/release/FollowTheProcess/spok?logo=github&sort=semver)](https://github.com/FollowTheProcess/spok)
 [![CI](https://github.com/FollowTheProcess/spok/workflows/CI/badge.svg)](https://github.com/FollowTheProcess/spok/actions?query=workflow%3ACI)
 
-*It's a build system Jim, but not as we know it!*
+***It's a build system Jim, but not as we know it!***
 
 * Free software: Apache Software License 2.0
 
 ## Project Description
 
-:warning: Spok is in early development and is not ready for use yet!
+:warning: **Spok is in early development and is not ready for use yet!**
 
 `spok` is a lightweight build system and command runner inspired by things like [make], [just] and others.
 
@@ -89,8 +89,6 @@ task default() {
 ### Credits
 
 This package was created with [cookiecutter] and the [FollowTheProcess/go_cookie] project template.
-
-Logo taken from [https://periclestheo.com/blog/pointer-misuse-in-go](https://periclestheo.com/blog/pointer-misuse-in-go)
 
 [cookiecutter]: https://github.com/cookiecutter/cookiecutter
 [FollowTheProcess/go_cookie]: https://github.com/FollowTheProcess/go_cookie
