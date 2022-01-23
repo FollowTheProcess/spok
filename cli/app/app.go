@@ -10,9 +10,9 @@ import (
 // App represents the spok program
 type App struct {
 	Out     io.Writer
+	Options *Options
 	Version string
 	Commit  string
-	Options Options
 }
 
 // Options holds all the flag options for spok

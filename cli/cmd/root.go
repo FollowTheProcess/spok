@@ -19,7 +19,8 @@ var (
 
 // BuildRootCmd builds and returns the root spok CLI command
 func BuildRootCmd() *cobra.Command {
-	options := app.Options{}
+	// Note: options must be a pointer so flags are propegated to the App struct
+	options := &app.Options{}
 	spok := &app.App{
 		Out:     os.Stdout,
 		Options: options,
@@ -70,11 +71,13 @@ func BuildRootCmd() *cobra.Command {
 		},
 	}
 
+	// Attach the flags
 	flags := rootCmd.Flags()
 	flags.BoolVar(&options.Variables, "variables", false, "Show all defined variables in spokfile.")
 	flags.StringVar(&options.Show, "show", "", "Show the source code for a task.")
 	flags.BoolVar(&options.Fmt, "fmt", false, "Format the spokfile.")
 
+	// Set out custom version and usage templates
 	rootCmd.SetUsageTemplate(usageTemplate)
 	rootCmd.SetVersionTemplate(fmt.Sprintf(`{{printf "Version: %s\nCommit: %s\n"}}`, version, commit))
 
