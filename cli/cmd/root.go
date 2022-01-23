@@ -2,14 +2,26 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/FollowTheProcess/spok/cli/app"
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 )
 
+var (
+	version = "dev" // spok version, set at compile time by ldflags
+	commit  = ""    // spok version's commit hash, set at compile time by ldflags
+)
+
 func BuildRootCmd() *cobra.Command {
 	options := &app.Flags{}
-	spok := app.New(options)
+	spok := &app.App{
+		Out:     os.Stdout,
+		Flags:   options,
+		Version: version,
+		Commit:  commit,
+	}
 
 	rootCmd := &cobra.Command{
 		Use:           "spok [tasks]...",

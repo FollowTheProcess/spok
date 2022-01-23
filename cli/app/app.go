@@ -5,18 +5,14 @@ package app
 import (
 	"fmt"
 	"io"
-	"os"
-)
-
-var (
-	version = "dev" // spok version, set at compile time by ldflags
-	commit  = ""    // spok version's commit hash, set at compile time by ldflags
 )
 
 // App represents the spok program
 type App struct {
-	Out   io.Writer
-	Flags *Flags
+	Out     io.Writer
+	Flags   *Flags
+	Version string
+	Commit  string
 }
 
 // Flags holds all the flag options for spok
@@ -26,13 +22,17 @@ type Flags struct {
 	Variables bool
 }
 
-// New creates a new default App configured to talk to os.Stdout
-func New(flags *Flags) *App {
-	return &App{Out: os.Stdout, Flags: flags}
-}
-
 func (a *App) Run(args []string) error {
+	if a.Flags.Version {
+		return a.showVersion()
+	}
 	fmt.Fprintf(a.Out, "spok called with args: %v\n", args)
 	fmt.Fprintf(a.Out, "Flags: %#v\n", a.Flags)
+	return nil
+}
+
+func (a *App) showVersion() error {
+	fmt.Println("Version:", a.Version)
+	fmt.Println("Commit:", a.Commit)
 	return nil
 }

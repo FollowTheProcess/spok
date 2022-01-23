@@ -6,8 +6,8 @@ COVERAGE_DATA := "coverage.out"
 COVERAGE_HTML := "coverage.html"
 GORELEASER_DIST := "dist"
 COMMIT_SHA := `git rev-parse HEAD`
-VERSION_LDFLAG := PROJECT_PATH + "/cli/app.version"
-COMMIT_LDFLAG := PROJECT_PATH + "/cli/app.commit"
+VERSION_LDFLAG := PROJECT_PATH + "/cli/cmd.version"
+COMMIT_LDFLAG := PROJECT_PATH + "/cli/cmd.commit"
 
 # By default print the list of recipes
 _default:
