@@ -79,7 +79,7 @@ func BuildRootCmd() *cobra.Command {
 
 	// Set out custom version and usage templates
 	rootCmd.SetUsageTemplate(usageTemplate)
-	rootCmd.SetVersionTemplate(fmt.Sprintf(`{{printf "Version: %s\nCommit: %s\n"}}`, version, commit))
+	rootCmd.SetVersionTemplate(fmt.Sprintf(`{{printf "%s version\n%s %s\n"}}`, headerStyle.Sprint("Version:"), headerStyle.Sprint("Commit:"), commit))
 
 	return rootCmd
 }
