@@ -24,8 +24,6 @@ func BuildRootCmd() *cobra.Command {
 	spok := &app.App{
 		Out:     os.Stdout,
 		Options: options,
-		Version: version,
-		Commit:  commit,
 	}
 
 	rootCmd := &cobra.Command{
@@ -77,9 +75,9 @@ func BuildRootCmd() *cobra.Command {
 	flags.StringVar(&options.Show, "show", "", "Show the source code for a task.")
 	flags.BoolVar(&options.Fmt, "fmt", false, "Format the spokfile.")
 
-	// Set out custom version and usage templates
+	// Set our custom version and usage templates
 	rootCmd.SetUsageTemplate(usageTemplate)
-	rootCmd.SetVersionTemplate(fmt.Sprintf(`{{printf "%s version\n%s %s\n"}}`, headerStyle.Sprint("Version:"), headerStyle.Sprint("Commit:"), commit))
+	rootCmd.SetVersionTemplate(fmt.Sprintf(`{{printf "%s %s\n%s %s\n"}}`, headerStyle.Sprint("Version:"), version, headerStyle.Sprint("Commit:"), commit))
 
 	return rootCmd
 }
