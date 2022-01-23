@@ -10,29 +10,22 @@ import (
 // App represents the spok program
 type App struct {
 	Out     io.Writer
-	Flags   *Flags
 	Version string
 	Commit  string
+	Options Options
 }
 
-// Flags holds all the flag options for spok
-type Flags struct {
+// Options holds all the flag options for spok
+type Options struct {
 	Show      string
-	Version   bool
 	Variables bool
+	Fmt       bool
 }
 
-func (a *App) Run(args []string) error {
-	if a.Flags.Version {
-		return a.showVersion()
-	}
-	fmt.Fprintf(a.Out, "spok called with args: %v\n", args)
-	fmt.Fprintf(a.Out, "Flags: %#v\n", a.Flags)
-	return nil
-}
-
-func (a *App) showVersion() error {
-	fmt.Println("Version:", a.Version)
-	fmt.Println("Commit:", a.Commit)
+// Run is the entry point to the spok program, the only arguments spok accepts are names
+// of tasks, all other logic is handled via flags
+func (a *App) Run(tasks []string) error {
+	fmt.Fprintf(a.Out, "spok called with args: %v\n", tasks)
+	fmt.Fprintf(a.Out, "Flags: %#v\n", a.Options)
 	return nil
 }

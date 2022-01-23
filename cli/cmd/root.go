@@ -2,29 +2,34 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/FollowTheProcess/spok/cli/app"
 	"github.com/MakeNowJust/heredoc/v2"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
 var (
-	version = "dev" // spok version, set at compile time by ldflags
-	commit  = ""    // spok version's commit hash, set at compile time by ldflags
+	version     = "dev"                                // spok version, set at compile time by ldflags
+	commit      = ""                                   // spok version's commit hash, set at compile time by ldflags
+	headerStyle = color.New(color.FgWhite, color.Bold) // Setting header style to use in usage message (usage.go)
 )
 
+// BuildRootCmd builds and returns the root spok CLI command
 func BuildRootCmd() *cobra.Command {
-	options := &app.Flags{}
+	options := app.Options{}
 	spok := &app.App{
 		Out:     os.Stdout,
-		Flags:   options,
+		Options: options,
 		Version: version,
 		Commit:  commit,
 	}
 
 	rootCmd := &cobra.Command{
 		Use:           "spok [tasks]...",
+		Version:       version,
 		Args:          cobra.ArbitraryArgs,
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -66,9 +71,12 @@ func BuildRootCmd() *cobra.Command {
 	}
 
 	flags := rootCmd.Flags()
-	flags.BoolVar(&options.Version, "version", false, "Show spok's version info.")
 	flags.BoolVar(&options.Variables, "variables", false, "Show all defined variables in spokfile.")
 	flags.StringVar(&options.Show, "show", "", "Show the source code for a task.")
+	flags.BoolVar(&options.Fmt, "fmt", false, "Format the spokfile.")
+
+	rootCmd.SetUsageTemplate(usageTemplate)
+	rootCmd.SetVersionTemplate(fmt.Sprintf(`{{printf "Version: %s\nCommit: %s\n"}}`, version, commit))
 
 	return rootCmd
 }
