@@ -1,3 +1,7 @@
+<p align="center">
+<img src="./img/logo.png" alt="logo" width=75%>
+</p>
+
 # Spok
 
 [![License](https://img.shields.io/github/license/FollowTheProcess/spok)](https://github.com/FollowTheProcess/spok)
@@ -55,6 +59,11 @@ task <name>(<deps>?...) -> <outputs>?... {
 
 # Some simple examples below
 
+# Use a global variable like this
+task hello() {
+    echo "{{.GLOBAL_VARIABLE}}"
+}
+
 # Run the go tests
 task test("**/*.go") {
     go test ./...
@@ -80,6 +89,8 @@ task default() {
 ### Credits
 
 This package was created with [cookiecutter] and the [FollowTheProcess/go_cookie] project template.
+
+Logo taken from [https://periclestheo.com/blog/pointer-misuse-in-go](https://periclestheo.com/blog/pointer-misuse-in-go)
 
 [cookiecutter]: https://github.com/cookiecutter/cookiecutter
 [FollowTheProcess/go_cookie]: https://github.com/FollowTheProcess/go_cookie
