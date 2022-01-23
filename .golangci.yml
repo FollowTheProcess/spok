@@ -1,0 +1,19 @@
+linters:
+  enable:
+    - gofmt
+    - gocyclo
+    - revive
+    - misspell
+    - gocritic
+    - govet
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+
+  staticcheck:
+    go: "1.17"
+    checks: ["all"]
+
+  govet:
+    enable-all: true
