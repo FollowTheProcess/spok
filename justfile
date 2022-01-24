@@ -21,8 +21,12 @@ show:
 tidy:
     go mod tidy
 
+# Run go generate on all packages
+generate:
+    go generate ./...
+
 # Compile the project binary
-build: tidy fmt
+build: tidy generate fmt
     go build -ldflags="-X {{ VERSION_LDFLAG }}=dev -X {{ COMMIT_LDFLAG }}={{ COMMIT_SHA }}" -o {{ PROJECT_BIN }}/{{ PROJECT_NAME }} {{ PROJECT_ENTRY_POINT }}
 
 # Run go fmt on all project files
@@ -30,7 +34,7 @@ fmt:
     go fmt ./...
 
 # Run all project unit tests
-test *flags: fmt
+test *flags: tidy generate fmt
     go test -race ./... {{ flags }}
 
 # Lint the project and auto-fix errors if possible
