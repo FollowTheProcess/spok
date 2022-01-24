@@ -74,6 +74,8 @@ func BuildRootCmd() *cobra.Command {
 	flags.BoolVar(&options.Variables, "variables", false, "Show all defined variables in spokfile.")
 	flags.StringVar(&options.Show, "show", "", "Show the source code for a task.")
 	flags.BoolVar(&options.Fmt, "fmt", false, "Format the spokfile.")
+	flags.StringVar(&options.Spokfile, "spokfile", "", "The path to the spokfile (defaults to '$CWD/spokfile').")
+	flags.BoolVar(&options.Init, "init", false, "Initialise a new spokfile in $CWD.")
 
 	// Set our custom version and usage templates
 	rootCmd.SetUsageTemplate(usageTemplate)

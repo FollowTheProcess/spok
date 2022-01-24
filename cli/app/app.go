@@ -17,8 +17,10 @@ type App struct {
 // if the flags were not set and the value of the flag otherwise
 type Options struct {
 	Show      string
+	Spokfile  string
 	Variables bool
 	Fmt       bool
+	Init      bool
 }
 
 // Run is the entry point to the spok program, the only arguments spok accepts are names
@@ -34,6 +36,8 @@ func (a *App) Run(tasks []string) error {
 		fmt.Println("Show defined variables")
 	case a.Options.Show != "":
 		fmt.Printf("Show source code for task: %s\n", a.Options.Show)
+	case a.Options.Spokfile != "":
+		fmt.Printf("Using spokfile at: %s\n", a.Options.Spokfile)
 	default:
 		fmt.Printf("No flags, run the following tasks: %v\n", tasks)
 	}
