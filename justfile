@@ -34,7 +34,7 @@ fmt:
     go fmt ./...
 
 # Run all project unit tests
-test *flags: tidy generate fmt
+test *flags: fmt
     go test -race ./... {{ flags }}
 
 # Lint the project and auto-fix errors if possible

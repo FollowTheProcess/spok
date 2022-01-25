@@ -10,26 +10,22 @@ func _() {
 	var x [1]struct{}
 	_ = x[tokenError-0]
 	_ = x[tokenEOF-1]
-	_ = x[tokenIDENT-2]
-	_ = x[tokenInt-3]
-	_ = x[tokenString-4]
-	_ = x[tokenQuote-5]
-	_ = x[tokenColon-6]
-	_ = x[tokenEquals-7]
-	_ = x[tokenTask-8]
-	_ = x[tokenOpenParen-9]
-	_ = x[tokenCloseParen-10]
-	_ = x[tokenOpenBrace-11]
-	_ = x[tokenCloseBrace-12]
-	_ = x[tokenOpenBracket-13]
-	_ = x[tokenCloseBracket-14]
-	_ = x[tokenArrowStem-15]
-	_ = x[tokenArrowHead-16]
+	_ = x[tokenHash-2]
+	_ = x[tokenComment-3]
+	_ = x[tokenDeclare-4]
+	_ = x[tokenTask-5]
+	_ = x[tokenOpenParen-6]
+	_ = x[tokenCloseParen-7]
+	_ = x[tokenOpenBrace-8]
+	_ = x[tokenCloseBrace-9]
+	_ = x[tokenOpenBracket-10]
+	_ = x[tokenCloseBracket-11]
+	_ = x[tokenOutput-12]
 }
 
-const _tokenType_name = "ErrorEOFIDENTIntegerString\":=task(){}[]->"
+const _tokenType_name = "ErrorEOF#Comment:=task(){}[]->"
 
-var _tokenType_index = [...]uint8{0, 5, 8, 13, 20, 26, 27, 28, 29, 33, 34, 35, 36, 37, 38, 39, 40, 41}
+var _tokenType_index = [...]uint8{0, 5, 8, 9, 16, 18, 22, 23, 24, 25, 26, 27, 28, 30}
 
 func (i tokenType) String() string {
 	if i < 0 || i >= tokenType(len(_tokenType_index)-1) {
