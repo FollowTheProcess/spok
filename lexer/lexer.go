@@ -45,7 +45,7 @@ func (l *lexer) current() rune {
 
 // atEOL returns whether or not the lexer is currently at the end of a line
 func (l *lexer) atEOL() bool {
-	return l.current() == '\n' || strings.HasPrefix(l.rest(), "\r\n")
+	return l.peek() == '\n' || strings.HasPrefix(l.rest(), "\r\n")
 }
 
 // atEOF returns whether or not the lexer is currently at the end of a file
