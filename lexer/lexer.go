@@ -175,8 +175,8 @@ func lexStart(l *lexer) lexFn {
 	case unicode.IsLetter(l.peek()):
 		return lexIdent
 	case l.atEOF():
-		// atEOF means we know there's nothing left
-		l.start = len(l.input)
+		// atEOF means we know there's nothing left (maybe a \n)
+		l.ignore()
 		l.emit(token.EOF)
 		return nil
 	default:
