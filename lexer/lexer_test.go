@@ -40,6 +40,11 @@ var lexTests = []lexTest{
 		input:  "# A comment\n",
 		tokens: []token.Token{tHash, newToken(token.COMMENT, " A comment"), tEOF},
 	},
+	{
+		name:   "whitespace",
+		input:  "      \t\n\t\t\n\n\n   ",
+		tokens: []token.Token{tEOF},
+	},
 }
 
 // collect gathers the emitted tokens into a slice for comparison
