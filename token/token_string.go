@@ -11,23 +11,25 @@ func _() {
 	_ = x[ERROR-0]
 	_ = x[EOF-1]
 	_ = x[COMMENT-2]
-	_ = x[LPAREN-3]
-	_ = x[RPAREN-4]
-	_ = x[LBRACE-5]
-	_ = x[RBRACE-6]
-	_ = x[LBRACKET-7]
-	_ = x[RBRACKET-8]
-	_ = x[QUOTE-9]
-	_ = x[TASK-10]
-	_ = x[STRING-11]
-	_ = x[OUTPUT-12]
-	_ = x[IDENT-13]
-	_ = x[DECLARE-14]
+	_ = x[HASH-3]
+	_ = x[LPAREN-4]
+	_ = x[RPAREN-5]
+	_ = x[LBRACE-6]
+	_ = x[RBRACE-7]
+	_ = x[LBRACKET-8]
+	_ = x[RBRACKET-9]
+	_ = x[QUOTE-10]
+	_ = x[COMMA-11]
+	_ = x[TASK-12]
+	_ = x[STRING-13]
+	_ = x[OUTPUT-14]
+	_ = x[IDENT-15]
+	_ = x[DECLARE-16]
 }
 
-const _Type_name = "ERROREOFCOMMENT(){}[]\"TASKSTRING->IDENT:="
+const _Type_name = "ERROREOFCOMMENT#(){}[]\",TASKSTRING->IDENT:="
 
-var _Type_index = [...]uint8{0, 5, 8, 15, 16, 17, 18, 19, 20, 21, 22, 26, 32, 34, 39, 41}
+var _Type_index = [...]uint8{0, 5, 8, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 28, 34, 36, 41, 43}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

@@ -12,6 +12,7 @@ const (
 	ERROR    Type = iota // ERROR
 	EOF                  // EOF
 	COMMENT              // COMMENT
+	HASH                 // #
 	LPAREN               // (
 	RPAREN               // )
 	LBRACE               // {
@@ -19,6 +20,7 @@ const (
 	LBRACKET             // [
 	RBRACKET             // ]
 	QUOTE                // "
+	COMMA                // ,
 	TASK                 // TASK
 	STRING               // STRING
 	OUTPUT               // ->

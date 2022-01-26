@@ -5,6 +5,7 @@
 package lexer
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -106,3 +107,50 @@ func (l *lexer) ignore() {
 	l.line += strings.Count(l.all(), "\n")
 	l.start = l.pos
 }
+
+// errorf returns an error token and terminates the scan by passing back
+// a nil pointer that will be the next state, terminating l.nextToken
+func (l *lexer) errorf(format string, args ...interface{}) lexFn {
+	l.tokens <- token.Token{
+		Value: fmt.Sprintf(format, args...),
+		Type:  token.ERROR,
+		Pos:   l.start,
+		Line:  l.line,
+	}
+	return nil
+}
+
+// func lexStart(l *lexer) lexFn {
+// 	l.skipWhitespace()
+
+// 	// The only thing spok can encounter at the top level are:
+// 	// - Comments, preceded with a '#'
+// 	// - Global variables
+// 	// - Task definitions
+// 	switch {
+// 	case strings.HasPrefix(l.rest(), token.HASH.String()):
+// 		return lexHash
+// 	case strings.HasPrefix(l.rest(), token.TASK.String()):
+// 		return lexTask
+// 	case unicode.IsLetter(l.peek()):
+// 		return lexIdent
+// 	default:
+// 		// Reached EOF
+// 		if l.pos > len(l.input) {
+// 			l.emit(token.EOF)
+// 			return nil
+// 		}
+
+// 		// Unexpected token
+// 		l.errorf("Unexpected token: %v", l.current())
+// 	}
+
+// 	panic("not reached")
+// }
+
+// // lexHash scans a comment marker '#'
+// func lexHash(l *lexer) lexFn {
+// 	l.pos += len(token.HASH.String())
+// 	l.emit(token.HASH)
+// 	return lexComment
+// }
