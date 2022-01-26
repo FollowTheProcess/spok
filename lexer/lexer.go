@@ -196,8 +196,6 @@ func lexHash(l *lexer) lexFn {
 func lexComment(l *lexer) lexFn {
 	for {
 		if l.atEOL() {
-			fmt.Printf("lexComment atEOL, rest = %s\n", l.rest())
-			fmt.Printf("len rest = %d\n", len(l.rest()))
 			l.emit(token.COMMENT)
 			l.pos++
 			return lexStart
