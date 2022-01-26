@@ -43,6 +43,16 @@ func (l *lexer) current() rune {
 	return rune(l.input[l.pos])
 }
 
+// atEOL returns whether or not the lexer is currently at the end of a line
+func (l *lexer) atEOL() bool {
+	return l.peek() == '\n' || strings.HasPrefix(l.rest(), "\r\n")
+}
+
+// atEOF returns whether or not the lexer is currently at the end of a file
+func (l *lexer) atEOF() bool {
+	return l.pos >= len(l.input)
+}
+
 // skipWhitespace consumes any utf-8 whitespace until something meaningful is hit
 func (l *lexer) skipWhitespace() {
 	for {
@@ -120,37 +130,102 @@ func (l *lexer) errorf(format string, args ...interface{}) lexFn {
 	return nil
 }
 
-// func lexStart(l *lexer) lexFn {
-// 	l.skipWhitespace()
+// nextToken returns the next token from the input,
+// generally called by the parser not the lexing goroutine
+func (l *lexer) nextToken() token.Token {
+	return <-l.tokens
+}
 
-// 	// The only thing spok can encounter at the top level are:
-// 	// - Comments, preceded with a '#'
-// 	// - Global variables
-// 	// - Task definitions
-// 	switch {
-// 	case strings.HasPrefix(l.rest(), token.HASH.String()):
-// 		return lexHash
-// 	case strings.HasPrefix(l.rest(), token.TASK.String()):
-// 		return lexTask
-// 	case unicode.IsLetter(l.peek()):
-// 		return lexIdent
-// 	default:
-// 		// Reached EOF
-// 		if l.pos > len(l.input) {
-// 			l.emit(token.EOF)
-// 			return nil
-// 		}
+// lex creates a new lexer for the input string and sets it off
+// in a goroutine
+func lex(input string) *lexer {
+	l := &lexer{
+		tokens: make(chan token.Token),
+		input:  input,
+		start:  0,
+		pos:    0,
+		line:   0,
+		width:  0,
+	}
+	go l.run()
+	return l
+}
 
-// 		// Unexpected token
-// 		l.errorf("Unexpected token: %v", l.current())
-// 	}
+// run starts the state machine for the lexer
+func (l *lexer) run() {
+	for state := lexStart; state != nil; {
+		state = state(l)
+	}
+	close(l.tokens)
+}
 
-// 	panic("not reached")
-// }
+// lexStart is the initial state of the lexer
+func lexStart(l *lexer) lexFn {
+	l.skipWhitespace()
 
-// // lexHash scans a comment marker '#'
-// func lexHash(l *lexer) lexFn {
-// 	l.pos += len(token.HASH.String())
-// 	l.emit(token.HASH)
-// 	return lexComment
-// }
+	// The only thing spok can encounter at the top level are:
+	// - Comments, preceded with a '#'
+	// - Global variables
+	// - Task definitions
+	switch {
+	case strings.HasPrefix(l.rest(), token.HASH.String()):
+		return lexHash
+	case strings.HasPrefix(l.rest(), token.TASK.String()):
+		return lexTask
+	case unicode.IsLetter(l.peek()):
+		return lexIdent
+	default:
+		// Something else
+		// check if we've reached EOF
+		if l.atEOF() {
+			l.emit(token.EOF)
+			return nil
+		}
+
+		// If not EOF, unexpected token
+		l.errorf("Unexpected token")
+		return nil
+	}
+}
+
+// lexHash scans a comment marker '#'
+func lexHash(l *lexer) lexFn {
+	l.pos += len(token.HASH.String())
+	l.emit(token.HASH)
+	return lexComment
+}
+
+// lexComment scans a comment text, the '#' has already been encountered
+func lexComment(l *lexer) lexFn {
+	// Leading whitespace in a comment has no relevance
+	l.skipWhitespace()
+
+	for {
+		// Read until the end of the line
+		l.next()
+		if l.atEOL() {
+			l.backup()
+			break
+		}
+
+		if l.atEOF() {
+			l.emit(token.EOF)
+			break
+		}
+	}
+
+	l.emit(token.COMMENT)
+	return lexStart
+}
+
+// lexTask scans a task definition keyword
+func lexTask(l *lexer) lexFn {
+	// TODO: Implement
+	return nil
+}
+
+// lexIdent scans an identifier e.g. global variable or name of task
+func lexIdent(l *lexer) lexFn {
+	// TODO: Implement
+	return nil
+}
