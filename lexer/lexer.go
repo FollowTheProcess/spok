@@ -45,7 +45,7 @@ func (l *lexer) current() rune {
 
 // atEOL returns whether or not the lexer is currently at the end of a line
 func (l *lexer) atEOL() bool {
-	return l.peek() == '\n' || strings.HasPrefix(l.rest(), "\r\n")
+	return l.current() == '\n' || strings.HasPrefix(l.rest(), "\r\n")
 }
 
 // atEOF returns whether or not the lexer is currently at the end of a file
@@ -57,13 +57,12 @@ func (l *lexer) atEOF() bool {
 func (l *lexer) skipWhitespace() {
 	for {
 		r := l.next()
-
 		if !unicode.IsSpace(r) {
 			l.backup()
 			break
 		}
 
-		if r == rune(token.EOF) {
+		if r == eof {
 			l.emit(token.EOF)
 			break
 		}
@@ -162,11 +161,12 @@ func (l *lexer) run() {
 // lexStart is the initial state of the lexer
 func lexStart(l *lexer) lexFn {
 	l.skipWhitespace()
-
-	// The only thing spok can encounter at the top level are:
+	// The only things spok can encounter at the top level are:
 	// - Comments, preceded with a '#'
 	// - Global variables
 	// - Task definitions
+	// - EOF
+	// Anything else is an error
 	switch {
 	case strings.HasPrefix(l.rest(), token.HASH.String()):
 		return lexHash
@@ -174,15 +174,12 @@ func lexStart(l *lexer) lexFn {
 		return lexTask
 	case unicode.IsLetter(l.peek()):
 		return lexIdent
+	case l.atEOF():
+		// atEOF means we know there's nothing left
+		l.start = len(l.input)
+		l.emit(token.EOF)
+		return nil
 	default:
-		// Something else
-		// check if we've reached EOF
-		if l.atEOF() {
-			l.emit(token.EOF)
-			return nil
-		}
-
-		// If not EOF, unexpected token
 		l.errorf("Unexpected token")
 		return nil
 	}
@@ -197,25 +194,21 @@ func lexHash(l *lexer) lexFn {
 
 // lexComment scans a comment text, the '#' has already been encountered
 func lexComment(l *lexer) lexFn {
-	// Leading whitespace in a comment has no relevance
-	l.skipWhitespace()
-
 	for {
-		// Read until the end of the line
-		l.next()
 		if l.atEOL() {
-			l.backup()
-			break
+			fmt.Printf("lexComment atEOL, rest = %s\n", l.rest())
+			fmt.Printf("len rest = %d\n", len(l.rest()))
+			l.emit(token.COMMENT)
+			l.pos++
+			return lexStart
 		}
+
+		l.next()
 
 		if l.atEOF() {
-			l.emit(token.EOF)
-			break
+			return l.errorf("Unexpected EOF")
 		}
 	}
-
-	l.emit(token.COMMENT)
-	return lexStart
 }
 
 // lexTask scans a task definition keyword

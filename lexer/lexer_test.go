@@ -20,7 +20,8 @@ func newToken(typ token.Type, value string) token.Token {
 }
 
 var (
-	tEOF = newToken(token.EOF, "")
+	tEOF  = newToken(token.EOF, "")
+	tHash = newToken(token.HASH, "#")
 )
 
 var lexTests = []lexTest{
@@ -30,9 +31,14 @@ var lexTests = []lexTest{
 		tokens: []token.Token{tEOF},
 	},
 	{
-		name:   "hash only",
-		input:  "#",
-		tokens: []token.Token{newToken(token.HASH, "#"), tEOF},
+		name:   "hash",
+		input:  "#\n",
+		tokens: []token.Token{tHash, newToken(token.COMMENT, ""), tEOF},
+	},
+	{
+		name:   "comment",
+		input:  "# A comment\n",
+		tokens: []token.Token{tHash, newToken(token.COMMENT, " A comment"), tEOF},
 	},
 }
 
@@ -67,9 +73,11 @@ func equal(t1, t2 []token.Token) bool {
 
 func TestLexer(t *testing.T) {
 	for _, test := range lexTests {
-		tokens := collect(&test)
-		if !equal(tokens, test.tokens) {
-			t.Errorf("%s: got\n\t%#v\nexpected\n\t%#v", test.name, tokens, test.tokens)
-		}
+		t.Run(test.name, func(t *testing.T) {
+			tokens := collect(&test)
+			if !equal(tokens, test.tokens) {
+				t.Errorf("%s: got\n\t%#v\nexpected\n\t%#v", test.name, tokens, test.tokens)
+			}
+		})
 	}
 }

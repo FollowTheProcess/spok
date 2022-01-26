@@ -11,6 +11,7 @@ type Type int
 const (
 	ERROR    Type = iota // ERROR
 	EOF                  // EOF
+	NEWLINE              // \n
 	COMMENT              // COMMENT
 	HASH                 // #
 	LPAREN               // (
