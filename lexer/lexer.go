@@ -197,7 +197,6 @@ func lexComment(l *lexer) lexFn {
 	for {
 		if l.atEOL() {
 			l.emit(token.COMMENT)
-			l.pos++
 			return lexStart
 		}
 
