@@ -9,7 +9,7 @@
 [![GitHub](https://img.shields.io/github/v/release/FollowTheProcess/spok?logo=github&sort=semver)](https://github.com/FollowTheProcess/spok)
 [![CI](https://github.com/FollowTheProcess/spok/workflows/CI/badge.svg)](https://github.com/FollowTheProcess/spok/actions?query=workflow%3ACI)
 
-***It's a build system Jim, but not as we know it!***
+***It's a build system Jim, but not as we know it! 🖖🏻***
 
 * Free software: Apache Software License 2.0
 
