@@ -10,27 +10,26 @@ func _() {
 	var x [1]struct{}
 	_ = x[ERROR-0]
 	_ = x[EOF-1]
-	_ = x[NEWLINE-2]
-	_ = x[COMMENT-3]
-	_ = x[HASH-4]
-	_ = x[LPAREN-5]
-	_ = x[RPAREN-6]
-	_ = x[LBRACE-7]
-	_ = x[RBRACE-8]
-	_ = x[LBRACKET-9]
-	_ = x[RBRACKET-10]
-	_ = x[QUOTE-11]
-	_ = x[COMMA-12]
-	_ = x[TASK-13]
-	_ = x[STRING-14]
-	_ = x[OUTPUT-15]
-	_ = x[IDENT-16]
-	_ = x[DECLARE-17]
+	_ = x[COMMENT-2]
+	_ = x[HASH-3]
+	_ = x[LPAREN-4]
+	_ = x[RPAREN-5]
+	_ = x[LBRACE-6]
+	_ = x[RBRACE-7]
+	_ = x[LBRACKET-8]
+	_ = x[RBRACKET-9]
+	_ = x[QUOTE-10]
+	_ = x[COMMA-11]
+	_ = x[TASK-12]
+	_ = x[STRING-13]
+	_ = x[OUTPUT-14]
+	_ = x[IDENT-15]
+	_ = x[DECLARE-16]
 }
 
-const _Type_name = "ERROREOF\\nCOMMENT#(){}[]\",TASKSTRING->IDENT:="
+const _Type_name = "ERROREOFCOMMENT#(){}[]\",TASKSTRING->IDENT:="
 
-var _Type_index = [...]uint8{0, 5, 8, 10, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 30, 36, 38, 43, 45}
+var _Type_index = [...]uint8{0, 5, 8, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 28, 34, 36, 41, 43}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

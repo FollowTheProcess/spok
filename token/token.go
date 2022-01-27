@@ -11,7 +11,6 @@ type Type int
 const (
 	ERROR    Type = iota // ERROR
 	EOF                  // EOF
-	NEWLINE              // \n
 	COMMENT              // COMMENT
 	HASH                 // #
 	LPAREN               // (
@@ -48,4 +47,9 @@ func (t Token) String() string {
 		return fmt.Sprintf("%.15q...", t.Value)
 	}
 	return fmt.Sprintf("%q", t.Value)
+}
+
+// Is returns whether or not the current token is of a certain type
+func (t Token) Is(typ Type) bool {
+	return t.Type == typ
 }
