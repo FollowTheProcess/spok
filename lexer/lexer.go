@@ -112,6 +112,11 @@ func (l *lexer) backup() {
 	}
 }
 
+// skip steps over the given token.
+func (l *lexer) skip(t token.Type) {
+	l.pos += len(t.String())
+}
+
 // acceptRun consumes a run of runes from the valid set.
 func (l *lexer) acceptRun(valid string) {
 	for strings.ContainsRune(valid, l.next()) {
@@ -195,7 +200,7 @@ func lexStart(l *lexer) lexFn {
 	case strings.HasPrefix(l.rest(), token.HASH.String()):
 		return lexHash
 	case strings.HasPrefix(l.rest(), token.TASK.String()):
-		return lexTask
+		return lexTaskKeyword
 	case unicode.IsLetter(l.peek()):
 		// Bring l.pos up to here
 		return lexIdent
@@ -211,7 +216,7 @@ func lexStart(l *lexer) lexFn {
 
 // lexHash scans a comment marker '#'.
 func lexHash(l *lexer) lexFn {
-	l.pos += len(token.HASH.String())
+	l.skip(token.HASH)
 	l.emit(token.HASH)
 	return lexComment
 }
@@ -227,9 +232,15 @@ func lexComment(l *lexer) lexFn {
 	}
 }
 
-// lexTask scans a task definition keyword.
-func lexTask(l *lexer) lexFn {
-	// TODO: Implement
+// lexTaskKeyword scans a task definition keyword.
+func lexTaskKeyword(l *lexer) lexFn {
+	l.skip(token.TASK)
+	l.emit(token.TASK)
+	return lexLeftParen
+}
+
+// lexLeftParen scans an opening parenthesis.
+func lexLeftParen(l *lexer) lexFn {
 	return nil
 }
 
@@ -268,7 +279,7 @@ func lexArgs(l *lexer) lexFn {
 // lexDeclare scans a declaration operation in a global variable.
 func lexDeclare(l *lexer) lexFn {
 	l.skipWhitespace()
-	l.pos += len(token.DECLARE.String())
+	l.skip(token.DECLARE)
 	l.emit(token.DECLARE)
 	l.skipWhitespace()
 
