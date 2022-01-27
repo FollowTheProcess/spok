@@ -76,6 +76,7 @@ func BuildRootCmd() *cobra.Command {
 	flags.BoolVar(&options.Fmt, "fmt", false, "Format the spokfile.")
 	flags.StringVar(&options.Spokfile, "spokfile", "", "The path to the spokfile (defaults to '$CWD/spokfile').")
 	flags.BoolVar(&options.Init, "init", false, "Initialise a new spokfile in $CWD.")
+	flags.BoolVar(&options.Clean, "clean", false, "Remove all build artifacts.")
 
 	// Set our custom version and usage templates
 	rootCmd.SetUsageTemplate(usageTemplate)

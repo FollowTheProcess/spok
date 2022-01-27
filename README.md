@@ -50,7 +50,7 @@ GIT_COMMIT := exec(git rev-parse HEAD)
 # A dependency can be filepaths (including globs) or names of other tasks
 
 # Tasks have optional outputs (if they generate things)
-# This enables `spok clean` to restore everything to it's original state
+# This enables `spok --clean` to restore everything to it's original state
 
 # A comment above a task is it's docstring
 task <name>(<deps>?...) -> <outputs>?... {
