@@ -43,7 +43,7 @@ It looks like this:
 GLOBAL_VARIABLE := 27
 
 # You can store the output of a shell command as a variable
-GIT_COMMIT := exec(git rev-parse HEAD)
+GIT_COMMIT := exec("git rev-parse HEAD")
 
 # The core concept in spok is a task (think make target)
 # they are sort of based on go functions except arguments are dependencies

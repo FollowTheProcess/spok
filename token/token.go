@@ -23,6 +23,7 @@ const (
 	COMMA                // ,
 	TASK                 // TASK
 	STRING               // STRING
+	INTEGER              // INTEGER
 	OUTPUT               // ->
 	IDENT                // IDENT
 	DECLARE              // :=

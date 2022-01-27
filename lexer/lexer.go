@@ -59,6 +59,7 @@ func (l *lexer) skipWhitespace() {
 		r := l.next()
 		if !unicode.IsSpace(r) {
 			l.backup()
+			l.discard()
 			break
 		}
 
@@ -110,9 +111,9 @@ func (l *lexer) emit(t token.Type) {
 	l.start = l.pos
 }
 
-// ignore skips over the input before the current lexer position
-// effectively just moves start up to current pos
-func (l *lexer) ignore() {
+// discard skips over the input before the current lexer position
+// the line count is preserved however
+func (l *lexer) discard() {
 	l.line += strings.Count(l.all(), "\n")
 	l.start = l.pos
 }
@@ -173,10 +174,10 @@ func lexStart(l *lexer) lexFn {
 	case strings.HasPrefix(l.rest(), token.TASK.String()):
 		return lexTask
 	case unicode.IsLetter(l.peek()):
+		// Bring l.pos up to here
 		return lexIdent
 	case l.atEOF():
 		// atEOF means we know there's nothing left (maybe a \n)
-		l.ignore()
 		l.emit(token.EOF)
 		return nil
 	default:
@@ -211,6 +212,79 @@ func lexTask(l *lexer) lexFn {
 
 // lexIdent scans an identifier e.g. global variable or name of task
 func lexIdent(l *lexer) lexFn {
+	// Read all the letters
+	for {
+		r := l.next()
+		if !unicode.IsLetter(r) {
+			l.backup()
+			break
+		}
+	}
+	l.emit(token.IDENT)
+	l.skipWhitespace()
+
+	switch {
+	case strings.HasPrefix(l.rest(), token.LPAREN.String()):
+		// We have arguments i.e. a task
+		return lexArgs
+	case strings.HasPrefix(l.rest(), token.DECLARE.String()):
+		// We have a global variable declaration
+		return lexDeclare
+	default:
+		// Error
+		return l.errorf("Unexpected token")
+	}
+}
+
+// lexArgs scans an argument declaration i.e. task dependencies or builtin function args
+func lexArgs(l *lexer) lexFn {
+	// TODO: Implement
+	return nil
+}
+
+// lexDeclare scans a declaration operation in a global variable
+func lexDeclare(l *lexer) lexFn {
+	l.skipWhitespace()
+	l.pos += len(token.DECLARE.String())
+	l.emit(token.DECLARE)
+	l.skipWhitespace()
+
+	switch r := l.next(); {
+	case r == '"':
+		// We have a quoted string e.g. "hello"
+		return lexString
+	case unicode.IsLetter(r):
+		// We have something unquoted, i.e. another ident
+		return lexIdent
+	case unicode.IsDigit(r):
+		// We have a number e.g. 27
+		return lexInteger
+	default:
+		// Anything else is disallowed
+		return l.errorf("Unexpected token: %s\n", string(r))
+	}
+
+}
+
+// lexString scans a quoted string, the opening quote is already known to exist
+func lexString(l *lexer) lexFn {
+	for {
+		r := l.next()
+		if r == '"' {
+			break
+		}
+
+		if l.atEOF() || l.atEOL() {
+			return l.errorf("Unterminated string")
+		}
+	}
+
+	l.emit(token.STRING)
+	return lexStart
+}
+
+// lexInteger scans a decimal integer
+func lexInteger(l *lexer) lexFn {
 	// TODO: Implement
 	return nil
 }

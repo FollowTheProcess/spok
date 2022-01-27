@@ -20,8 +20,9 @@ func newToken(typ token.Type, value string) token.Token {
 }
 
 var (
-	tEOF  = newToken(token.EOF, "")
-	tHash = newToken(token.HASH, "#")
+	tEOF     = newToken(token.EOF, "")
+	tHash    = newToken(token.HASH, "#")
+	tDeclare = newToken(token.DECLARE, ":=")
 )
 
 var lexTests = []lexTest{
@@ -54,6 +55,11 @@ var lexTests = []lexTest{
 		name:   "whitespace",
 		input:  "      \t\n\t\t\n\n\n   ",
 		tokens: []token.Token{tEOF},
+	},
+	{
+		name:   "global variable",
+		input:  `TEST := "hello"`,
+		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.STRING, `"hello"`), tEOF},
 	},
 }
 
@@ -91,7 +97,7 @@ func TestLexer(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			tokens := collect(&test)
 			if !equal(tokens, test.tokens) {
-				t.Errorf("%s: got\n\t%#v\nexpected\n\t%#v", test.name, tokens, test.tokens)
+				t.Errorf("%s: got\n\t%+v\nexpected\n\t%+v", test.name, tokens, test.tokens)
 			}
 		})
 	}
