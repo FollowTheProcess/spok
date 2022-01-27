@@ -187,7 +187,7 @@ func lexStart(l *lexer) lexFn {
 		// Bring l.pos up to here
 		return lexIdent
 	case l.atEOF():
-		// atEOF means we know there's nothing left (maybe a \n)
+		// atEOF means we know there's nothing left
 		l.emit(token.EOF)
 		return nil
 	default:
