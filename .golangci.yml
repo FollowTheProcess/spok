@@ -6,8 +6,6 @@ linters:
     - misspell
     - gocritic
     - govet
-  disable:
-    - unused # For now
 
 linters-settings:
   gocyclo:
