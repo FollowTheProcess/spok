@@ -57,9 +57,29 @@ var lexTests = []lexTest{
 		tokens: []token.Token{tEOF},
 	},
 	{
-		name:   "global variable",
+		name:   "global variable string",
 		input:  `TEST := "hello"`,
 		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.STRING, `"hello"`), tEOF},
+	},
+	{
+		name:   "global variable whitespace",
+		input:  `TEST := "  \t hello\t\t  "`,
+		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.STRING, `"  \t hello\t\t  "`), tEOF},
+	},
+	{
+		name:   "global variable integer",
+		input:  `TEST := 27`,
+		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.INTEGER, "27"), tEOF},
+	},
+	{
+		name:   "global variable bad integer",
+		input:  `TEST := 27h`,
+		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.ERROR, "Bad integer")},
+	},
+	{
+		name:   "global variable float",
+		input:  `TEST := 27.6`,
+		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.ERROR, "Bad integer")},
 	},
 }
 

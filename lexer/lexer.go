@@ -13,7 +13,10 @@ import (
 	"github.com/FollowTheProcess/spok/token"
 )
 
-const eof = -1
+const (
+	eof    = -1
+	digits = "0123456789"
+)
 
 // lexFn represents the state of the scanner as a function that returns the next state
 type lexFn func(*lexer) lexFn
@@ -98,6 +101,22 @@ func (l *lexer) backup() {
 	if l.width == 1 && l.current() == '\n' {
 		l.line--
 	}
+}
+
+// accept consumes the next rune if it's from the valid set
+func (l *lexer) accept(valid string) bool {
+	if strings.ContainsRune(valid, l.next()) {
+		return true
+	}
+	l.backup()
+	return false
+}
+
+// acceptRun consumes a run of runes from the valid set.
+func (l *lexer) acceptRun(valid string) {
+	for strings.ContainsRune(valid, l.next()) {
+	}
+	l.backup()
 }
 
 // emit passes an item back to the parser via the tokens channel
@@ -285,6 +304,14 @@ func lexString(l *lexer) lexFn {
 
 // lexInteger scans a decimal integer
 func lexInteger(l *lexer) lexFn {
-	// TODO: Implement
-	return nil
+	l.acceptRun(digits)
+
+	// Next thing cannot be anything other than EOL or EOF
+	// if so, we have a bad integer e.g. 2756g
+	if !l.atEOF() || l.atEOL() {
+		return l.errorf("Bad integer")
+	}
+
+	l.emit(token.INTEGER)
+	return lexStart
 }
