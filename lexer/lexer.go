@@ -179,14 +179,18 @@ func (l *lexer) run() {
 }
 
 // lexStart is the initial state of the lexer.
+//
+// The only things spok can encounter at the top level are:
+// Whitespace: ignored
+// Comments: preceded with a '#'
+// Global variables
+// Task definitions
+// EOF
+// Anything else is an error.
 func lexStart(l *lexer) lexFn {
+
 	l.skipWhitespace()
-	// The only things spok can encounter at the top level are:
-	// - Comments, preceded with a '#'
-	// - Global variables
-	// - Task definitions
-	// - EOF
-	// Anything else is an error
+
 	switch {
 	case strings.HasPrefix(l.rest(), token.HASH.String()):
 		return lexHash
