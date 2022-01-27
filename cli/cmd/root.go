@@ -17,7 +17,7 @@ var (
 	headerStyle = color.New(color.FgWhite, color.Bold) // Setting header style to use in usage message (usage.go)
 )
 
-// BuildRootCmd builds and returns the root spok CLI command
+// BuildRootCmd builds and returns the root spok CLI command.
 func BuildRootCmd() *cobra.Command {
 	// Note: options must be a pointer so flags are propegated to the App struct
 	options := &app.Options{}

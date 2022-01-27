@@ -3,7 +3,7 @@ package cmd
 import "fmt"
 
 var (
-	// Custom usage template with the header style applied, here by itself because it looks kind of messy
+	// Custom usage template with the header style applied, here by itself because it looks kind of messy.
 	usageTemplate = fmt.Sprintf(`%s:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
   {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}

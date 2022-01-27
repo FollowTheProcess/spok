@@ -18,10 +18,10 @@ const (
 	digits = "0123456789"
 )
 
-// lexFn represents the state of the scanner as a function that returns the next state
+// lexFn represents the state of the scanner as a function that returns the next state.
 type lexFn func(*lexer) lexFn
 
-// lexer is spok's semantic lexer
+// lexer is spok's semantic lexer.
 type lexer struct {
 	tokens chan token.Token // Channel of lexed tokens, received by the parser
 	input  string           // The string being scanned
@@ -31,32 +31,32 @@ type lexer struct {
 	width  int              // Width of the last rune read from input
 }
 
-// rest returns the string from the current lexer position to the end of the input
+// rest returns the string from the current lexer position to the end of the input.
 func (l *lexer) rest() string {
 	return l.input[l.pos:]
 }
 
-// all returns the string from the lexer start position to the end of the input
+// all returns the string from the lexer start position to the end of the input.
 func (l *lexer) all() string {
 	return l.input[l.start:l.pos]
 }
 
-// current returns the rune the lexer is currently sat on i.e. l.input[l.pos]
+// current returns the rune the lexer is currently sat on i.e. l.input[l.pos].
 func (l *lexer) current() rune {
 	return rune(l.input[l.pos])
 }
 
-// atEOL returns whether or not the lexer is currently at the end of a line
+// atEOL returns whether or not the lexer is currently at the end of a line.
 func (l *lexer) atEOL() bool {
 	return l.peek() == '\n' || strings.HasPrefix(l.rest(), "\r\n")
 }
 
-// atEOF returns whether or not the lexer is currently at the end of a file
+// atEOF returns whether or not the lexer is currently at the end of a file.
 func (l *lexer) atEOF() bool {
 	return l.pos >= len(l.input)
 }
 
-// skipWhitespace consumes any utf-8 whitespace until something meaningful is hit
+// skipWhitespace consumes any utf-8 whitespace until something meaningful is hit.
 func (l *lexer) skipWhitespace() {
 	for {
 		r := l.next()
@@ -73,7 +73,7 @@ func (l *lexer) skipWhitespace() {
 	}
 }
 
-// next returns (and consumes) the next rune in the input
+// next returns (and consumes) the next rune in the input.
 func (l *lexer) next() rune {
 	if l.pos > len(l.input) {
 		l.width = 0
@@ -88,28 +88,19 @@ func (l *lexer) next() rune {
 	return rune
 }
 
-// peek returns (but does not consume) the next rune in the input
+// peek returns (but does not consume) the next rune in the input.
 func (l *lexer) peek() rune {
 	r := l.next()
 	l.backup()
 	return r
 }
 
-// backup steps back one rune. Can only be called once per call of next
+// backup steps back one rune. Can only be called once per call of next.
 func (l *lexer) backup() {
 	l.pos -= l.width
 	if l.width == 1 && l.current() == '\n' {
 		l.line--
 	}
-}
-
-// accept consumes the next rune if it's from the valid set
-func (l *lexer) accept(valid string) bool {
-	if strings.ContainsRune(valid, l.next()) {
-		return true
-	}
-	l.backup()
-	return false
 }
 
 // acceptRun consumes a run of runes from the valid set.
@@ -119,7 +110,7 @@ func (l *lexer) acceptRun(valid string) {
 	l.backup()
 }
 
-// emit passes an item back to the parser via the tokens channel
+// emit passes an item back to the parser via the tokens channel.
 func (l *lexer) emit(t token.Type) {
 	l.tokens <- token.Token{
 		Value: l.all(),
@@ -131,14 +122,14 @@ func (l *lexer) emit(t token.Type) {
 }
 
 // discard skips over the input before the current lexer position
-// the line count is preserved however
+// the line count is preserved however.
 func (l *lexer) discard() {
 	l.line += strings.Count(l.all(), "\n")
 	l.start = l.pos
 }
 
 // errorf returns an error token and terminates the scan by passing back
-// a nil pointer that will be the next state, terminating l.nextToken
+// a nil pointer that will be the next state, terminating l.nextToken.
 func (l *lexer) errorf(format string, args ...interface{}) lexFn {
 	l.tokens <- token.Token{
 		Value: fmt.Sprintf(format, args...),
@@ -150,13 +141,13 @@ func (l *lexer) errorf(format string, args ...interface{}) lexFn {
 }
 
 // nextToken returns the next token from the input,
-// generally called by the parser not the lexing goroutine
+// generally called by the parser not the lexing goroutine.
 func (l *lexer) nextToken() token.Token {
 	return <-l.tokens
 }
 
 // lex creates a new lexer for the input string and sets it off
-// in a goroutine
+// in a goroutine.
 func lex(input string) *lexer {
 	l := &lexer{
 		tokens: make(chan token.Token),
@@ -170,7 +161,7 @@ func lex(input string) *lexer {
 	return l
 }
 
-// run starts the state machine for the lexer
+// run starts the state machine for the lexer.
 func (l *lexer) run() {
 	for state := lexStart; state != nil; {
 		state = state(l)
@@ -178,7 +169,7 @@ func (l *lexer) run() {
 	close(l.tokens)
 }
 
-// lexStart is the initial state of the lexer
+// lexStart is the initial state of the lexer.
 func lexStart(l *lexer) lexFn {
 	l.skipWhitespace()
 	// The only things spok can encounter at the top level are:
@@ -205,14 +196,14 @@ func lexStart(l *lexer) lexFn {
 	}
 }
 
-// lexHash scans a comment marker '#'
+// lexHash scans a comment marker '#'.
 func lexHash(l *lexer) lexFn {
 	l.pos += len(token.HASH.String())
 	l.emit(token.HASH)
 	return lexComment
 }
 
-// lexComment scans a comment text, the '#' has already been encountered
+// lexComment scans a comment text, the '#' has already been encountered.
 func lexComment(l *lexer) lexFn {
 	for {
 		if l.atEOL() || l.atEOF() {
@@ -223,13 +214,13 @@ func lexComment(l *lexer) lexFn {
 	}
 }
 
-// lexTask scans a task definition keyword
+// lexTask scans a task definition keyword.
 func lexTask(l *lexer) lexFn {
 	// TODO: Implement
 	return nil
 }
 
-// lexIdent scans an identifier e.g. global variable or name of task
+// lexIdent scans an identifier e.g. global variable or name of task.
 func lexIdent(l *lexer) lexFn {
 	// Read all the letters
 	for {
@@ -255,13 +246,13 @@ func lexIdent(l *lexer) lexFn {
 	}
 }
 
-// lexArgs scans an argument declaration i.e. task dependencies or builtin function args
+// lexArgs scans an argument declaration i.e. task dependencies or builtin function args.
 func lexArgs(l *lexer) lexFn {
 	// TODO: Implement
 	return nil
 }
 
-// lexDeclare scans a declaration operation in a global variable
+// lexDeclare scans a declaration operation in a global variable.
 func lexDeclare(l *lexer) lexFn {
 	l.skipWhitespace()
 	l.pos += len(token.DECLARE.String())
@@ -285,7 +276,7 @@ func lexDeclare(l *lexer) lexFn {
 
 }
 
-// lexString scans a quoted string, the opening quote is already known to exist
+// lexString scans a quoted string, the opening quote is already known to exist.
 func lexString(l *lexer) lexFn {
 	for {
 		r := l.next()
@@ -302,7 +293,7 @@ func lexString(l *lexer) lexFn {
 	return lexStart
 }
 
-// lexInteger scans a decimal integer
+// lexInteger scans a decimal integer.
 func lexInteger(l *lexer) lexFn {
 	l.acceptRun(digits)
 

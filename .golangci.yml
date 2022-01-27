@@ -6,6 +6,7 @@ linters:
     - misspell
     - gocritic
     - govet
+    - godot
 
 linters-settings:
   gocyclo:

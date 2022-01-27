@@ -4,7 +4,7 @@ package token
 
 import "fmt"
 
-// Type is the set of lexical tokens in spok
+// Type is the set of lexical tokens in spok.
 type Type int
 
 //go:generate stringer -type=Type -linecomment -output=token_string.go
@@ -29,7 +29,7 @@ const (
 	DECLARE              // :=
 )
 
-// Token represents a spok lexical token
+// Token represents a spok lexical token.
 type Token struct {
 	Value string // Value, e.g. "("
 	Type  Type   // Type, e.g. LPAREN
@@ -37,7 +37,7 @@ type Token struct {
 	Line  int    // Line number at the start of this token
 }
 
-// String satisfies the stringer interface and allows us to pretty print the tokens
+// String satisfies the stringer interface and allows us to pretty print the tokens.
 func (t Token) String() string {
 	switch {
 	case t.Type == EOF:
@@ -50,7 +50,7 @@ func (t Token) String() string {
 	return fmt.Sprintf("%q", t.Value)
 }
 
-// Is returns whether or not the current token is of a certain type
+// Is returns whether or not the current token is of a certain type.
 func (t Token) Is(typ Type) bool {
 	return t.Type == typ
 }

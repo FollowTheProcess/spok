@@ -62,6 +62,11 @@ var lexTests = []lexTest{
 		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.STRING, `"hello"`), tEOF},
 	},
 	{
+		name:   "global variable unterminated string",
+		input:  `TEST := "hello`,
+		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.ERROR, "Unterminated string")},
+	},
+	{
 		name:   "global variable whitespace",
 		input:  `TEST := "  \t hello\t\t  "`,
 		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.STRING, `"  \t hello\t\t  "`), tEOF},
@@ -83,7 +88,7 @@ var lexTests = []lexTest{
 	},
 }
 
-// collect gathers the emitted tokens into a slice for comparison
+// collect gathers the emitted tokens into a slice for comparison.
 func collect(t *lexTest) (tokens []token.Token) {
 	l := lex(t.input)
 	for {
@@ -96,7 +101,7 @@ func collect(t *lexTest) (tokens []token.Token) {
 	return
 }
 
-// equal compares to slices of tokens for equality
+// equal compares to slices of tokens for equality.
 func equal(t1, t2 []token.Token) bool {
 	if len(t1) != len(t2) {
 		return false
