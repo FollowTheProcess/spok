@@ -308,7 +308,7 @@ func lexInteger(l *lexer) lexFn {
 
 	// Next thing cannot be anything other than EOL or EOF
 	// if so, we have a bad integer e.g. 2756g
-	if !l.atEOF() || l.atEOL() {
+	if !l.atEOF() && !l.atEOL() {
 		return l.errorf("Bad integer")
 	}
 
