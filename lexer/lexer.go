@@ -1,7 +1,7 @@
 // Package lexer implements spok's semantic lexer.
 //
 // Spok uses a concurrent, state-function based lexer similar to that described by Rob Pike
-// in his talk "lexical analysis in Go", based on the implementation of template/text in the go std lib
+// in his talk "Lexical Scanning in Go", based on the implementation of template/text in the go std lib
 package lexer
 
 import (
@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	eof    = -1
-	digits = "0123456789"
+	eof    = -1           // Sigil for marking an EOF as a rune
+	digits = "0123456789" // Valid numeric digits
 )
 
 // lexFn represents the state of the scanner as a function that returns the next state.
@@ -121,8 +121,8 @@ func (l *lexer) emit(t token.Type) {
 	l.start = l.pos
 }
 
-// discard skips over the input before the current lexer position
-// the line count is preserved however.
+// discard brings the lexer's start position up to it's current position,
+// discaring everything in between in the process but maintaining the line count.
 func (l *lexer) discard() {
 	l.line += strings.Count(l.all(), "\n")
 	l.start = l.pos
