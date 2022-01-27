@@ -33,16 +33,25 @@ type lexer struct {
 
 // rest returns the string from the current lexer position to the end of the input.
 func (l *lexer) rest() string {
+	if l.atEOF() {
+		return ""
+	}
 	return l.input[l.pos:]
 }
 
 // all returns the string from the lexer start position to the end of the input.
 func (l *lexer) all() string {
+	if l.start >= len(l.input) {
+		return ""
+	}
 	return l.input[l.start:l.pos]
 }
 
-// current returns the rune the lexer is currently sat on i.e. l.input[l.pos].
+// current returns the rune the lexer is currently sat on.
 func (l *lexer) current() rune {
+	if l.atEOF() {
+		return eof
+	}
 	return rune(l.input[l.pos])
 }
 
@@ -61,8 +70,8 @@ func (l *lexer) skipWhitespace() {
 	for {
 		r := l.next()
 		if !unicode.IsSpace(r) {
-			l.backup()
-			l.discard()
+			l.backup()  // Go back to the last non-space
+			l.discard() // Bring the start position of the lexer up to current
 			break
 		}
 
@@ -73,7 +82,7 @@ func (l *lexer) skipWhitespace() {
 	}
 }
 
-// next returns (and consumes) the next rune in the input.
+// next returns, and consumes, the next rune in the input.
 func (l *lexer) next() rune {
 	if l.pos > len(l.input) {
 		l.width = 0
@@ -88,7 +97,7 @@ func (l *lexer) next() rune {
 	return rune
 }
 
-// peek returns (but does not consume) the next rune in the input.
+// peek returns, but does not consume, the next rune in the input.
 func (l *lexer) peek() rune {
 	r := l.next()
 	l.backup()
