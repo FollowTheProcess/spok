@@ -195,16 +195,11 @@ func lexHash(l *lexer) lexFn {
 // lexComment scans a comment text, the '#' has already been encountered
 func lexComment(l *lexer) lexFn {
 	for {
-		if l.atEOL() {
+		if l.atEOL() || l.atEOF() {
 			l.emit(token.COMMENT)
 			return lexStart
 		}
-
 		l.next()
-
-		if l.atEOF() {
-			return l.errorf("Unexpected EOF")
-		}
 	}
 }
 

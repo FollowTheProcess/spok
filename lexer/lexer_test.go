@@ -32,11 +32,21 @@ var lexTests = []lexTest{
 	},
 	{
 		name:   "hash",
+		input:  "#",
+		tokens: []token.Token{tHash, newToken(token.COMMENT, ""), tEOF},
+	},
+	{
+		name:   "hash newline",
 		input:  "#\n",
 		tokens: []token.Token{tHash, newToken(token.COMMENT, ""), tEOF},
 	},
 	{
 		name:   "comment",
+		input:  "# A comment",
+		tokens: []token.Token{tHash, newToken(token.COMMENT, " A comment"), tEOF},
+	},
+	{
+		name:   "comment newline",
 		input:  "# A comment\n",
 		tokens: []token.Token{tHash, newToken(token.COMMENT, " A comment"), tEOF},
 	},

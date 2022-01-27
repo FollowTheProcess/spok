@@ -35,7 +35,7 @@ fmt:
 
 # Run all project unit tests
 test *flags: fmt
-    go test -race ./... {{ flags }}
+    gotest -race ./... {{ flags }}
 
 # Lint the project and auto-fix errors if possible
 lint: fmt
