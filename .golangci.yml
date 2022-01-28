@@ -7,11 +7,6 @@ linters:
     - gocritic
     - govet
     - godot
-  disable:
-    # For now, during development because we have some unused sections
-    - deadcode
-    - unused
-    - varcheck
 
 linters-settings:
   gocyclo:

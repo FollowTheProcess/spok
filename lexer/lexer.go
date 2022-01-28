@@ -279,23 +279,45 @@ func lexTaskBody(l *lexer) lexFn {
 	case r == '}':
 		return lexRightBrace
 	case unicode.IsLetter(r):
-		return lexTaskCommand
+		return lexTaskCommands
 	default:
 		fmt.Printf("token: %U\n", r)
 		return l.errorf("Unrecognised token in lexTaskBody")
 	}
 }
 
-// lexTaskCommand scans a line command inside a task body.
-func lexTaskCommand(l *lexer) lexFn {
+// lexTaskCommands scans line(s) of commands in a task body.
+func lexTaskCommands(l *lexer) lexFn {
 	// A command can end in a newline or not similar to a line in a go function
 	// e.g. this is valid -> task test() { go test ./... }
 	// as well as the "normal" go function style spread over a few lines:
 	// task test() {
 	//	go test ./...
 	// }
-	// TODO: Implement
-	return nil
+
+	for {
+		switch r := l.next(); {
+		case r == '\n':
+			// If there's a newline, might be more commands on the next line
+			l.backup()
+			l.emit(token.COMMAND)
+			l.skipWhitespace()
+		case r == '}':
+			l.backup()
+			// The command may end in a space which we should clean up
+			if strings.HasSuffix(l.all(), " ") {
+				l.pos--
+			}
+			if len(l.all()) != 0 {
+				// If we actually have a command and not just an empty token
+				l.emit(token.COMMAND)
+			}
+			l.skipWhitespace()
+			return lexRightBrace
+		default:
+			// absorb.
+		}
+	}
 }
 
 // lexIdent scans an identifier e.g. global variable or name of task.
