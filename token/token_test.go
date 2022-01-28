@@ -120,7 +120,7 @@ func TestType_String(t *testing.T) {
 		},
 		{
 			name: "task",
-			want: "TASK",
+			want: "task",
 			i:    TASK,
 		},
 		{

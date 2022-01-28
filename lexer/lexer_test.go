@@ -23,6 +23,11 @@ var (
 	tEOF     = newToken(token.EOF, "")
 	tHash    = newToken(token.HASH, "#")
 	tDeclare = newToken(token.DECLARE, ":=")
+	tTask    = newToken(token.TASK, "task")
+	tLParen  = newToken(token.LPAREN, "(")
+	tRParen  = newToken(token.RPAREN, ")")
+	tLBrace  = newToken(token.LBRACE, "{")
+	tRBrace  = newToken(token.RBRACE, "}")
 )
 
 var lexTests = []lexTest{
@@ -85,6 +90,21 @@ var lexTests = []lexTest{
 		name:   "global variable float",
 		input:  `TEST := 27.6`,
 		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.ERROR, "Bad integer")},
+	},
+	{
+		name:  "basic task",
+		input: `task test("file.go") { go test ./... }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"file.go"`),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "go test ./..."),
+			tRBrace,
+			tEOF,
+		},
 	},
 }
 

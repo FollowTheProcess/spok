@@ -21,8 +21,9 @@ const (
 	RBRACKET             // ]
 	QUOTE                // "
 	COMMA                // ,
-	TASK                 // TASK
+	TASK                 // task
 	STRING               // STRING
+	COMMAND              // COMMAND
 	INTEGER              // INTEGER
 	OUTPUT               // ->
 	IDENT                // IDENT

@@ -202,14 +202,12 @@ func lexStart(l *lexer) lexFn {
 	case strings.HasPrefix(l.rest(), token.TASK.String()):
 		return lexTaskKeyword
 	case unicode.IsLetter(l.peek()):
-		// Bring l.pos up to here
 		return lexIdent
 	case l.atEOF():
-		// atEOF means we know there's nothing left
 		l.emit(token.EOF)
 		return nil
 	default:
-		l.errorf("Unexpected token")
+		l.errorf("Unexpected token in lexStart")
 		return nil
 	}
 }
@@ -236,20 +234,76 @@ func lexComment(l *lexer) lexFn {
 func lexTaskKeyword(l *lexer) lexFn {
 	l.skip(token.TASK)
 	l.emit(token.TASK)
-	return lexLeftParen
+	l.skipWhitespace()
+	return lexIdent
 }
 
 // lexLeftParen scans an opening parenthesis.
 func lexLeftParen(l *lexer) lexFn {
+	l.skip(token.LPAREN)
+	l.emit(token.LPAREN)
+	l.skipWhitespace()
+	return lexArgs
+}
+
+// lexRightParen scans a closing parenthesis.
+func lexRightParen(l *lexer) lexFn {
+	l.skip(token.RPAREN)
+	l.emit(token.RPAREN)
+	l.skipWhitespace()
+	return lexLeftBrace
+}
+
+// lexLeftBrace scans an opening curly brace.
+func lexLeftBrace(l *lexer) lexFn {
+	l.skip(token.LBRACE)
+	l.emit(token.LBRACE)
+	l.skipWhitespace()
+	return lexTaskBody
+}
+
+// lexRightBrace scans a closing curly brace.
+func lexRightBrace(l *lexer) lexFn {
+	l.skip(token.RBRACE)
+	l.emit(token.RBRACE)
+	return lexStart
+}
+
+// lexTaskBody scans the body of a task declaration.
+func lexTaskBody(l *lexer) lexFn {
+	if l.atEOF() {
+		return l.errorf("Unterminated task body")
+	}
+
+	switch r := l.next(); {
+	case r == '}':
+		return lexRightBrace
+	case unicode.IsLetter(r):
+		return lexTaskCommand
+	default:
+		fmt.Printf("token: %U\n", r)
+		return l.errorf("Unrecognised token in lexTaskBody")
+	}
+}
+
+// lexTaskCommand scans a line command inside a task body.
+func lexTaskCommand(l *lexer) lexFn {
+	// A command can end in a newline or not similar to a line in a go function
+	// e.g. this is valid -> task test() { go test ./... }
+	// as well as the "normal" go function style spread over a few lines:
+	// task test() {
+	//	go test ./...
+	// }
+	// TODO: Implement
 	return nil
 }
 
 // lexIdent scans an identifier e.g. global variable or name of task.
 func lexIdent(l *lexer) lexFn {
-	// Read all the letters
+	// Read until we get an invalid ident rune
 	for {
 		r := l.next()
-		if !unicode.IsLetter(r) {
+		if !isValidIdent(r) {
 			l.backup()
 			break
 		}
@@ -260,20 +314,33 @@ func lexIdent(l *lexer) lexFn {
 	switch {
 	case strings.HasPrefix(l.rest(), token.LPAREN.String()):
 		// We have arguments i.e. a task
-		return lexArgs
+		return lexLeftParen
 	case strings.HasPrefix(l.rest(), token.DECLARE.String()):
 		// We have a global variable declaration
 		return lexDeclare
 	default:
 		// Error
-		return l.errorf("Unexpected token")
+		return l.errorf("Unexpected token in lexIdent")
 	}
 }
 
 // lexArgs scans an argument declaration i.e. task dependencies or builtin function args.
 func lexArgs(l *lexer) lexFn {
-	// TODO: Implement
-	return nil
+	// Arguments can only be strings (file dependencies) or names of other tasks
+	l.skipWhitespace()
+
+	switch r := l.next(); {
+	case r == ')':
+		// No task dependency
+		l.backup()
+		return lexRightParen
+	case r == '"':
+		return lexString
+	case isValidIdent(r):
+		return lexIdent
+	default:
+		return l.errorf("Arguments can be strings or names of tasks")
+	}
 }
 
 // lexDeclare scans a declaration operation in a global variable.
@@ -287,7 +354,7 @@ func lexDeclare(l *lexer) lexFn {
 	case r == '"':
 		// We have a quoted string e.g. "hello"
 		return lexString
-	case unicode.IsLetter(r):
+	case isValidIdent(r):
 		// We have something unquoted, i.e. another ident
 		return lexIdent
 	case unicode.IsDigit(r):
@@ -314,7 +381,12 @@ func lexString(l *lexer) lexFn {
 	}
 
 	l.emit(token.STRING)
-	return lexStart
+	if l.atEOF() || l.atEOL() {
+		// If this is the end, it must have been a global variable assignment
+		return lexStart
+	}
+	// Else we must be handling a task argument
+	return lexArgs
 }
 
 // lexInteger scans a decimal integer.
@@ -329,4 +401,9 @@ func lexInteger(l *lexer) lexFn {
 
 	l.emit(token.INTEGER)
 	return lexStart
+}
+
+// isValidIdent reports whether a rune is valid in an identifier.
+func isValidIdent(r rune) bool {
+	return unicode.IsLetter(r) || r == '_'
 }
