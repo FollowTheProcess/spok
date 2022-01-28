@@ -112,8 +112,8 @@ func (l *lexer) backup() {
 	}
 }
 
-// skip steps over the given token.
-func (l *lexer) skip(t token.Type) {
+// absorb advances the lexer position over to the end of the given token.
+func (l *lexer) absorb(t token.Type) {
 	l.pos += len(t.String())
 }
 
@@ -214,7 +214,7 @@ func lexStart(l *lexer) lexFn {
 
 // lexHash scans a comment marker '#'.
 func lexHash(l *lexer) lexFn {
-	l.skip(token.HASH)
+	l.absorb(token.HASH)
 	l.emit(token.HASH)
 	return lexComment
 }
@@ -232,7 +232,7 @@ func lexComment(l *lexer) lexFn {
 
 // lexTaskKeyword scans a task definition keyword.
 func lexTaskKeyword(l *lexer) lexFn {
-	l.skip(token.TASK)
+	l.absorb(token.TASK)
 	l.emit(token.TASK)
 	l.skipWhitespace()
 	return lexIdent
@@ -240,7 +240,7 @@ func lexTaskKeyword(l *lexer) lexFn {
 
 // lexLeftParen scans an opening parenthesis.
 func lexLeftParen(l *lexer) lexFn {
-	l.skip(token.LPAREN)
+	l.absorb(token.LPAREN)
 	l.emit(token.LPAREN)
 	l.skipWhitespace()
 	return lexArgs
@@ -248,7 +248,7 @@ func lexLeftParen(l *lexer) lexFn {
 
 // lexRightParen scans a closing parenthesis.
 func lexRightParen(l *lexer) lexFn {
-	l.skip(token.RPAREN)
+	l.absorb(token.RPAREN)
 	l.emit(token.RPAREN)
 	l.skipWhitespace()
 	return lexLeftBrace
@@ -256,7 +256,7 @@ func lexRightParen(l *lexer) lexFn {
 
 // lexLeftBrace scans an opening curly brace.
 func lexLeftBrace(l *lexer) lexFn {
-	l.skip(token.LBRACE)
+	l.absorb(token.LBRACE)
 	l.emit(token.LBRACE)
 	l.skipWhitespace()
 	return lexTaskBody
@@ -264,7 +264,7 @@ func lexLeftBrace(l *lexer) lexFn {
 
 // lexRightBrace scans a closing curly brace.
 func lexRightBrace(l *lexer) lexFn {
-	l.skip(token.RBRACE)
+	l.absorb(token.RBRACE)
 	l.emit(token.RBRACE)
 	return lexStart
 }
@@ -346,7 +346,7 @@ func lexArgs(l *lexer) lexFn {
 // lexDeclare scans a declaration operation in a global variable.
 func lexDeclare(l *lexer) lexFn {
 	l.skipWhitespace()
-	l.skip(token.DECLARE)
+	l.absorb(token.DECLARE)
 	l.emit(token.DECLARE)
 	l.skipWhitespace()
 

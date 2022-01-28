@@ -91,21 +91,21 @@ var lexTests = []lexTest{
 		input:  `TEST := 27.6`,
 		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.ERROR, "Bad integer")},
 	},
-	{
-		name:  "basic task",
-		input: `task test("file.go") { go test ./... }`,
-		tokens: []token.Token{
-			tTask,
-			newToken(token.IDENT, "test"),
-			tLParen,
-			newToken(token.STRING, `"file.go"`),
-			tRParen,
-			tLBrace,
-			newToken(token.COMMAND, "go test ./..."),
-			tRBrace,
-			tEOF,
-		},
-	},
+	// {
+	// 	name:  "basic task",
+	// 	input: `task test("file.go") { go test ./... }`,
+	// 	tokens: []token.Token{
+	// 		tTask,
+	// 		newToken(token.IDENT, "test"),
+	// 		tLParen,
+	// 		newToken(token.STRING, `"file.go"`),
+	// 		tRParen,
+	// 		tLBrace,
+	// 		newToken(token.COMMAND, "go test ./..."),
+	// 		tRBrace,
+	// 		tEOF,
+	// 	},
+	// },
 }
 
 // collect gathers the emitted tokens into a slice for comparison.
