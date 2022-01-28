@@ -52,9 +52,19 @@ var lexTests = []lexTest{
 		tokens: []token.Token{tHash, newToken(token.COMMENT, " A comment"), tEOF},
 	},
 	{
+		name:   "comment no space",
+		input:  "#A comment",
+		tokens: []token.Token{tHash, newToken(token.COMMENT, "A comment"), tEOF},
+	},
+	{
 		name:   "comment newline",
 		input:  "# A comment\n",
 		tokens: []token.Token{tHash, newToken(token.COMMENT, " A comment"), tEOF},
+	},
+	{
+		name:   "comment no space newline",
+		input:  "#A comment\n",
+		tokens: []token.Token{tHash, newToken(token.COMMENT, "A comment"), tEOF},
 	},
 	{
 		name:   "whitespace",
@@ -90,6 +100,11 @@ var lexTests = []lexTest{
 		name:   "global variable float",
 		input:  `TEST := 27.6`,
 		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.ERROR, "Bad integer")},
+	},
+	{
+		name:   "global variable ident",
+		input:  `TEST := VAR`,
+		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.IDENT, "VAR"), tEOF},
 	},
 	{
 		name:  "basic task",

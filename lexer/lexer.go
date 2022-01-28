@@ -1,7 +1,20 @@
 // Package lexer implements spok's semantic lexer.
 //
 // Spok uses a concurrent, state-function based lexer similar to that described by Rob Pike
-// in his talk "Lexical Scanning in Go", based on the implementation of template/text in the go std lib
+// in his talk "Lexical Scanning in Go", based on the implementation of template/text in the go std lib.
+//
+// The lexer proceeds one utf-8 rune at a time until a particular lexical token is recognised,
+// the token is then "emitted" over a channel where it may be consumed by a client e.g. the parser.
+// The state of the lexer is maintained between token emits unlike a more conventional switch-based lexer
+// that must determine it's current state from scratch in every loop.
+//
+// This lexer uses "lexFunctions" to pass the state from one loop to an another. For example, if we're currently
+// lexing a global variable ident, the next token must be a ':=' so we can go straight there without traversing
+// the entire lexical state space first to determine "are we in a global variable definition?".
+//
+// The lexer 'run' method consumes these "lexFunctions" which return states in a continual loop until nil is returned
+// marking the fact that "there is nothing more to lex" at which point the lexer closes the tokens channel, which
+// will be picked up by the parser as a signal that the input stream has ended.
 package lexer
 
 import (
@@ -340,6 +353,9 @@ func lexIdent(l *lexer) lexFn {
 	case strings.HasPrefix(l.rest(), token.DECLARE.String()):
 		// We have a global variable declaration
 		return lexDeclare
+	case l.atEOL(), l.atEOF():
+		// We've just lexed an ident on the RHS of a declaration
+		return lexStart
 	default:
 		// Error
 		return l.errorf("Unexpected token in lexIdent")
