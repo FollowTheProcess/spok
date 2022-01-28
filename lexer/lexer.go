@@ -54,7 +54,7 @@ func (l *lexer) rest() string {
 
 // all returns the string from the lexer start position to the end of the input.
 func (l *lexer) all() string {
-	if l.start >= len(l.input) {
+	if l.start >= len(l.input) || l.pos > len(l.input) {
 		return ""
 	}
 	return l.input[l.start:l.pos]
@@ -181,7 +181,7 @@ func lex(input string) *lexer {
 		input:  input,
 		start:  0,
 		pos:    0,
-		line:   0,
+		line:   1,
 		width:  0,
 	}
 	go l.run()
@@ -287,14 +287,16 @@ func lexTaskBody(l *lexer) lexFn {
 	if l.atEOF() {
 		return l.errorf("Unterminated task body")
 	}
+	l.skipWhitespace()
 
 	switch r := l.next(); {
 	case r == '}':
+		l.backup()
 		return lexRightBrace
 	case unicode.IsLetter(r):
 		return lexTaskCommands
 	default:
-		fmt.Printf("token: %U\n", r)
+		fmt.Printf("token = %v\n", r)
 		return l.errorf("Unrecognised token in lexTaskBody")
 	}
 }
@@ -414,7 +416,7 @@ func lexString(l *lexer) lexFn {
 		}
 
 		if l.atEOF() || l.atEOL() {
-			return l.errorf("Unterminated string")
+			return l.errorf("SyntaxError: unterminated string literal (Line %d, Position %d)", l.line, l.pos)
 		}
 	}
 
@@ -434,7 +436,7 @@ func lexInteger(l *lexer) lexFn {
 	// Next thing cannot be anything other than EOL or EOF
 	// if so, we have a bad integer e.g. 2756g
 	if !l.atEOF() && !l.atEOL() {
-		return l.errorf("Bad integer")
+		return l.errorf("SyntaxError: invalid integer literal (Line %d, Position %d)", l.line, l.pos)
 	}
 
 	l.emit(token.INTEGER)
