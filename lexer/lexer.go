@@ -460,10 +460,7 @@ func isValidIdent(r rune) bool {
 
 // isASCII reports whether or not the rune is a valid ASCII character.
 func isASCII(r rune) bool {
-	if r > unicode.MaxASCII {
-		return false
-	}
-	return true
+	return r <= unicode.MaxASCII
 }
 
 // unexpectedToken emits an error token with details about the offending input from the lexer.
