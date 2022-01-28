@@ -37,6 +37,11 @@ var lexTests = []lexTest{
 		tokens: []token.Token{tEOF},
 	},
 	{
+		name:   "bad input",
+		input:  "*&^%",
+		tokens: []token.Token{newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1, Position 0)")},
+	},
+	{
 		name:   "hash",
 		input:  "#",
 		tokens: []token.Token{tHash, newToken(token.COMMENT, ""), tEOF},
@@ -82,7 +87,15 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: unterminated string literal (Line 1, Position 14)"),
+			newToken(token.ERROR, "SyntaxError: Unterminated string literal (Line 1, Position 14)"),
+		},
+	},
+	{
+		name:  "global variable bad ident",
+		input: `TEST ^^ := "hello"`,
+		tokens: []token.Token{
+			newToken(token.IDENT, "TEST"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1, Position 5)"),
 		},
 	},
 	{
@@ -101,7 +114,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: invalid integer literal (Line 1, Position 11)"),
+			newToken(token.ERROR, "SyntaxError: Invalid integer literal (Line 1, Position 11)"),
 		},
 	},
 	{
@@ -110,13 +123,22 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: invalid integer literal (Line 1, Position 10)"),
+			newToken(token.ERROR, "SyntaxError: Invalid integer literal (Line 1, Position 10)"),
 		},
 	},
 	{
 		name:   "global variable ident",
 		input:  `TEST := VAR`,
 		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.IDENT, "VAR"), tEOF},
+	},
+	{
+		name:  "global variable bad RHS",
+		input: `TEST := *`,
+		tokens: []token.Token{
+			newToken(token.IDENT, "TEST"),
+			tDeclare,
+			newToken(token.ERROR, "SyntaxError: Unexpected token 'U+FFFFFFFFFFFFFFFF' (Line 1, Position 9)"),
+		},
 	},
 	{
 		name:  "basic task",
@@ -182,6 +204,48 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "task invalid chars in body",
+		input: `task test() { ^% }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.ERROR, "SyntaxError: Unexpected token '%!'(MISSING) (Line 1, Position 15)"),
+		},
+	},
+	{
+		name: "task invalid chars end of body",
+		input: `task test() {
+			go test ./...
+			go build .
+			💥
+		}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "go test ./..."),
+			newToken(token.COMMAND, "go build ."),
+			newToken(token.ERROR, `SyntaxError: Unexpected token 'U+000A' (Line 7, Position 52)`),
+		},
+	},
+	{
+		name:  "task unterminated body",
+		input: `task test() {`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 1, Position 13)"),
+		},
+	},
+	{
 		name:  "task whitespace body",
 		input: "task test() {  \t\t \n\n  \t  }",
 		tokens: []token.Token{
@@ -205,6 +269,108 @@ var lexTests = []lexTest{
 			tLBrace,
 			tRBrace,
 			tEOF,
+		},
+	},
+	{
+		name:  "task multiple string args",
+		input: `task test("file1.go", "file2.go") {}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"file1.go"`),
+			newToken(token.STRING, `"file2.go"`),
+			tRParen,
+			tLBrace,
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name:  "task glob pattern arg",
+		input: `task test("**/*.go") {}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"**/*.go"`),
+			tRParen,
+			tLBrace,
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name:  "task ident arg",
+		input: `task test(some_variable) {}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.IDENT, "some_variable"),
+			tRParen,
+			tLBrace,
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name:  "task string and ident arg",
+		input: `task test("file1.go", fmt) {}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"file1.go"`),
+			newToken(token.IDENT, "fmt"),
+			tRParen,
+			tLBrace,
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name:  "task ident and string arg",
+		input: `task test(fmt, "file1.go") {}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.IDENT, "fmt"),
+			newToken(token.STRING, `"file1.go"`),
+			tRParen,
+			tLBrace,
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name:  "task many args",
+		input: `task test(lint, fmt, "**/*.go", build, dave, "hello") {}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.IDENT, "lint"),
+			newToken(token.IDENT, "fmt"),
+			newToken(token.STRING, `"**/*.go"`),
+			newToken(token.IDENT, "build"),
+			newToken(token.IDENT, "dave"),
+			newToken(token.STRING, `"hello"`),
+			tRParen,
+			tLBrace,
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name:  "task invalid char args",
+		input: `task test(625) {}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.ERROR, "SyntaxError: Invalid character used in task dependency [2] (Line 1, Position 11). Only strings and declared variables may be used."),
 		},
 	},
 }

@@ -220,8 +220,7 @@ func lexStart(l *lexer) lexFn {
 		l.emit(token.EOF)
 		return nil
 	default:
-		l.errorf("Unexpected token in lexStart")
-		return nil
+		return unexpectedToken
 	}
 }
 
@@ -285,7 +284,7 @@ func lexRightBrace(l *lexer) lexFn {
 // lexTaskBody scans the body of a task declaration.
 func lexTaskBody(l *lexer) lexFn {
 	if l.atEOF() {
-		return l.errorf("Unterminated task body")
+		return l.errorf("SyntaxError: Unterminated task body (Line %d, Position %d)", l.line, l.pos)
 	}
 	l.skipWhitespace()
 
@@ -294,10 +293,10 @@ func lexTaskBody(l *lexer) lexFn {
 		l.backup()
 		return lexRightBrace
 	case unicode.IsLetter(r):
+		// Assumes command starts with a letter, pretty safe for 99.9% of commands
 		return lexTaskCommands
 	default:
-		fmt.Printf("token = %v\n", r)
-		return l.errorf("Unrecognised token in lexTaskBody")
+		return unexpectedToken
 	}
 }
 
@@ -329,8 +328,10 @@ func lexTaskCommands(l *lexer) lexFn {
 			}
 			l.skipWhitespace()
 			return lexRightBrace
+		case isASCII(r):
+			// Potential command text, absorb.
 		default:
-			// absorb.
+			return unexpectedToken
 		}
 	}
 }
@@ -349,7 +350,7 @@ func lexIdent(l *lexer) lexFn {
 	l.skipWhitespace()
 
 	switch {
-	case strings.HasPrefix(l.rest(), token.LPAREN.String()):
+	case l.peek() == '(':
 		// We have arguments i.e. a task
 		return lexLeftParen
 	case strings.HasPrefix(l.rest(), token.DECLARE.String()):
@@ -358,9 +359,15 @@ func lexIdent(l *lexer) lexFn {
 	case l.atEOL(), l.atEOF():
 		// We've just lexed an ident on the RHS of a declaration
 		return lexStart
+	case l.peek() == ')':
+		// It's an ident used in a task argument
+		return lexRightParen
+	case l.peek() == ',':
+		// It's an ident in a list of task arguments
+		return lexArgs
 	default:
-		// Error
-		return l.errorf("Unexpected token in lexIdent")
+		// Whatever it is shouldn't be here
+		return unexpectedToken
 	}
 }
 
@@ -378,8 +385,11 @@ func lexArgs(l *lexer) lexFn {
 		return lexString
 	case isValidIdent(r):
 		return lexIdent
+	case r == ',':
+		// We have a list of arguments, lex the next one
+		return lexArgs
 	default:
-		return l.errorf("Arguments can be strings or names of tasks")
+		return l.errorf("SyntaxError: Invalid character used in task dependency [%s] (Line %d, Position %d). Only strings and declared variables may be used.", string(l.current()), l.line, l.pos)
 	}
 }
 
@@ -402,7 +412,7 @@ func lexDeclare(l *lexer) lexFn {
 		return lexInteger
 	default:
 		// Anything else is disallowed
-		return l.errorf("Unexpected token: %s\n", string(r))
+		return unexpectedToken
 	}
 
 }
@@ -416,7 +426,7 @@ func lexString(l *lexer) lexFn {
 		}
 
 		if l.atEOF() || l.atEOL() {
-			return l.errorf("SyntaxError: unterminated string literal (Line %d, Position %d)", l.line, l.pos)
+			return l.errorf("SyntaxError: Unterminated string literal (Line %d, Position %d)", l.line, l.pos)
 		}
 	}
 
@@ -436,7 +446,7 @@ func lexInteger(l *lexer) lexFn {
 	// Next thing cannot be anything other than EOL or EOF
 	// if so, we have a bad integer e.g. 2756g
 	if !l.atEOF() && !l.atEOL() {
-		return l.errorf("SyntaxError: invalid integer literal (Line %d, Position %d)", l.line, l.pos)
+		return l.errorf("SyntaxError: Invalid integer literal (Line %d, Position %d)", l.line, l.pos)
 	}
 
 	l.emit(token.INTEGER)
@@ -446,4 +456,27 @@ func lexInteger(l *lexer) lexFn {
 // isValidIdent reports whether a rune is valid in an identifier.
 func isValidIdent(r rune) bool {
 	return unicode.IsLetter(r) || r == '_'
+}
+
+// isASCII reports whether or not the rune is a valid ASCII character.
+func isASCII(r rune) bool {
+	if r > unicode.MaxASCII {
+		return false
+	}
+	return true
+}
+
+// unexpectedToken emits an error token with details about the offending input from the lexer.
+func unexpectedToken(l *lexer) lexFn {
+	var message string
+	char := l.current()
+
+	switch {
+	case unicode.IsGraphic(char):
+		message = fmt.Sprintf("SyntaxError: Unexpected token '%s' (Line %d, Position %d)", string(char), l.line, l.pos)
+	default:
+		message = fmt.Sprintf("SyntaxError: Unexpected token '%U' (Line %d, Position %d)", char, l.line, l.pos)
+	}
+
+	return l.errorf(message)
 }
