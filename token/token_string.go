@@ -8,8 +8,8 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[ERROR-0]
-	_ = x[EOF-1]
+	_ = x[EOF-0]
+	_ = x[ERROR-1]
 	_ = x[COMMENT-2]
 	_ = x[HASH-3]
 	_ = x[LPAREN-4]
@@ -29,9 +29,9 @@ func _() {
 	_ = x[DECLARE-18]
 }
 
-const _Type_name = "ERROREOFCOMMENT#(){}[]\",taskSTRINGCOMMANDINTEGER->IDENT:="
+const _Type_name = "EOFERRORCOMMENT#(){}[]\",taskSTRINGCOMMANDINTEGER->IDENT:="
 
-var _Type_index = [...]uint8{0, 5, 8, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 28, 34, 41, 48, 50, 55, 57}
+var _Type_index = [...]uint8{0, 3, 8, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 28, 34, 41, 48, 50, 55, 57}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

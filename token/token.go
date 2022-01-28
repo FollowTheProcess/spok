@@ -9,8 +9,8 @@ type Type int
 
 //go:generate stringer -type=Type -linecomment -output=token_string.go
 const (
-	ERROR    Type = iota // ERROR
-	EOF                  // EOF
+	EOF      Type = iota // EOF
+	ERROR                // ERROR
 	COMMENT              // COMMENT
 	HASH                 // #
 	LPAREN               // (
