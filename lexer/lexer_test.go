@@ -171,7 +171,21 @@ var lexTests = []lexTest{
 		},
 	},
 	{
-		name: "multi-line task",
+		name:  "task quotes in body",
+		input: `task test() { echo "hello" }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, `echo "hello"`),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name: "multi line task",
 		input: `task test("file.go") {
 			go test ./...
 			go build .
@@ -187,6 +201,27 @@ var lexTests = []lexTest{
 			newToken(token.COMMAND, "go test ./..."),
 			newToken(token.COMMAND, "go build ."),
 			newToken(token.COMMAND, "some command go"),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name: "multi line task with quotes",
+		input: `task test("file.go") {
+			go test ./...
+			go build .
+			echo "hello"
+		}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"file.go"`),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "go test ./..."),
+			newToken(token.COMMAND, "go build ."),
+			newToken(token.COMMAND, `echo "hello"`),
 			tRBrace,
 			tEOF,
 		},

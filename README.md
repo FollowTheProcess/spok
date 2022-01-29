@@ -40,7 +40,7 @@ The syntax for a `spokfile` is inspired by a few different things and is intende
 #### Makefiles
 
 * The general structure of a `spokfile` will be broadly familiar to those who have used [make] or [just] before.
-* Tasks (make's targets or just's recipes) are independent declarations. A `spokfile` can have any number of tasks declared but each much have a unique name.
+* Tasks (make's targets or just's recipes) are independent declarations. A `spokfile` can have any number of tasks declared but each must have a unique name.
 * Global variable definitions look similar.
 
 #### Go
@@ -69,6 +69,7 @@ A `spokfile` looks like this...
 GLOBAL_VARIABLE := 27
 
 # You can store the output of a shell command as a variable
+# leading and trailing whitespace will always be trimmed off when doing this
 GIT_COMMIT := exec("git rev-parse HEAD")
 
 # The core concept in spok is a task (think make target)
@@ -80,8 +81,7 @@ GIT_COMMIT := exec("git rev-parse HEAD")
 
 # Generally, a task is structured like this...
 
-# The top line comment above a task is it's docstring
-# any following comments are just normal comments
+# A line comment above a task is it's docstring
 # task <name>(<deps>?...) -> [(]<outputs>?...[)] {
 #     command(s) to run
 # }
