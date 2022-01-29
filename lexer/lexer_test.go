@@ -373,6 +373,33 @@ var lexTests = []lexTest{
 			newToken(token.ERROR, "SyntaxError: Invalid character used in task dependency [2] (Line 1, Position 11). Only strings and declared variables may be used."),
 		},
 	},
+	{
+		name:  "task no curlies",
+		input: `task test("file.go")`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"file.go"`),
+			tRParen,
+			newToken(token.ERROR, "SyntaxError: Task has no body (Line 1, Position 20)"),
+		},
+	},
+	{
+		name:  "task with interpolation",
+		input: `task test("file.go") { echo GLOBAL_VARIABLE }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"file.go"`),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "echo GLOBAL_VARIABLE"),
+			tRBrace,
+			tEOF,
+		},
+	},
 }
 
 // collect gathers the emitted tokens into a slice for comparison.

@@ -263,6 +263,9 @@ func lexRightParen(l *lexer) lexFn {
 	l.absorb(token.RPAREN)
 	l.emit(token.RPAREN)
 	l.skipWhitespace()
+	if l.peek() != '{' {
+		return l.errorf("SyntaxError: Task has no body (Line %d, Position %d)", l.line, l.pos)
+	}
 	return lexLeftBrace
 }
 
