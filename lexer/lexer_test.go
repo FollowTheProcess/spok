@@ -28,6 +28,7 @@ var (
 	tRParen  = newToken(token.RPAREN, ")")
 	tLBrace  = newToken(token.LBRACE, "{")
 	tRBrace  = newToken(token.RBRACE, "}")
+	tOutput  = newToken(token.OUTPUT, "->")
 )
 
 var lexTests = []lexTest{
@@ -396,6 +397,23 @@ var lexTests = []lexTest{
 			tRParen,
 			tLBrace,
 			newToken(token.COMMAND, "echo GLOBAL_VARIABLE"),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name:  "task with single output",
+		input: `task test("input.go") -> "output.go" { go build input.go }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"input.go"`),
+			tRParen,
+			tOutput,
+			newToken(token.STRING, `"output.go"`),
+			tLBrace,
+			newToken(token.COMMAND, "go build input.go"),
 			tRBrace,
 			tEOF,
 		},

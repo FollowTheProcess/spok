@@ -52,32 +52,45 @@ GIT_COMMIT := exec("git rev-parse HEAD")
 # Tasks have optional outputs (if they generate things)
 # This enables `spok --clean` to restore everything to it's original state
 
+# Generally, a task is structured like this...
+
 # A comment above a task is it's docstring
-task <name>(<deps>?...) -> <outputs>?... {
-    # The commands to actually run
-}
+# task <name>(<deps>?...) -> [(]<outputs>?...[)] {
+#     command(s) to run
+# }
 
 # Some simple examples below
 
 # Use a global variable like this
 task hello() {
-    echo "{{.GLOBAL_VARIABLE}}"
+    echo GLOBAL_VARIABLE
 }
 
-# Run the go tests
+# Run the go tests (depends on all go source files)
 task test("**/*.go") {
     go test ./...
 }
 
-# Format the project source code
+# Format the project source code (depends on all go source files)
 task fmt("**/*.go") {
     go fmt ./...
 }
 
 # Compile the program (depends on fmt, fmt will run first)
-# also outputs a build binary
-task build("**/*.go", fmt) -> "./bin/main" {
+# also outputs a build binary file
+task build(fmt) -> "./bin/main" {
     go build
+}
+
+# If a task generates multiple outputs, syntax is similar to
+# go's multiple returns
+task many("**/*.go") -> ("output1", "output2") {
+    go do many things
+}
+
+# Can also do glob outputs
+task glob("**/*.go") -> "**/*.out" {
+    make lots of output
 }
 
 # Can register a default task (spok by default just prints the help)

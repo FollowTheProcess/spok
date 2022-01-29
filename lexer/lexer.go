@@ -263,10 +263,39 @@ func lexRightParen(l *lexer) lexFn {
 	l.absorb(token.RPAREN)
 	l.emit(token.RPAREN)
 	l.skipWhitespace()
-	if l.peek() != '{' {
+
+	switch r := l.peek(); {
+	case r == '{':
+		// Next thing up is a task body
+		return lexLeftBrace
+	case strings.HasPrefix(l.rest(), token.OUTPUT.String()):
+		// Task output declaration
+		return lexOutputOperator
+	default:
 		return l.errorf("SyntaxError: Task has no body (Line %d, Position %d)", l.line, l.pos)
 	}
-	return lexLeftBrace
+}
+
+// lexOutputOperator scans a task output operator.
+func lexOutputOperator(l *lexer) lexFn {
+	l.absorb(token.OUTPUT)
+	l.emit(token.OUTPUT)
+	l.skipWhitespace()
+
+	switch l.next() {
+	case '"':
+		// Single task output
+		return lexString
+	case '(':
+		// List of task outputs, nice little hack here because the rules
+		// are the same as task dependencies
+		return lexArgs
+	case '{':
+		// Error: declared task has an output but didn't specify it
+		return l.errorf("SyntaxError: Task declared dependency but none found (Line %d, Position %d)", l.line, l.pos)
+	default:
+		return unexpectedToken
+	}
 }
 
 // lexLeftBrace scans an opening curly brace.
@@ -374,9 +403,10 @@ func lexIdent(l *lexer) lexFn {
 	}
 }
 
-// lexArgs scans an argument declaration i.e. task dependencies or builtin function args.
+// lexArgs scans an argument declaration i.e. task dependencies, builtin function args
+// or lists of task outputs.
 func lexArgs(l *lexer) lexFn {
-	// Arguments can only be strings (file dependencies) or names of other tasks
+	// Arguments can only be strings (filenames or globs) or idents
 	l.skipWhitespace()
 
 	switch r := l.next(); {
@@ -391,6 +421,10 @@ func lexArgs(l *lexer) lexFn {
 	case r == ',':
 		// We have a list of arguments, lex the next one
 		return lexArgs
+	case r == '{':
+		// The string was a task output
+		l.backup()
+		return lexLeftBrace
 	default:
 		return l.errorf("SyntaxError: Invalid character used in task dependency [%s] (Line %d, Position %d). Only strings and declared variables may be used.", string(l.current()), l.line, l.pos)
 	}

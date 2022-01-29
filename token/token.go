@@ -9,25 +9,23 @@ type Type int
 
 //go:generate stringer -type=Type -linecomment -output=token_string.go
 const (
-	EOF      Type = iota // EOF
-	ERROR                // ERROR
-	COMMENT              // COMMENT
-	HASH                 // #
-	LPAREN               // (
-	RPAREN               // )
-	LBRACE               // {
-	RBRACE               // }
-	LBRACKET             // [
-	RBRACKET             // ]
-	QUOTE                // "
-	COMMA                // ,
-	TASK                 // task
-	STRING               // STRING
-	COMMAND              // COMMAND
-	INTEGER              // INTEGER
-	OUTPUT               // ->
-	IDENT                // IDENT
-	DECLARE              // :=
+	EOF     Type = iota // EOF
+	ERROR               // ERROR
+	COMMENT             // COMMENT
+	HASH                // #
+	LPAREN              // (
+	RPAREN              // )
+	LBRACE              // {
+	RBRACE              // }
+	QUOTE               // "
+	COMMA               // ,
+	TASK                // task
+	STRING              // STRING
+	COMMAND             // COMMAND
+	INTEGER             // INTEGER
+	OUTPUT              // ->
+	IDENT               // IDENT
+	DECLARE             // :=
 )
 
 // Token represents a spok lexical token.
