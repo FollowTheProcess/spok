@@ -55,7 +55,7 @@ lint: fmt
 
 # Calculate test coverage and render the html
 cover:
-    go test -race -cover -coverprofile={{ COVERAGE_DATA }} ./...
+    go test -race -cover -covermode=atomic -coverprofile={{ COVERAGE_DATA }} ./...
     go tool cover -html={{ COVERAGE_DATA }} -o {{ COVERAGE_HTML }}
     open {{ COVERAGE_HTML }}
 
