@@ -544,6 +544,87 @@ var lexTests = []lexTest{
 			tEOF,
 		},
 	},
+	{
+		name:  "full spokfile",
+		input: fullSpokfile,
+		tokens: []token.Token{
+			tHash,
+			newToken(token.COMMENT, " This is a top level comment"),
+			tHash,
+			newToken(token.COMMENT, " This variable is presumably important later"),
+			newToken(token.IDENT, "GLOBAL"),
+			tDeclare,
+			newToken(token.STRING, `"very important stuff here"`),
+			tHash,
+			newToken(token.COMMENT, " Run the project unit tests"),
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.IDENT, "fmt"),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "go test -race ./..."),
+			tRBrace,
+			tHash,
+			newToken(token.COMMENT, " Format the project source"),
+			tTask,
+			newToken(token.IDENT, "fmt"),
+			tLParen,
+			newToken(token.STRING, `"**/*.go"`),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "go fmt ./..."),
+			tRBrace,
+			tHash,
+			newToken(token.COMMENT, " Do many things"),
+			tTask,
+			newToken(token.IDENT, "many"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "line 1"),
+			newToken(token.COMMAND, "line 2"),
+			newToken(token.COMMAND, "line 3"),
+			newToken(token.COMMAND, "line 4"),
+			tRBrace,
+			tHash,
+			newToken(token.COMMENT, " Compile the project"),
+			tTask,
+			newToken(token.IDENT, "build"),
+			tLParen,
+			newToken(token.STRING, `"**/*.go"`),
+			tRParen,
+			tOutput,
+			newToken(token.STRING, `"./bin/main"`),
+			tLBrace,
+			newToken(token.COMMAND, `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`),
+			tRBrace,
+			tHash,
+			newToken(token.COMMENT, " Show the global variables"),
+			tTask,
+			newToken(token.IDENT, "show"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "echo GLOBAL"),
+			tRBrace,
+			tHash,
+			newToken(token.COMMENT, " Generate multiple outputs"),
+			tTask,
+			newToken(token.IDENT, "moar_things"),
+			tLParen,
+			tRParen,
+			tOutput,
+			tLParen,
+			newToken(token.STRING, `"output1.go"`),
+			newToken(token.STRING, `"output2.go"`),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "do some stuff here"),
+			tRBrace,
+			tEOF,
+		},
+	},
 }
 
 // collect gathers the emitted tokens into a slice for comparison.
@@ -583,5 +664,63 @@ func TestLexer(t *testing.T) {
 				t.Errorf("%s: got\n\t%+v\nexpected\n\t%+v", test.name, tokens, test.tokens)
 			}
 		})
+	}
+}
+
+// A more or less complete spokfile with all the allowed constructs to act as
+// an integration test and benchmark.
+var fullSpokfile = `
+# This is a top level comment
+
+# This variable is presumably important later
+GLOBAL := "very important stuff here"
+
+# Run the project unit tests
+task test(fmt) {
+	go test -race ./...
+}
+
+# Format the project source
+task fmt("**/*.go") {
+	go fmt ./...
+}
+
+# Do many things
+task many() {
+	line 1
+	line 2
+	line 3
+	line 4
+}
+
+# Compile the project
+task build("**/*.go") -> "./bin/main" {
+	go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"
+}
+
+# Show the global variables
+task show() {
+	echo GLOBAL
+}
+
+# Generate multiple outputs
+task moar_things() -> ("output1.go", "output2.go") {
+	do some stuff here
+}
+`
+
+func BenchmarkLexFullSpokfile(b *testing.B) {
+	l := lex(fullSpokfile)
+	var tokens []token.Token
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		for {
+			tok := l.nextToken()
+			tokens = append(tokens, tok) // nolint: staticcheck
+			if tok.Type == token.EOF || tok.Type == token.ERROR {
+				break
+			}
+		}
 	}
 }
