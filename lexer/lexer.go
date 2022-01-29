@@ -289,9 +289,11 @@ func lexOutputOperator(l *lexer) lexFn {
 	case '(':
 		// List of task outputs, nice little hack here because the rules
 		// are the same as task dependencies
-		return lexArgs
+		l.backup()
+		return lexLeftParen
 	case '{':
 		// Error: declared task has an output but didn't specify it
+		l.backup()
 		return l.errorf("SyntaxError: Task declared dependency but none found (Line %d, Position %d)", l.line, l.pos)
 	default:
 		return unexpectedToken

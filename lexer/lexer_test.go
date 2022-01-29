@@ -453,6 +453,97 @@ var lexTests = []lexTest{
 			tEOF,
 		},
 	},
+	{
+		name:  "task with glob output",
+		input: `task test("**/*.md") -> "**/*.html" { buildy docs }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"**/*.md"`),
+			tRParen,
+			tOutput,
+			newToken(token.STRING, `"**/*.html"`),
+			tLBrace,
+			newToken(token.COMMAND, "buildy docs"),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name:  "task with multi output",
+		input: `task test("input.go") -> ("output1.go", "output2.go") { go build input.go }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"input.go"`),
+			tRParen,
+			tOutput,
+			tLParen,
+			newToken(token.STRING, `"output1.go"`),
+			newToken(token.STRING, `"output2.go"`),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "go build input.go"),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name: "task multi output multi line",
+		input: `task test("input.go") -> ("output1.go", "output2.go") {
+			go build input.go
+			do something else
+			echo "hello"
+		}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"input.go"`),
+			tRParen,
+			tOutput,
+			tLParen,
+			newToken(token.STRING, `"output1.go"`),
+			newToken(token.STRING, `"output2.go"`),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "go build input.go"),
+			newToken(token.COMMAND, "do something else"),
+			newToken(token.COMMAND, `echo "hello"`),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name: "outputs across lines",
+		input: `task test("input.go") -> (
+			"output1.go",
+			"output2.go") {
+			go build input.go
+			do something else
+			echo "hello"
+		}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"input.go"`),
+			tRParen,
+			tOutput,
+			tLParen,
+			newToken(token.STRING, `"output1.go"`),
+			newToken(token.STRING, `"output2.go"`),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "go build input.go"),
+			newToken(token.COMMAND, "do something else"),
+			newToken(token.COMMAND, `echo "hello"`),
+			tRBrace,
+			tEOF,
+		},
+	},
 }
 
 // collect gathers the emitted tokens into a slice for comparison.
