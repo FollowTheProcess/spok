@@ -743,15 +743,14 @@ task moar_things() -> ("output1.go", "output2.go") {
 }
 `
 
+// BenchmarkLexFullSpokfile determines the performance of lexing the integration spokfile above.
 func BenchmarkLexFullSpokfile(b *testing.B) {
 	l := lex(fullSpokfile)
-	var tokens []token.Token
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		for {
 			tok := l.nextToken()
-			tokens = append(tokens, tok) // nolint: staticcheck
 			if tok.Type == token.EOF || tok.Type == token.ERROR {
 				break
 			}
