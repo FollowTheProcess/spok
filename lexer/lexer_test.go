@@ -517,6 +517,40 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name: "task missing output",
+		input: `task test("input.go") -> {
+			go build input.go
+			do something else
+			echo "hello"
+		}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"input.go"`),
+			tRParen,
+			tOutput,
+			newToken(token.ERROR, "SyntaxError: Task declared dependency but none found (Line 1, Position 25)"),
+		},
+	},
+	{
+		name: "task bad token after output",
+		input: `task test("input.go") -> ^^{
+			go build input.go
+			do something else
+			echo "hello"
+		}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"input.go"`),
+			tRParen,
+			tOutput,
+			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1, Position 26)"),
+		},
+	},
+	{
 		name: "outputs across lines",
 		input: `task test("input.go") -> (
 			"output1.go",

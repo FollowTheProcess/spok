@@ -87,20 +87,11 @@ func (l *lexer) skipWhitespace() {
 			l.discard() // Bring the start position of the lexer up to current
 			break
 		}
-
-		if r == eof {
-			l.emit(token.EOF)
-			break
-		}
 	}
 }
 
 // next returns, and consumes, the next rune in the input.
 func (l *lexer) next() rune {
-	if l.pos > len(l.input) {
-		l.width = 0
-		return eof
-	}
 	rune, width := utf8.DecodeRuneInString(l.rest())
 	l.width = width
 	l.pos += l.width
