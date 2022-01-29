@@ -23,7 +23,12 @@ jobs:
         run: go mod download
 
       - name: Run Tests
-        run: go test -race ./...
+        run: go test -race -cover -covermode=atomic -coverprofile=./coverage.out ./...
+
+      - name: Coverage
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.out
 
   lint:
     name: Lint
