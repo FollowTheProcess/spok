@@ -31,11 +31,37 @@ On top of this, `spok` provides:
 
 ## Quickstart
 
-`spok` is driven by a single file (usually placed in the root of your project) called `spokfile`. The best way of describing a `spokfile` is a cross between a makefile, Go and Python!
+## The Spokfile
 
-It looks like this:
+Spok is driven by a single file (usually placed in the root of your project) called `spokfile`.
 
-<!-- Ignore the python syntax highlighting, it's obviously not python. It's just what looked best -->
+The syntax for a `spokfile` is inspired by a few different things and is intended to be expressive yet very simple:
+
+#### Makefiles
+
+* The general structure of a `spokfile` will be broadly familiar to those who have used [make] or [just] before.
+* Tasks (make's targets or just's recipes) are independent declarations. A `spokfile` can have any number of tasks declared but each much have a unique name.
+* Global variable definitions look similar.
+
+#### Go
+
+* Spok borrows quite a bit of Go syntax!
+* Global variables use the `:=` declaration operator.
+* Tasks look kind of like Go functions.
+* Tasks that output multiple things use Go's multiple return syntax.
+* Task bodies are bounded with curly braces.
+
+#### Python
+
+* Although in general whitespace is not significant in a `spokfile`, you'll notice there are no semicolons!
+* Spok looks for line breaks in certain contexts to delimit things.
+* Task outputs make use of the `->` operator similar to declaring function return types in Python.
+
+### Example
+
+A `spokfile` looks like this...
+
+<!-- Ignore the python syntax highlighting, it's obviously not python. It's just what looked best when rendered on GitHub -->
 ```python
 # Comments are preceeded by a hash
 
@@ -54,7 +80,8 @@ GIT_COMMIT := exec("git rev-parse HEAD")
 
 # Generally, a task is structured like this...
 
-# A comment above a task is it's docstring
+# The top line comment above a task is it's docstring
+# any following comments are just normal comments
 # task <name>(<deps>?...) -> [(]<outputs>?...[)] {
 #     command(s) to run
 # }
@@ -72,30 +99,39 @@ task test("**/*.go") {
 }
 
 # Format the project source code (depends on all go source files)
+# if the go source files have not changed, this becomes a no op
 task fmt("**/*.go") {
     go fmt ./...
 }
 
 # Compile the program (depends on fmt, fmt will run first)
-# also outputs a build binary file
+# also outputs a build binary
 task build(fmt) -> "./bin/main" {
     go build
 }
 
-# If a task generates multiple outputs, syntax is similar to
-# go's multiple returns
-task many("**/*.go") -> ("output1", "output2") {
+# Tasks can generate multiple things
+task many("**/*.go") -> ("output1.go", "output2.go") {
     go do many things
 }
 
 # Can also do glob outputs
-task glob("**/*.go") -> "**/*.out" {
-    make lots of output
+# e.g. tasks that populate entire directories like building documentation
+task glob("docs/src/*.md") -> "docs/build/*.html" {
+    build docs
 }
 
-# Can register a default task (spok by default just prints the help)
+# Can register a default task (by default spok will list all tasks)
 task default() {
     echo "default"
+}
+
+# Can register a custom clean task
+# By default `spok --clean` will remove all declared outputs
+# if a task called "clean" is present in the spokfile
+# this task will be run instead when `--clean` is used
+task clean() {
+    rm -rf somedir
 }
 ```
 
