@@ -428,7 +428,7 @@ func lexArgs(l *lexer) lexFn {
 		l.backup()
 		return lexLeftBrace
 	default:
-		return l.errorf("SyntaxError: Invalid character used in task dependency [%s] (Line %d, Position %d). Only strings and declared variables may be used.", string(l.current()), l.line, l.pos)
+		return l.errorf("SyntaxError: Invalid character used in task dependency/output [%s] (Line %d, Position %d). Only strings and declared variables may be used.", string(l.current()), l.line, l.pos)
 	}
 }
 

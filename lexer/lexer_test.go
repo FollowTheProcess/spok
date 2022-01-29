@@ -406,7 +406,7 @@ var lexTests = []lexTest{
 			tTask,
 			newToken(token.IDENT, "test"),
 			tLParen,
-			newToken(token.ERROR, "SyntaxError: Invalid character used in task dependency [2] (Line 1, Position 11). Only strings and declared variables may be used."),
+			newToken(token.ERROR, "SyntaxError: Invalid character used in task dependency/output [2] (Line 1, Position 11). Only strings and declared variables may be used."),
 		},
 	},
 	{
