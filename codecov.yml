@@ -1,0 +1,3 @@
+ignore:
+  - "cmd" # Nothing here but the main.go which just calls cobra run
+  - "cli/cmd" # Nothing here but the cobra command declaration which calls app.Run
