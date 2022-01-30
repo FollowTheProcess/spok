@@ -700,9 +700,9 @@ var lexTests = []lexTest{
 
 // collect gathers the emitted tokens into a slice for comparison.
 func collect(t *lexTest) (tokens []token.Token) {
-	l := lex(t.input)
+	l := New(t.input)
 	for {
-		tok := l.nextToken()
+		tok := l.NextToken()
 		tokens = append(tokens, tok)
 		if tok.Type == token.EOF || tok.Type == token.ERROR {
 			break
@@ -788,12 +788,12 @@ task no_comment() {
 
 // BenchmarkLexFullSpokfile determines the performance of lexing the integration spokfile above.
 func BenchmarkLexFullSpokfile(b *testing.B) {
-	l := lex(fullSpokfile)
+	l := New(fullSpokfile)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		for {
-			tok := l.nextToken()
+			tok := l.NextToken()
 			if tok.Type == token.EOF || tok.Type == token.ERROR {
 				break
 			}
