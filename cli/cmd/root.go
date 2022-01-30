@@ -53,7 +53,7 @@ func BuildRootCmd() *cobra.Command {
 		$ spok
 
 		# Run tasks named 'test' and 'lint'
-		$ spok task lint
+		$ spok test lint
 
 		# Show all defined variables in the 'spokfile'
 		$ spok --variables
