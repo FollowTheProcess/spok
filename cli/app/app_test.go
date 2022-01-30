@@ -47,6 +47,42 @@ func TestApp_Run(t *testing.T) {
 			args:    args{tasks: []string{}},
 			wantErr: false,
 		},
+		{
+			name: "fmt",
+			fields: fields{
+				Out:     &bytes.Buffer{},
+				Options: &Options{Fmt: true},
+			},
+			args:    args{tasks: []string{}},
+			wantErr: false,
+		},
+		{
+			name: "variables",
+			fields: fields{
+				Out:     &bytes.Buffer{},
+				Options: &Options{Variables: true},
+			},
+			args:    args{tasks: []string{}},
+			wantErr: false,
+		},
+		{
+			name: "spokfile",
+			fields: fields{
+				Out:     &bytes.Buffer{},
+				Options: &Options{Spokfile: "dinglefile"},
+			},
+			args:    args{tasks: []string{}},
+			wantErr: false,
+		},
+		{
+			name: "clean",
+			fields: fields{
+				Out:     &bytes.Buffer{},
+				Options: &Options{Clean: true},
+			},
+			args:    args{tasks: []string{}},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
