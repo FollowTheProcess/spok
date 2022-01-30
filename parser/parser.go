@@ -11,10 +11,10 @@ import (
 
 // Parser is spok's AST parser.
 type Parser struct {
-	lexer     *lexer.Lexer   // The lexer.
-	text      string         // The raw input text.
-	buffer    [3]token.Token // 3 token buffer, allows us to peek and backup in the token stream.
-	peekCount int            // How far we've "peeked" into our buffer.
+	lexer     lexer.Tokeniser // The lexer.
+	text      string          // The raw input text.
+	buffer    [3]token.Token  // 3 token buffer, allows us to peek and backup in the token stream.
+	peekCount int             // How far we've "peeked" into our buffer.
 }
 
 // New creates and returns a new Parser for an input string.

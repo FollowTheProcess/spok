@@ -4,12 +4,52 @@ import (
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
+	"github.com/FollowTheProcess/spok/token"
+)
+
+// testLexer is an object that implements the lexer.Tokeniser interface
+// so we can generate a stream of tokens without textual input
+// separating the concerns of the lexer and the parser, the latter
+// should not have to care where the token stream comes from, it just needs
+// to know how to convert them to ast nodes. This also means that if we break
+// the actual lexer during development, the parser tests won't also break.
+type testLexer struct {
+	stream []token.Token
+}
+
+func (l *testLexer) NextToken() token.Token {
+	if len(l.stream) == 0 {
+		// We don't have to manually add EOF now
+		l.stream = append(l.stream, newToken(token.EOF, ""))
+	}
+
+	// Grab the first in the stream, "consume" it from the stream
+	// and return it
+	tok := l.stream[0]
+	l.stream = l.stream[1:]
+	return tok
+}
+
+func newToken(typ token.Type, value string) token.Token {
+	return token.Token{
+		Value: value,
+		Type:  typ,
+	}
+}
+
+var (
+	tHash = newToken(token.HASH, "#")
 )
 
 func TestParseComment(t *testing.T) {
-	input := `# A comment`
+	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment")}
+	p := &Parser{
+		lexer:     &testLexer{stream: commentStream},
+		text:      "",
+		buffer:    [3]token.Token{},
+		peekCount: 0,
+	}
 
-	p := New(input)
 	tree, err := p.Parse()
 	if err != nil {
 		t.Fatalf("Parser returned en error token: %v", err)

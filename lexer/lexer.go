@@ -31,6 +31,13 @@ const (
 	digits = "0123456789" // Valid numeric digits
 )
 
+// Tokeniser represents anything capable of producing a token.Token
+// when asked to by it's NextToken method, this includes our actual Lexer
+// defined below but can be readily stubbed out for testing e.g. the parser.
+type Tokeniser interface {
+	NextToken() token.Token
+}
+
 // lexFn represents the state of the scanner as a function that returns the next state.
 type lexFn func(*Lexer) lexFn
 
