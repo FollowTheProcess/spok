@@ -686,6 +686,13 @@ var lexTests = []lexTest{
 			tLBrace,
 			newToken(token.COMMAND, "do some stuff here"),
 			tRBrace,
+			tTask,
+			newToken(token.IDENT, "no_comment"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, `echo "this task has no docstring"`),
+			tRBrace,
 			tEOF,
 		},
 	},
@@ -772,6 +779,10 @@ task show() {
 # Generate multiple outputs
 task moar_things() -> ("output1.go", "output2.go") {
 	do some stuff here
+}
+
+task no_comment() {
+	echo "this task has no docstring"
 }
 `
 
