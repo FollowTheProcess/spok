@@ -262,8 +262,14 @@ func lexRightParen(l *lexer) lexFn {
 	case strings.HasPrefix(l.rest(), token.OUTPUT.String()):
 		// Task output declaration
 		return lexOutputOperator
+	case l.atEOL() || l.atEOF():
+		// Just lexed a global variable function call
+		return lexStart
+	case r == '#':
+		// If a global function call precedes a commented task
+		return lexHash
 	default:
-		return l.errorf("SyntaxError: Task has no body (Line %d, Position %d)", l.line, l.pos)
+		return unexpectedToken
 	}
 }
 

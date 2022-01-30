@@ -142,6 +142,19 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "global variable function RHS",
+		input: `TEST := exec("git rev-parse HEAD")`,
+		tokens: []token.Token{
+			newToken(token.IDENT, "TEST"),
+			tDeclare,
+			newToken(token.IDENT, "exec"),
+			tLParen,
+			newToken(token.STRING, `"git rev-parse HEAD"`),
+			tRParen,
+			tEOF,
+		},
+	},
+	{
 		name:  "basic task",
 		input: `task test("file.go") { go test ./... }`,
 		tokens: []token.Token{
@@ -418,7 +431,7 @@ var lexTests = []lexTest{
 			tLParen,
 			newToken(token.STRING, `"file.go"`),
 			tRParen,
-			newToken(token.ERROR, "SyntaxError: Task has no body (Line 1, Position 20)"),
+			tEOF, // Can't do syntax error here because could be a global variable function call, handled in parser
 		},
 	},
 	{
@@ -589,6 +602,12 @@ var lexTests = []lexTest{
 			newToken(token.IDENT, "GLOBAL"),
 			tDeclare,
 			newToken(token.STRING, `"very important stuff here"`),
+			newToken(token.IDENT, "GIT_COMMIT"),
+			tDeclare,
+			newToken(token.IDENT, "exec"),
+			tLParen,
+			newToken(token.STRING, `"git rev-parse HEAD"`),
+			tRParen,
 			tHash,
 			newToken(token.COMMENT, " Run the project unit tests"),
 			tTask,
@@ -708,6 +727,8 @@ var fullSpokfile = `
 
 # This variable is presumably important later
 GLOBAL := "very important stuff here"
+
+GIT_COMMIT := exec("git rev-parse HEAD")
 
 # Run the project unit tests
 task test(fmt) {
