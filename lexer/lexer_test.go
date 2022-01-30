@@ -253,6 +253,17 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "task bad char before body",
+		input: `task test() ^ {}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			tRParen,
+			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1, Position 12)"),
+		},
+	},
+	{
 		name:  "task invalid chars in body",
 		input: `task test() { ^% }`,
 		tokens: []token.Token{
