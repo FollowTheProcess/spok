@@ -8,7 +8,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/FollowTheProcess/spok)](https://goreportcard.com/report/github.com/FollowTheProcess/spok)
 [![GitHub](https://img.shields.io/github/v/release/FollowTheProcess/spok?logo=github&sort=semver)](https://github.com/FollowTheProcess/spok)
 [![CI](https://github.com/FollowTheProcess/spok/workflows/CI/badge.svg)](https://github.com/FollowTheProcess/spok/actions?query=workflow%3ACI)
-[![codecov](https://codecov.io/gh/FollowTheProcess/spok/branch/main/graph/badge.svg?token=Q8Y5KFA9ZK)](https://codecov.io/gh/FollowTheProcess/spok)
+<!-- [![codecov](https://codecov.io/gh/FollowTheProcess/spok/branch/main/graph/badge.svg?token=Q8Y5KFA9ZK)](https://codecov.io/gh/FollowTheProcess/spok) -->
 
 ***It's a build system Jim, but not as we know it! 🖖🏻***
 
