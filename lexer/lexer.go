@@ -32,10 +32,10 @@ const (
 )
 
 // lexFn represents the state of the scanner as a function that returns the next state.
-type lexFn func(*lexer) lexFn
+type lexFn func(*Lexer) lexFn
 
-// lexer is spok's semantic lexer.
-type lexer struct {
+// Lexer is spok's semantic Lexer.
+type Lexer struct {
 	tokens chan token.Token // Channel of lexed tokens, received by the parser
 	input  string           // The string being scanned
 	start  int              // Start position of the current token
@@ -45,7 +45,7 @@ type lexer struct {
 }
 
 // rest returns the string from the current lexer position to the end of the input.
-func (l *lexer) rest() string {
+func (l *Lexer) rest() string {
 	if l.atEOF() {
 		return ""
 	}
@@ -53,7 +53,7 @@ func (l *lexer) rest() string {
 }
 
 // all returns the string from the lexer start position to the end of the input.
-func (l *lexer) all() string {
+func (l *Lexer) all() string {
 	if l.start >= len(l.input) || l.pos > len(l.input) {
 		return ""
 	}
@@ -61,7 +61,7 @@ func (l *lexer) all() string {
 }
 
 // current returns the rune the lexer is currently sat on.
-func (l *lexer) current() rune {
+func (l *Lexer) current() rune {
 	if l.atEOF() {
 		return eof
 	}
@@ -69,17 +69,17 @@ func (l *lexer) current() rune {
 }
 
 // atEOL returns whether or not the lexer is currently at the end of a line.
-func (l *lexer) atEOL() bool {
+func (l *Lexer) atEOL() bool {
 	return l.peek() == '\n' || strings.HasPrefix(l.rest(), "\r\n")
 }
 
 // atEOF returns whether or not the lexer is currently at the end of a file.
-func (l *lexer) atEOF() bool {
+func (l *Lexer) atEOF() bool {
 	return l.pos >= len(l.input)
 }
 
 // skipWhitespace consumes any utf-8 whitespace until something meaningful is hit.
-func (l *lexer) skipWhitespace() {
+func (l *Lexer) skipWhitespace() {
 	for {
 		r := l.next()
 		if !unicode.IsSpace(r) {
@@ -91,7 +91,7 @@ func (l *lexer) skipWhitespace() {
 }
 
 // next returns, and consumes, the next rune in the input.
-func (l *lexer) next() rune {
+func (l *Lexer) next() rune {
 	rune, width := utf8.DecodeRuneInString(l.rest())
 	l.width = width
 	l.pos += l.width
@@ -102,14 +102,14 @@ func (l *lexer) next() rune {
 }
 
 // peek returns, but does not consume, the next rune in the input.
-func (l *lexer) peek() rune {
+func (l *Lexer) peek() rune {
 	r := l.next()
 	l.backup()
 	return r
 }
 
 // backup steps back one rune. Can only be called once per call of next.
-func (l *lexer) backup() {
+func (l *Lexer) backup() {
 	l.pos -= l.width
 	if l.width == 1 && l.current() == '\n' {
 		l.line--
@@ -117,19 +117,19 @@ func (l *lexer) backup() {
 }
 
 // absorb advances the lexer position over to the end of the given token.
-func (l *lexer) absorb(t token.Type) {
+func (l *Lexer) absorb(t token.Type) {
 	l.pos += len(t.String())
 }
 
 // acceptRun consumes a run of runes from the valid set.
-func (l *lexer) acceptRun(valid string) {
+func (l *Lexer) acceptRun(valid string) {
 	for strings.ContainsRune(valid, l.next()) {
 	}
 	l.backup()
 }
 
 // emit passes an item back to the parser via the tokens channel.
-func (l *lexer) emit(t token.Type) {
+func (l *Lexer) emit(t token.Type) {
 	l.tokens <- token.Token{
 		Value: l.all(),
 		Type:  t,
@@ -141,14 +141,14 @@ func (l *lexer) emit(t token.Type) {
 
 // discard brings the lexer's start position up to it's current position,
 // discaring everything in between in the process but maintaining the line count.
-func (l *lexer) discard() {
+func (l *Lexer) discard() {
 	l.line += strings.Count(l.all(), "\n")
 	l.start = l.pos
 }
 
 // errorf returns an error token and terminates the scan by passing back
 // a nil pointer that will be the next state, terminating l.nextToken.
-func (l *lexer) errorf(format string, args ...interface{}) lexFn {
+func (l *Lexer) errorf(format string, args ...interface{}) lexFn {
 	l.tokens <- token.Token{
 		Value: fmt.Sprintf(format, args...),
 		Type:  token.ERROR,
@@ -158,16 +158,16 @@ func (l *lexer) errorf(format string, args ...interface{}) lexFn {
 	return nil
 }
 
-// nextToken returns the next token from the input,
+// NextToken returns the next token from the input,
 // generally called by the parser not the lexing goroutine.
-func (l *lexer) nextToken() token.Token {
+func (l *Lexer) NextToken() token.Token {
 	return <-l.tokens
 }
 
-// lex creates a new lexer for the input string and sets it off
+// New creates a new lexer for the input string and sets it off
 // in a goroutine.
-func lex(input string) *lexer {
-	l := &lexer{
+func New(input string) *Lexer {
+	l := &Lexer{
 		tokens: make(chan token.Token),
 		input:  input,
 		start:  0,
@@ -180,7 +180,7 @@ func lex(input string) *lexer {
 }
 
 // run starts the state machine for the lexer.
-func (l *lexer) run() {
+func (l *Lexer) run() {
 	for state := lexStart; state != nil; {
 		state = state(l)
 	}
@@ -196,7 +196,7 @@ func (l *lexer) run() {
 // Task definitions
 // EOF
 // Anything else is an error.
-func lexStart(l *lexer) lexFn {
+func lexStart(l *Lexer) lexFn {
 
 	l.skipWhitespace()
 
@@ -216,14 +216,14 @@ func lexStart(l *lexer) lexFn {
 }
 
 // lexHash scans a comment marker '#'.
-func lexHash(l *lexer) lexFn {
+func lexHash(l *Lexer) lexFn {
 	l.absorb(token.HASH)
 	l.emit(token.HASH)
 	return lexComment
 }
 
 // lexComment scans a comment text, the '#' has already been encountered.
-func lexComment(l *lexer) lexFn {
+func lexComment(l *Lexer) lexFn {
 	for {
 		if l.atEOL() || l.atEOF() {
 			l.emit(token.COMMENT)
@@ -234,7 +234,7 @@ func lexComment(l *lexer) lexFn {
 }
 
 // lexTaskKeyword scans a task definition keyword.
-func lexTaskKeyword(l *lexer) lexFn {
+func lexTaskKeyword(l *Lexer) lexFn {
 	l.absorb(token.TASK)
 	l.emit(token.TASK)
 	l.skipWhitespace()
@@ -242,7 +242,7 @@ func lexTaskKeyword(l *lexer) lexFn {
 }
 
 // lexLeftParen scans an opening parenthesis.
-func lexLeftParen(l *lexer) lexFn {
+func lexLeftParen(l *Lexer) lexFn {
 	l.absorb(token.LPAREN)
 	l.emit(token.LPAREN)
 	l.skipWhitespace()
@@ -250,7 +250,7 @@ func lexLeftParen(l *lexer) lexFn {
 }
 
 // lexRightParen scans a closing parenthesis.
-func lexRightParen(l *lexer) lexFn {
+func lexRightParen(l *Lexer) lexFn {
 	l.absorb(token.RPAREN)
 	l.emit(token.RPAREN)
 	l.skipWhitespace()
@@ -274,7 +274,7 @@ func lexRightParen(l *lexer) lexFn {
 }
 
 // lexOutputOperator scans a task output operator.
-func lexOutputOperator(l *lexer) lexFn {
+func lexOutputOperator(l *Lexer) lexFn {
 	l.absorb(token.OUTPUT)
 	l.emit(token.OUTPUT)
 	l.skipWhitespace()
@@ -298,7 +298,7 @@ func lexOutputOperator(l *lexer) lexFn {
 }
 
 // lexLeftBrace scans an opening curly brace.
-func lexLeftBrace(l *lexer) lexFn {
+func lexLeftBrace(l *Lexer) lexFn {
 	l.absorb(token.LBRACE)
 	l.emit(token.LBRACE)
 	l.skipWhitespace()
@@ -306,14 +306,14 @@ func lexLeftBrace(l *lexer) lexFn {
 }
 
 // lexRightBrace scans a closing curly brace.
-func lexRightBrace(l *lexer) lexFn {
+func lexRightBrace(l *Lexer) lexFn {
 	l.absorb(token.RBRACE)
 	l.emit(token.RBRACE)
 	return lexStart
 }
 
 // lexTaskBody scans the body of a task declaration.
-func lexTaskBody(l *lexer) lexFn {
+func lexTaskBody(l *Lexer) lexFn {
 	if l.atEOF() {
 		return l.errorf("SyntaxError: Unterminated task body (Line %d, Position %d)", l.line, l.pos)
 	}
@@ -332,7 +332,7 @@ func lexTaskBody(l *lexer) lexFn {
 }
 
 // lexTaskCommands scans line(s) of commands in a task body.
-func lexTaskCommands(l *lexer) lexFn {
+func lexTaskCommands(l *Lexer) lexFn {
 	// A command can end in a newline or not similar to a line in a go function
 	// e.g. this is valid -> task test() { go test ./... }
 	// as well as the "normal" go function style spread over a few lines:
@@ -368,7 +368,7 @@ func lexTaskCommands(l *lexer) lexFn {
 }
 
 // lexIdent scans an identifier e.g. global variable or name of task.
-func lexIdent(l *lexer) lexFn {
+func lexIdent(l *Lexer) lexFn {
 	// Read until we get an invalid ident rune
 	for {
 		r := l.next()
@@ -404,7 +404,7 @@ func lexIdent(l *lexer) lexFn {
 
 // lexArgs scans an argument declaration i.e. task dependencies, builtin function args
 // or lists of task outputs.
-func lexArgs(l *lexer) lexFn {
+func lexArgs(l *Lexer) lexFn {
 	// Arguments can only be strings (filenames or globs) or idents
 	l.skipWhitespace()
 
@@ -430,7 +430,7 @@ func lexArgs(l *lexer) lexFn {
 }
 
 // lexDeclare scans a declaration operation in a global variable.
-func lexDeclare(l *lexer) lexFn {
+func lexDeclare(l *Lexer) lexFn {
 	l.skipWhitespace()
 	l.absorb(token.DECLARE)
 	l.emit(token.DECLARE)
@@ -454,7 +454,7 @@ func lexDeclare(l *lexer) lexFn {
 }
 
 // lexString scans a quoted string, the opening quote is already known to exist.
-func lexString(l *lexer) lexFn {
+func lexString(l *Lexer) lexFn {
 	for {
 		r := l.next()
 		if r == '"' {
@@ -476,7 +476,7 @@ func lexString(l *lexer) lexFn {
 }
 
 // lexInteger scans a decimal integer.
-func lexInteger(l *lexer) lexFn {
+func lexInteger(l *Lexer) lexFn {
 	l.acceptRun(digits)
 
 	// Next thing cannot be anything other than EOL or EOF
@@ -500,7 +500,7 @@ func isASCII(r rune) bool {
 }
 
 // unexpectedToken emits an error token with details about the offending input from the lexer.
-func unexpectedToken(l *lexer) lexFn {
+func unexpectedToken(l *Lexer) lexFn {
 	var message string
 	char := l.current()
 
