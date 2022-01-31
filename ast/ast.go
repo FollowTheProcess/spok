@@ -1,7 +1,10 @@
 // Package ast defines spok's abstract syntax tree.
 package ast
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // NodeType identifies the type of an AST node.
 type NodeType int
@@ -16,6 +19,7 @@ func (t NodeType) Type() NodeType {
 const (
 	NodeComment  NodeType = iota // A spok comment, preceded by a '#'.
 	NodeIdent                    // An identifier e.g. global variable or name of a task.
+	NodeAssign                   // A global variable assignment.
 	NodeString                   // A quoted string literal e.g "hello".
 	NodeInteger                  // An integer literal e.g. 27.
 	NodeFunction                 // A spok builtin function e.g. exec
@@ -27,10 +31,23 @@ type Tree struct {
 	Nodes []Node // List of all AST nodes.
 }
 
+// Write out the entire AST to a strings.Builder.
+func (t Tree) Write(s *strings.Builder) {
+	for _, n := range t.Nodes {
+		n.Write(s)
+	}
+}
+
+// Append adds an AST node to the Tree.
+func (t *Tree) Append(node Node) {
+	t.Nodes = append(t.Nodes, node)
+}
+
 // Node is an element in the AST.
 type Node interface {
-	Type() NodeType
-	String() string
+	Type() NodeType           // Return the type of the current node.
+	String() string           // Pretty print the node.
+	Write(s *strings.Builder) // Write the formatted syntax back out to a builder.
 }
 
 // CommentNode holds a comment.
@@ -40,10 +57,9 @@ type CommentNode struct {
 }
 
 func (c CommentNode) String() string {
-	return c.Text
+	return fmt.Sprintf("# %s", strings.TrimSpace(c.Text))
 }
 
-func (c CommentNode) write(s *strings.Builder) { // nolint: unused
-	// TODO: Unused for now but we know we'll need it
+func (c CommentNode) Write(s *strings.Builder) {
 	s.WriteString(c.String())
 }

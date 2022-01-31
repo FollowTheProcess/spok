@@ -32,7 +32,7 @@ func (p *Parser) Parse() (*ast.Tree, error) {
 	for p.peek().Type != token.EOF {
 		switch tok := p.next(); {
 		case tok.Is(token.HASH):
-			tree.Nodes = append(tree.Nodes, p.parseComment())
+			tree.Append(p.parseComment())
 		case tok.Is(token.ERROR):
 			return nil, fmt.Errorf("Error token: %s", tok)
 		}

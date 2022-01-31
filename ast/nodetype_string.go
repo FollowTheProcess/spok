@@ -10,15 +10,16 @@ func _() {
 	var x [1]struct{}
 	_ = x[NodeComment-0]
 	_ = x[NodeIdent-1]
-	_ = x[NodeString-2]
-	_ = x[NodeInteger-3]
-	_ = x[NodeFunction-4]
-	_ = x[NodeTask-5]
+	_ = x[NodeAssign-2]
+	_ = x[NodeString-3]
+	_ = x[NodeInteger-4]
+	_ = x[NodeFunction-5]
+	_ = x[NodeTask-6]
 }
 
-const _NodeType_name = "NodeCommentNodeIdentNodeStringNodeIntegerNodeFunctionNodeTask"
+const _NodeType_name = "NodeCommentNodeIdentNodeAssignNodeStringNodeIntegerNodeFunctionNodeTask"
 
-var _NodeType_index = [...]uint8{0, 11, 20, 30, 41, 53, 61}
+var _NodeType_index = [...]uint8{0, 11, 20, 30, 40, 51, 63, 71}
 
 func (i NodeType) String() string {
 	if i < 0 || i >= NodeType(len(_NodeType_index)-1) {
