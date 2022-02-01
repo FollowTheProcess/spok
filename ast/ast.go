@@ -32,7 +32,7 @@ type Tree struct {
 }
 
 // Write out the entire AST to a strings.Builder.
-func (t Tree) Write(s *strings.Builder) {
+func (t *Tree) Write(s *strings.Builder) {
 	for _, n := range t.Nodes {
 		n.Write(s)
 	}
@@ -41,6 +41,11 @@ func (t Tree) Write(s *strings.Builder) {
 // Append adds an AST node to the Tree.
 func (t *Tree) Append(node Node) {
 	t.Nodes = append(t.Nodes, node)
+}
+
+// isEmpty returns whether or not the AST contains no nodes i.e. empty file.
+func (t *Tree) IsEmpty() bool {
+	return len(t.Nodes) == 0
 }
 
 // Node is an element in the AST.

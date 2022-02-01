@@ -41,6 +41,26 @@ var (
 	tHash = newToken(token.HASH, "#")
 )
 
+func TestEOF(t *testing.T) {
+	p := &Parser{
+		lexer:  &testLexer{},
+		buffer: [3]token.Token{},
+	}
+
+	tree, err := p.Parse()
+	if err != nil {
+		t.Fatalf("Parser returned an error: %v", err)
+	}
+
+	if tree == nil {
+		t.Fatalf("Parser returned a nil AST")
+	}
+
+	if !tree.IsEmpty() {
+		t.Fatalf("Wrong number of ast nodes, got %d, wanted %d", len(tree.Nodes), 0)
+	}
+}
+
 func TestParseComment(t *testing.T) {
 	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment")}
 	p := &Parser{
@@ -52,7 +72,7 @@ func TestParseComment(t *testing.T) {
 
 	tree, err := p.Parse()
 	if err != nil {
-		t.Fatalf("Parser returned en error token: %v", err)
+		t.Fatalf("Parser returned an error token: %v", err)
 	}
 
 	if tree == nil {
