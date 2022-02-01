@@ -83,6 +83,20 @@ func (s StringNode) Write(sb *strings.Builder) {
 	sb.WriteString(s.String())
 }
 
+// IntegerNode holds an integer.
+type IntegerNode struct {
+	Value int
+	NodeType
+}
+
+func (i IntegerNode) String() string {
+	return fmt.Sprintf("%d", i.Value)
+}
+
+func (i IntegerNode) Write(s *strings.Builder) {
+	s.WriteString(i.String())
+}
+
 // IdentNode holds an identifier.
 type IdentNode struct {
 	Name string // The name of the identifier.

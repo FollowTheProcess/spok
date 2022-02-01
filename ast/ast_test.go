@@ -2,71 +2,41 @@ package ast
 
 import "testing"
 
-func TestCommentNode(t *testing.T) {
+func TestNodeString(t *testing.T) {
 	tests := []struct {
+		node Node
 		name string
-		text string
 		want string
 	}{
 		{
-			name: "normal",
-			text: "A comment",
+			name: "comment",
+			node: CommentNode{Text: " A comment", NodeType: NodeComment},
 			want: "# A comment",
 		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			node := CommentNode{Text: tt.text, NodeType: NodeComment}
-			if got := node.String(); got != tt.want {
-				t.Errorf("got %s, wanted %s", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestIdentNode(t *testing.T) {
-	tests := []struct {
-		name string
-		text string
-		want string
-	}{
 		{
-			name: "test",
-			text: "x",
-			want: "x",
+			name: "string",
+			node: StringNode{Text: "hello", NodeType: NodeString},
+			want: `"hello"`,
+		},
+		{
+			name: "ident",
+			node: IdentNode{Name: "GIT_COMMIT", NodeType: NodeIdent},
+			want: "GIT_COMMIT",
+		},
+		{
+			name: "assign",
+			node: AssignNode{
+				Name:     &IdentNode{Name: "GIT_COMMIT", NodeType: NodeIdent},
+				Value:    StringNode{Text: "a2736ef997c926", NodeType: NodeString},
+				NodeType: NodeAssign,
+			},
+			want: `GIT_COMMIT := "a2736ef997c926"`,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node := IdentNode{Name: tt.text, NodeType: NodeIdent}
-			if got := node.String(); got != tt.want {
-				t.Errorf("got %s, wanted %s", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestAssignNode(t *testing.T) {
-	tests := []struct {
-		name  string
-		left  *IdentNode
-		right Node
-		want  string
-	}{
-		{
-			name:  "string",
-			left:  &IdentNode{Name: "GIT_COMMIT", NodeType: NodeIdent},
-			right: StringNode{Text: "abd825efd017df", NodeType: NodeString},
-			want:  `GIT_COMMIT := "abd825efd017df"`,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assign := AssignNode{Name: tt.left, Value: tt.right, NodeType: NodeAssign}
-			if got := assign.String(); got != tt.want {
+			if got := tt.node.String(); got != tt.want {
 				t.Errorf("got %s, wanted %s", got, tt.want)
 			}
 		})
