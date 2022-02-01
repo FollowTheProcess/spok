@@ -69,6 +69,20 @@ func (c CommentNode) Write(s *strings.Builder) {
 	s.WriteString(c.String())
 }
 
+// StringNode holds a string.
+type StringNode struct {
+	Text string
+	NodeType
+}
+
+func (s StringNode) String() string {
+	return fmt.Sprintf("%q", s.Text)
+}
+
+func (s StringNode) Write(sb *strings.Builder) {
+	sb.WriteString(s.String())
+}
+
 // IdentNode holds an identifier.
 type IdentNode struct {
 	Name string // The name of the identifier.
@@ -81,4 +95,19 @@ func (i IdentNode) String() string {
 
 func (i IdentNode) Write(s *strings.Builder) {
 	s.WriteString(i.String())
+}
+
+// AssignNode holds a global variable assignment.
+type AssignNode struct {
+	Name  *IdentNode // The identifier e.g. GIT_COMMIT
+	Value Node       // The value it's set to (string, integer, or builtin)
+	NodeType
+}
+
+func (a AssignNode) String() string {
+	return fmt.Sprintf("%s := %s", a.Name.String(), a.Value.String())
+}
+
+func (a AssignNode) Write(s *strings.Builder) {
+	s.WriteString(a.String())
 }
