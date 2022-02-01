@@ -24,3 +24,26 @@ func TestCommentNode(t *testing.T) {
 		})
 	}
 }
+
+func TestIdentNode(t *testing.T) {
+	tests := []struct {
+		name string
+		text string
+		want string
+	}{
+		{
+			name: "test",
+			text: "x",
+			want: "x",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			node := IdentNode{Name: tt.text, NodeType: NodeIdent}
+			if got := node.String(); got != tt.want {
+				t.Errorf("got %s, wanted %s", got, tt.want)
+			}
+		})
+	}
+}

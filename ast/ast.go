@@ -68,3 +68,17 @@ func (c CommentNode) String() string {
 func (c CommentNode) Write(s *strings.Builder) {
 	s.WriteString(c.String())
 }
+
+// IdentNode holds an identifier.
+type IdentNode struct {
+	Name string // The name of the identifier.
+	NodeType
+}
+
+func (i IdentNode) String() string {
+	return i.Name
+}
+
+func (i IdentNode) Write(s *strings.Builder) {
+	s.WriteString(i.String())
+}
