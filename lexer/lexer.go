@@ -212,7 +212,7 @@ func lexStart(l *Lexer) lexFn {
 		return lexHash
 	case strings.HasPrefix(l.rest(), token.TASK.String()):
 		return lexTaskKeyword
-	case unicode.IsLetter(l.peek()):
+	case isValidIdent(l.peek()):
 		return lexIdent
 	case l.atEOF():
 		l.emit(token.EOF)

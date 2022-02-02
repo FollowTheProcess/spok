@@ -32,6 +32,28 @@ func TestNodeString(t *testing.T) {
 			},
 			want: `GIT_COMMIT := "a2736ef997c926"`,
 		},
+		{
+			name: "command",
+			node: CommandNode{Command: "go test ./...", NodeType: NodeCommand},
+			want: "go test ./...",
+		},
+		{
+			name: "task",
+			node: TaskNode{
+				Name: &IdentNode{Name: "test", NodeType: NodeIdent},
+				Dependencies: []Node{
+					StringNode{Text: "**/*.go", NodeType: NodeString},
+					IdentNode{Name: "fmt", NodeType: NodeIdent},
+				},
+				Commands: []*CommandNode{
+					{Command: "go test ./...", NodeType: NodeCommand},
+				},
+				NodeType: NodeTask,
+			},
+			want: `task test("**/*.go", fmt) {
+	go test ./...
+}`,
+		},
 	}
 
 	for _, tt := range tests {

@@ -24,6 +24,7 @@ const (
 	NodeInteger                  // An integer literal e.g. 27.
 	NodeFunction                 // A spok builtin function e.g. exec
 	NodeTask                     // A spok task.
+	NodeCommand                  // A spok task command.
 )
 
 // Tree represents the entire AST for a spokfile.
@@ -124,4 +125,55 @@ func (a AssignNode) String() string {
 
 func (a AssignNode) Write(s *strings.Builder) {
 	s.WriteString(a.String())
+}
+
+// CommandNode holds a task command.
+type CommandNode struct {
+	Command string // The shell command to run
+	NodeType
+}
+
+func (c CommandNode) String() string {
+	return c.Command
+}
+
+func (c CommandNode) Write(s *strings.Builder) {
+	s.WriteString(c.String())
+}
+
+// TaskNode holds a spok task.
+type TaskNode struct {
+	Name         *IdentNode
+	Dependencies []Node
+	Commands     []*CommandNode
+	NodeType
+}
+
+func (t TaskNode) String() string {
+	s := strings.Builder{}
+	deps := []string{}
+	commands := []string{}
+
+	for _, p := range t.Dependencies {
+		deps = append(deps, p.String())
+	}
+
+	for _, c := range t.Commands {
+		commands = append(commands, c.String())
+	}
+	s.WriteString("task ")
+	s.WriteString(t.Name.String())
+	s.WriteString("(")
+	s.WriteString(strings.Join(deps, ", "))
+	s.WriteString(")")
+	s.WriteString(" {\n\t")
+	s.WriteString(strings.Join(commands, "\n"))
+	s.WriteString("\n")
+	s.WriteString("}")
+
+	return s.String()
+}
+
+func (t TaskNode) Write(s *strings.Builder) {
+	s.WriteString(t.String())
 }
