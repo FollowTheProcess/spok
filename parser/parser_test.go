@@ -9,10 +9,9 @@ import (
 
 // testLexer is an object that implements the lexer.Tokeniser interface
 // so we can generate a stream of tokens without textual input
-// separating the concerns of the lexer and the parser, the latter
-// should not have to care where the token stream comes from, it just needs
-// to know how to convert them to ast nodes. This also means that if we break
-// the actual lexer during development, the parser tests won't also break.
+// decoupling the lexer and the parser, the parser should not have to
+// care where the token stream comes from, it just needs to know how to convert them to ast nodes.
+// This also means that if we break the actual lexer during development, the parser tests won't also break.
 type testLexer struct {
 	stream []token.Token
 }
