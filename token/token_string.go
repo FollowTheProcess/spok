@@ -21,15 +21,14 @@ func _() {
 	_ = x[TASK-10]
 	_ = x[STRING-11]
 	_ = x[COMMAND-12]
-	_ = x[INTEGER-13]
-	_ = x[OUTPUT-14]
-	_ = x[IDENT-15]
-	_ = x[DECLARE-16]
+	_ = x[OUTPUT-13]
+	_ = x[IDENT-14]
+	_ = x[DECLARE-15]
 }
 
-const _Type_name = "EOFERRORCOMMENT#(){}\",taskSTRINGCOMMANDINTEGER->IDENT:="
+const _Type_name = "EOFERRORCOMMENT#(){}\",taskSTRINGCOMMAND->IDENT:="
 
-var _Type_index = [...]uint8{0, 3, 8, 15, 16, 17, 18, 19, 20, 21, 22, 26, 32, 39, 46, 48, 53, 55}
+var _Type_index = [...]uint8{0, 3, 8, 15, 16, 17, 18, 19, 20, 21, 22, 26, 32, 39, 41, 46, 48}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

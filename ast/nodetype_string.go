@@ -12,15 +12,14 @@ func _() {
 	_ = x[NodeIdent-1]
 	_ = x[NodeAssign-2]
 	_ = x[NodeString-3]
-	_ = x[NodeInteger-4]
-	_ = x[NodeFunction-5]
-	_ = x[NodeTask-6]
-	_ = x[NodeCommand-7]
+	_ = x[NodeFunction-4]
+	_ = x[NodeTask-5]
+	_ = x[NodeCommand-6]
 }
 
-const _NodeType_name = "NodeCommentNodeIdentNodeAssignNodeStringNodeIntegerNodeFunctionNodeTaskNodeCommand"
+const _NodeType_name = "NodeCommentNodeIdentNodeAssignNodeStringNodeFunctionNodeTaskNodeCommand"
 
-var _NodeType_index = [...]uint8{0, 11, 20, 30, 40, 51, 63, 71, 82}
+var _NodeType_index = [...]uint8{0, 11, 20, 30, 40, 52, 60, 71}
 
 func (i NodeType) String() string {
 	if i < 0 || i >= NodeType(len(_NodeType_index)-1) {

@@ -26,10 +26,7 @@ import (
 	"github.com/FollowTheProcess/spok/token"
 )
 
-const (
-	eof    = -1           // Sigil for marking an EOF as a rune
-	digits = "0123456789" // Valid numeric digits
-)
+const eof = -1 // Sigil for marking an EOF as a rune
 
 // Tokeniser represents anything capable of producing a token.Token
 // when asked to by it's NextToken method, this includes our actual Lexer
@@ -126,13 +123,6 @@ func (l *Lexer) backup() {
 // absorb advances the lexer position over to the end of the given token.
 func (l *Lexer) absorb(t token.Type) {
 	l.pos += len(t.String())
-}
-
-// acceptRun consumes a run of runes from the valid set.
-func (l *Lexer) acceptRun(valid string) {
-	for strings.ContainsRune(valid, l.next()) {
-	}
-	l.backup()
 }
 
 // emit passes an item back to the parser via the tokens channel.
@@ -286,16 +276,18 @@ func lexOutputOperator(l *Lexer) lexFn {
 	l.emit(token.OUTPUT)
 	l.skipWhitespace()
 
-	switch l.next() {
-	case '"':
+	switch r := l.next(); {
+	case r == '"':
 		// Single task output
 		return lexString
-	case '(':
+	case r == '(':
 		// List of task outputs, nice little hack here because the rules
 		// are the same as task dependencies
 		l.backup()
 		return lexLeftParen
-	case '{':
+	case isValidIdent(r):
+		return lexIdent
+	case r == '{':
 		// Error: declared task has an output but didn't specify it
 		l.backup()
 		return l.errorf("SyntaxError: Task declared dependency but none found (Line %d, Position %d)", l.line, l.pos)
@@ -403,6 +395,9 @@ func lexIdent(l *Lexer) lexFn {
 	case l.peek() == ',':
 		// It's an ident in a list of task arguments
 		return lexArgs
+	case l.peek() == '{':
+		// Just lexed an ident used in a task output
+		return lexLeftBrace
 	default:
 		// Whatever it is shouldn't be here
 		return unexpectedToken
@@ -450,11 +445,9 @@ func lexDeclare(l *Lexer) lexFn {
 	case isValidIdent(r):
 		// We have something unquoted, i.e. another ident
 		return lexIdent
-	case unicode.IsDigit(r):
-		// We have a number e.g. 27
-		return lexInteger
 	default:
 		// Anything else is disallowed
+		l.backup()
 		return unexpectedToken
 	}
 
@@ -480,20 +473,6 @@ func lexString(l *Lexer) lexFn {
 	}
 	// Else we must be handling a task argument
 	return lexArgs
-}
-
-// lexInteger scans a decimal integer.
-func lexInteger(l *Lexer) lexFn {
-	l.acceptRun(digits)
-
-	// Next thing cannot be anything other than EOL or EOF
-	// if so, we have a bad integer e.g. 2756g
-	if !l.atEOF() && !l.atEOL() {
-		return l.errorf("SyntaxError: Invalid integer literal (Line %d, Position %d)", l.line, l.pos)
-	}
-
-	l.emit(token.INTEGER)
-	return lexStart
 }
 
 // isValidIdent reports whether a rune is valid in an identifier.

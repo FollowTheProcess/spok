@@ -105,9 +105,13 @@ var lexTests = []lexTest{
 		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.STRING, `"  \t hello\t\t  "`), tEOF},
 	},
 	{
-		name:   "global variable integer",
-		input:  `TEST := 27`,
-		tokens: []token.Token{newToken(token.IDENT, "TEST"), tDeclare, newToken(token.INTEGER, "27"), tEOF},
+		name:  "global variable integer",
+		input: `TEST := 27`,
+		tokens: []token.Token{
+			newToken(token.IDENT, "TEST"),
+			tDeclare,
+			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1, Position 8)"),
+		},
 	},
 	{
 		name:  "global variable bad integer",
@@ -115,7 +119,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: Invalid integer literal (Line 1, Position 11)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1, Position 8)"),
 		},
 	},
 	{
@@ -124,7 +128,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: Invalid integer literal (Line 1, Position 10)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1, Position 8)"),
 		},
 	},
 	{
@@ -138,7 +142,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: Unexpected token 'U+FFFFFFFFFFFFFFFF' (Line 1, Position 9)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1, Position 8)"),
 		},
 	},
 	{
@@ -495,6 +499,43 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "task with ident output",
+		input: `task test("**/*.md") -> BUILD { buildy docs }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"**/*.md"`),
+			tRParen,
+			tOutput,
+			newToken(token.IDENT, "BUILD"),
+			tLBrace,
+			newToken(token.COMMAND, "buildy docs"),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name:  "task with multi ident output",
+		input: `task test("**/*.md") -> (BUILD, SOMETHING) { buildy docs }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"**/*.md"`),
+			tRParen,
+			tOutput,
+			tLParen,
+			newToken(token.IDENT, "BUILD"),
+			newToken(token.IDENT, "SOMETHING"),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "buildy docs"),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
 		name:  "task with multi output",
 		input: `task test("input.go") -> ("output1.go", "output2.go") { go build input.go }`,
 		tokens: []token.Token{
@@ -693,6 +734,31 @@ var lexTests = []lexTest{
 			tLBrace,
 			newToken(token.COMMAND, `echo "this task has no docstring"`),
 			tRBrace,
+			tHash,
+			newToken(token.COMMENT, " Generate output from a variable"),
+			tTask,
+			newToken(token.IDENT, "makedocs"),
+			tLParen,
+			tRParen,
+			tOutput,
+			newToken(token.IDENT, "DOCS"),
+			tLBrace,
+			newToken(token.COMMAND, `echo "making docs"`),
+			tRBrace,
+			tHash,
+			newToken(token.COMMENT, " Generate multiple outputs in variables"),
+			tTask,
+			newToken(token.IDENT, "makestuff"),
+			tLParen,
+			tRParen,
+			tOutput,
+			tLParen,
+			newToken(token.IDENT, "DOCS"),
+			newToken(token.IDENT, "BUILD"),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, `echo "doing things"`),
+			tRBrace,
 			tEOF,
 		},
 	},
@@ -783,6 +849,16 @@ task moar_things() -> ("output1.go", "output2.go") {
 
 task no_comment() {
 	echo "this task has no docstring"
+}
+
+# Generate output from a variable
+task makedocs() -> DOCS {
+	echo "making docs"
+}
+
+# Generate multiple outputs in variables
+task makestuff() -> (DOCS, BUILD) {
+	echo "doing things"
 }
 `
 

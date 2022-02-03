@@ -22,7 +22,6 @@ const (
 	TASK                // task
 	STRING              // STRING
 	COMMAND             // COMMAND
-	INTEGER             // INTEGER
 	OUTPUT              // ->
 	IDENT               // IDENT
 	DECLARE             // :=

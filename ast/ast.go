@@ -21,7 +21,6 @@ const (
 	NodeIdent                    // An identifier e.g. global variable or name of a task.
 	NodeAssign                   // A global variable assignment.
 	NodeString                   // A quoted string literal e.g "hello".
-	NodeInteger                  // An integer literal e.g. 27.
 	NodeFunction                 // A spok builtin function e.g. exec
 	NodeTask                     // A spok task.
 	NodeCommand                  // A spok task command.
@@ -84,20 +83,6 @@ func (s StringNode) Write(sb *strings.Builder) {
 	sb.WriteString(s.String())
 }
 
-// IntegerNode holds an integer.
-type IntegerNode struct {
-	Value int
-	NodeType
-}
-
-func (i IntegerNode) String() string {
-	return fmt.Sprintf("%d", i.Value)
-}
-
-func (i IntegerNode) Write(s *strings.Builder) {
-	s.WriteString(i.String())
-}
-
 // IdentNode holds an identifier.
 type IdentNode struct {
 	Name string // The name of the identifier.
@@ -115,7 +100,7 @@ func (i IdentNode) Write(s *strings.Builder) {
 // AssignNode holds a global variable assignment.
 type AssignNode struct {
 	Name  *IdentNode // The identifier e.g. GIT_COMMIT
-	Value Node       // The value it's set to (string, integer, or builtin)
+	Value Node       // The value it's set to (string, or builtin)
 	NodeType
 }
 
