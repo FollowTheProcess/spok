@@ -67,7 +67,8 @@ A `spokfile` looks like this...
 # Comments are preceeded by a hash
 
 # You can store global variables like this (caps are optional)
-GLOBAL_VARIABLE := 27
+GLOBAL_VARIABLE := "hello
+BIN := "./bin/main"
 
 # You can store the output of a shell command as a variable
 # leading and trailing whitespace will always be trimmed off when doing this
@@ -108,6 +109,11 @@ task fmt("**/*.go") {
 # Compile the program (depends on fmt, fmt will run first)
 # also outputs a build binary
 task build(fmt) -> "./bin/main" {
+    go build
+}
+
+# Can also use global variables as outputs
+task build2(fmt) -> BIN {
     go build
 }
 
