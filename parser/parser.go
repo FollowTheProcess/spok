@@ -33,6 +33,8 @@ func (p *Parser) Parse() (*ast.Tree, error) {
 		switch tok := p.next(); {
 		case tok.Is(token.HASH):
 			tree.Append(p.parseComment())
+		case tok.Is(token.IDENT):
+			tree.Append(p.parseIdent(tok))
 		case tok.Is(token.ERROR):
 			return nil, fmt.Errorf("Error token: %s", tok)
 		}
@@ -73,5 +75,13 @@ func (p *Parser) parseComment() ast.CommentNode {
 	return ast.CommentNode{
 		Text:     token.Value,
 		NodeType: ast.NodeComment,
+	}
+}
+
+// parseIdent parses an ident token into an ident ast node.
+func (p *Parser) parseIdent(token token.Token) ast.IdentNode {
+	return ast.IdentNode{
+		Name:     token.Value,
+		NodeType: ast.NodeIdent,
 	}
 }
