@@ -315,3 +315,21 @@ func TestParserIntegration(t *testing.T) {
 		t.Errorf("got %v, wanted %v", tree, want)
 	}
 }
+
+// BenchmarkParseFullSpokfile determines the performance of parsing the integration spokfile above.
+func BenchmarkParseFullSpokfile(b *testing.B) {
+	p := &Parser{
+		lexer:     &testLexer{stream: fullSpokfileStream},
+		buffer:    [3]token.Token{},
+		peekCount: 0,
+	}
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		_, err := p.Parse()
+		if err != nil {
+			b.Fatalf("Parser returned an error token: %v", err)
+		}
+	}
+
+}
