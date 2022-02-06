@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
@@ -37,7 +38,8 @@ func newToken(typ token.Type, value string) token.Token {
 }
 
 var (
-	tHash = newToken(token.HASH, "#")
+	tHash    = newToken(token.HASH, "#")
+	tDeclare = newToken(token.DECLARE, ":=")
 )
 
 func TestEOF(t *testing.T) {
@@ -64,7 +66,6 @@ func TestParseComment(t *testing.T) {
 	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment")}
 	p := &Parser{
 		lexer:     &testLexer{stream: commentStream},
-		text:      "",
 		buffer:    [3]token.Token{},
 		peekCount: 0,
 	}
@@ -83,7 +84,7 @@ func TestParseComment(t *testing.T) {
 	}
 
 	node := tree.Nodes[0]
-	comment, ok := node.(ast.CommentNode)
+	comment, ok := node.(*ast.CommentNode)
 	if !ok {
 		t.Fatalf("Node was not a comment node, got %T", node)
 	}
@@ -94,11 +95,14 @@ func TestParseComment(t *testing.T) {
 
 }
 
-func TestParseIdent(t *testing.T) {
-	commentStream := []token.Token{newToken(token.IDENT, "GLOBAL")}
+func TestParseAssign(t *testing.T) {
+	commentStream := []token.Token{
+		newToken(token.IDENT, "GLOBAL"),
+		tDeclare,
+		newToken(token.STRING, "hello"),
+	}
 	p := &Parser{
 		lexer:     &testLexer{stream: commentStream},
-		text:      "",
 		buffer:    [3]token.Token{},
 		peekCount: 0,
 	}
@@ -117,13 +121,18 @@ func TestParseIdent(t *testing.T) {
 	}
 
 	node := tree.Nodes[0]
-	ident, ok := node.(ast.IdentNode)
+	assign, ok := node.(*ast.AssignNode)
 	if !ok {
-		t.Fatalf("Node was not an ident node, got %T", node)
+		t.Fatalf("Node was not an assign node, got %T", node)
 	}
 
-	if ident.Name != "GLOBAL" {
-		t.Errorf("Wrong ident name: got %s, wanted %s", ident.Name, "GLOBAL")
+	want := &ast.AssignNode{
+		Name:     &ast.IdentNode{Name: "GLOBAL", NodeType: ast.NodeIdent},
+		Value:    &ast.StringNode{Text: "hello", NodeType: ast.NodeString},
+		NodeType: ast.NodeAssign,
 	}
 
+	if !reflect.DeepEqual(assign, want) {
+		t.Errorf("got %#v, wanted %#v", assign, want)
+	}
 }

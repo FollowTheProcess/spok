@@ -12,7 +12,6 @@ import (
 // Parser is spok's AST parser.
 type Parser struct {
 	lexer     lexer.Tokeniser // The lexer.
-	text      string          // The raw input text.
 	buffer    [3]token.Token  // 3 token buffer, allows us to peek and backup in the token stream.
 	peekCount int             // How far we've "peeked" into our buffer.
 }
@@ -21,7 +20,6 @@ type Parser struct {
 func New(text string) *Parser {
 	return &Parser{
 		lexer: lexer.New(text),
-		text:  text,
 	}
 }
 
@@ -33,10 +31,14 @@ func (p *Parser) Parse() (*ast.Tree, error) {
 		switch tok := p.next(); {
 		case tok.Is(token.HASH):
 			tree.Append(p.parseComment())
+
 		case tok.Is(token.IDENT):
-			tree.Append(p.parseIdent(tok))
+			switch { // nolint: gocritic
+			case p.next().Is(token.DECLARE):
+				tree.Append(p.parseAssign(tok))
+			}
 		case tok.Is(token.ERROR):
-			return nil, fmt.Errorf("Error token: %s", tok)
+			return nil, fmt.Errorf("Parser error: %s", tok.Value)
 		}
 	}
 	return tree, nil
@@ -70,18 +72,46 @@ func (p *Parser) backup() { // nolint: unused
 
 // parseComment parses a comment token into a comment ast node,
 // the # has already been consumed.
-func (p *Parser) parseComment() ast.CommentNode {
+func (p *Parser) parseComment() *ast.CommentNode {
 	token := p.next()
-	return ast.CommentNode{
+	return &ast.CommentNode{
 		Text:     token.Value,
 		NodeType: ast.NodeComment,
 	}
 }
 
 // parseIdent parses an ident token into an ident ast node.
-func (p *Parser) parseIdent(token token.Token) ast.IdentNode {
-	return ast.IdentNode{
+func (p *Parser) parseIdent(token token.Token) *ast.IdentNode {
+	return &ast.IdentNode{
 		Name:     token.Value,
 		NodeType: ast.NodeIdent,
+	}
+}
+
+// parseAssign parses a global variable assignment into an assign ast node.
+// the ':=' is known to exist and has already been consumed, the encountered ident token is passed in.
+func (p *Parser) parseAssign(ident token.Token) *ast.AssignNode {
+	name := p.parseIdent(ident)
+
+	var rhs ast.Node
+
+	switch next := p.next(); {
+	case next.Is(token.STRING):
+		rhs = &ast.StringNode{
+			Text:     next.Value,
+			NodeType: ast.NodeString,
+		}
+	case next.Is(token.IDENT):
+		// Only other thing is a built in function
+		rhs = &ast.IdentNode{
+			Name:     next.Value,
+			NodeType: ast.NodeIdent,
+		}
+	}
+
+	return &ast.AssignNode{
+		Name:     name,
+		Value:    rhs,
+		NodeType: ast.NodeAssign,
 	}
 }
