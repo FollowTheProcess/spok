@@ -38,19 +38,46 @@ func TestNodeString(t *testing.T) {
 			want: "go test ./...",
 		},
 		{
-			name: "task",
+			name: "basic task",
 			node: TaskNode{
-				Name: &IdentNode{Name: "test", NodeType: NodeIdent},
+				Name: &IdentNode{
+					Name:     "test",
+					NodeType: NodeIdent,
+				},
 				Dependencies: []Node{
-					StringNode{Text: "**/*.go", NodeType: NodeString},
-					IdentNode{Name: "fmt", NodeType: NodeIdent},
+					&StringNode{
+						Text:     "file.go",
+						NodeType: NodeString,
+					},
 				},
 				Commands: []*CommandNode{
-					{Command: "go test ./...", NodeType: NodeCommand},
+					{
+						Command:  "go test ./...",
+						NodeType: NodeCommand,
+					},
 				},
 				NodeType: NodeTask,
 			},
-			want: `task test("**/*.go", fmt) {
+			want: `task test("file.go") {
+	go test ./...
+}`,
+		},
+		{
+			name: "task no args",
+			node: TaskNode{
+				Name: &IdentNode{
+					Name:     "test",
+					NodeType: NodeIdent,
+				},
+				Commands: []*CommandNode{
+					{
+						Command:  "go test ./...",
+						NodeType: NodeCommand,
+					},
+				},
+				NodeType: NodeTask,
+			},
+			want: `task test() {
 	go test ./...
 }`,
 		},

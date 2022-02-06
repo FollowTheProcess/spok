@@ -129,7 +129,9 @@ func (c CommandNode) Write(s *strings.Builder) {
 // TaskNode holds a spok task.
 type TaskNode struct {
 	Name         *IdentNode
+	Docstring    *CommentNode
 	Dependencies []Node
+	Outputs      []Node
 	Commands     []*CommandNode
 	NodeType
 }
@@ -146,11 +148,27 @@ func (t TaskNode) String() string {
 	for _, c := range t.Commands {
 		commands = append(commands, c.String())
 	}
+	if t.Docstring != nil {
+		s.WriteString(t.Docstring.String())
+		s.WriteString("\n")
+	}
 	s.WriteString("task ")
 	s.WriteString(t.Name.String())
 	s.WriteString("(")
 	s.WriteString(strings.Join(deps, ", "))
 	s.WriteString(")")
+	if len(t.Outputs) != 0 {
+		s.WriteString(" -> ")
+		switch len(t.Outputs) {
+		case 1:
+			s.WriteString(t.Outputs[0].String())
+		default:
+			s.WriteString("(")
+			for _, output := range t.Outputs {
+				s.WriteString(output.String())
+			}
+		}
+	}
 	s.WriteString(" {\n\t")
 	s.WriteString(strings.Join(commands, "\n"))
 	s.WriteString("\n")
