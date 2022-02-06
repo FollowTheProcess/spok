@@ -101,6 +101,41 @@ func TestParseComment(t *testing.T) {
 
 }
 
+func TestParseIdent(t *testing.T) {
+	identStream := []token.Token{
+		newToken(token.IDENT, "GLOBAL"),
+	}
+	p := &Parser{
+		lexer:     &testLexer{stream: identStream},
+		buffer:    [3]token.Token{},
+		peekCount: 0,
+	}
+
+	tree, err := p.Parse()
+	if err != nil {
+		t.Fatalf("Parser returned an error token: %v", err)
+	}
+
+	if tree == nil {
+		t.Fatalf("Parser returned a nil AST")
+	}
+
+	if len(tree.Nodes) != 1 {
+		t.Fatalf("Wrong number of ast nodes, got %d, wanted %d", len(tree.Nodes), 1)
+	}
+
+	node := tree.Nodes[0]
+	ident, ok := node.(*ast.IdentNode)
+	if !ok {
+		t.Fatalf("Node was not a comment node, got %T", node)
+	}
+
+	if ident.Name != "GLOBAL" {
+		t.Errorf("Wrong ident name: got %s, wanted %s", ident.Name, "GLOBAL")
+	}
+
+}
+
 func TestParseAssign(t *testing.T) {
 	assignStream := []token.Token{
 		newToken(token.IDENT, "GLOBAL"),

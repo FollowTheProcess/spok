@@ -31,11 +31,12 @@ func (p *Parser) Parse() (*ast.Tree, error) {
 		switch tok := p.next(); {
 		case tok.Is(token.HASH):
 			tree.Append(p.parseComment())
-
 		case tok.Is(token.IDENT):
-			switch { // nolint: gocritic
+			switch {
 			case p.next().Is(token.DECLARE):
 				tree.Append(p.parseAssign(tok))
+			default:
+				tree.Append(p.parseIdent(tok))
 			}
 		case tok.Is(token.ERROR):
 			return nil, fmt.Errorf("Parser error: %s", tok.Value)
