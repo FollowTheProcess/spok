@@ -65,10 +65,14 @@ func (p *Parser) peek() token.Token {
 	return p.buffer[0]
 }
 
-// backup backs up by one token.
-func (p *Parser) backup() { // nolint: unused
-	// TODO: Unused for now but we know we'll need it
-	p.peekCount++
+// expect consumes the given token if present, and returns
+// an error if not.
+func (p *Parser) expect(expected token.Type) error {
+	next := p.next()
+	if !next.Is(expected) {
+		return fmt.Errorf("Unexpected token: %s", next)
+	}
+	return nil
 }
 
 // parseComment parses a comment token into a comment ast node,

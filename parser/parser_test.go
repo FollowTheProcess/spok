@@ -76,24 +76,10 @@ func TestParseComment(t *testing.T) {
 		peekCount: 0,
 	}
 
-	tree, err := p.Parse()
-	if err != nil {
-		t.Fatalf("Parser returned an error token: %v", err)
+	if err := p.expect(token.HASH); err != nil {
+		t.Fatal(err)
 	}
-
-	if tree == nil {
-		t.Fatalf("Parser returned a nil AST")
-	}
-
-	if len(tree.Nodes) != 1 {
-		t.Fatalf("Wrong number of ast nodes, got %d, wanted %d", len(tree.Nodes), 1)
-	}
-
-	node := tree.Nodes[0]
-	comment, ok := node.(*ast.CommentNode)
-	if !ok {
-		t.Fatalf("Node was not a comment node, got %T", node)
-	}
+	comment := p.parseComment()
 
 	if comment.Text != " A comment" {
 		t.Errorf("Wrong comment text: got %s, wanted %s", comment.Text, " A comment")
@@ -111,24 +97,7 @@ func TestParseIdent(t *testing.T) {
 		peekCount: 0,
 	}
 
-	tree, err := p.Parse()
-	if err != nil {
-		t.Fatalf("Parser returned an error token: %v", err)
-	}
-
-	if tree == nil {
-		t.Fatalf("Parser returned a nil AST")
-	}
-
-	if len(tree.Nodes) != 1 {
-		t.Fatalf("Wrong number of ast nodes, got %d, wanted %d", len(tree.Nodes), 1)
-	}
-
-	node := tree.Nodes[0]
-	ident, ok := node.(*ast.IdentNode)
-	if !ok {
-		t.Fatalf("Node was not a comment node, got %T", node)
-	}
+	ident := p.parseIdent(p.next())
 
 	if ident.Name != "GLOBAL" {
 		t.Errorf("Wrong ident name: got %s, wanted %s", ident.Name, "GLOBAL")
@@ -148,24 +117,11 @@ func TestParseAssign(t *testing.T) {
 		peekCount: 0,
 	}
 
-	tree, err := p.Parse()
-	if err != nil {
-		t.Fatalf("Parser returned an error token: %v", err)
+	ident := p.next()
+	if err := p.expect(token.DECLARE); err != nil {
+		t.Fatal(err)
 	}
-
-	if tree == nil {
-		t.Fatalf("Parser returned a nil AST")
-	}
-
-	if len(tree.Nodes) != 1 {
-		t.Fatalf("Wrong number of ast nodes, got %d, wanted %d", len(tree.Nodes), 1)
-	}
-
-	node := tree.Nodes[0]
-	assign, ok := node.(*ast.AssignNode)
-	if !ok {
-		t.Fatalf("Node was not an assign node, got %T", node)
-	}
+	assign := p.parseAssign(ident)
 
 	want := &ast.AssignNode{
 		Name:     &ast.IdentNode{Name: "GLOBAL", NodeType: ast.NodeIdent},
