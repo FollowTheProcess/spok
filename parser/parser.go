@@ -27,21 +27,6 @@ func New(text string) *Parser {
 // input text to EOF or Error and returns the full AST.
 func (p *Parser) Parse() (*ast.Tree, error) {
 	tree := &ast.Tree{}
-	for p.peek().Type != token.EOF {
-		switch tok := p.next(); {
-		case tok.Is(token.HASH):
-			tree.Append(p.parseComment())
-		case tok.Is(token.IDENT):
-			switch {
-			case p.next().Is(token.DECLARE):
-				tree.Append(p.parseAssign(tok))
-			default:
-				tree.Append(p.parseIdent(tok))
-			}
-		case tok.Is(token.ERROR):
-			return nil, fmt.Errorf("Parser error: %s", tok.Value)
-		}
-	}
 	return tree, nil
 }
 
@@ -56,7 +41,7 @@ func (p *Parser) next() token.Token {
 }
 
 // peek returns, but does not consume, the next token from the lexer.
-func (p *Parser) peek() token.Token {
+func (p *Parser) peek() token.Token { // nolint: unused
 	if p.peekCount > 0 {
 		return p.buffer[p.peekCount-1]
 	}
@@ -77,18 +62,17 @@ func (p *Parser) expect(expected token.Type) error {
 
 // parseComment parses a comment token into a comment ast node,
 // the # has already been consumed.
-func (p *Parser) parseComment() *ast.CommentNode {
-	token := p.next()
+func (p *Parser) parseComment(comment token.Token) *ast.CommentNode {
 	return &ast.CommentNode{
-		Text:     token.Value,
+		Text:     comment.Value,
 		NodeType: ast.NodeComment,
 	}
 }
 
 // parseIdent parses an ident token into an ident ast node.
-func (p *Parser) parseIdent(token token.Token) *ast.IdentNode {
+func (p *Parser) parseIdent(ident token.Token) *ast.IdentNode {
 	return &ast.IdentNode{
-		Name:     token.Value,
+		Name:     ident.Value,
 		NodeType: ast.NodeIdent,
 	}
 }
