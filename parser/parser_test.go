@@ -107,7 +107,7 @@ func TestParseIdent(t *testing.T) {
 
 func TestParseAssign(t *testing.T) {
 	tests := []struct {
-		want   *ast.AssignNode
+		want   *ast.Assign
 		name   string
 		stream []token.Token
 	}{
@@ -118,9 +118,9 @@ func TestParseAssign(t *testing.T) {
 				tDeclare,
 				newToken(token.STRING, "hello"),
 			},
-			want: &ast.AssignNode{
-				Name:     &ast.IdentNode{Name: "GLOBAL", NodeType: ast.NodeIdent},
-				Value:    &ast.StringNode{Text: "hello", NodeType: ast.NodeString},
+			want: &ast.Assign{
+				Name:     &ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent},
+				Value:    &ast.String{Text: "hello", NodeType: ast.NodeString},
 				NodeType: ast.NodeAssign,
 			},
 		},
@@ -131,9 +131,9 @@ func TestParseAssign(t *testing.T) {
 				tDeclare,
 				newToken(token.IDENT, "VARIABLE"),
 			},
-			want: &ast.AssignNode{
-				Name:     &ast.IdentNode{Name: "GLOBAL", NodeType: ast.NodeIdent},
-				Value:    &ast.IdentNode{Name: "VARIABLE", NodeType: ast.NodeIdent},
+			want: &ast.Assign{
+				Name:     &ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent},
+				Value:    &ast.Ident{Name: "VARIABLE", NodeType: ast.NodeIdent},
 				NodeType: ast.NodeAssign,
 			},
 		},

@@ -55,88 +55,88 @@ type Node interface {
 	Write(s *strings.Builder) // Write the formatted syntax back out to a builder.
 }
 
-// CommentNode holds a comment.
-type CommentNode struct {
+// Comment holds a comment.
+type Comment struct {
 	Text string // The comment text.
 	NodeType
 }
 
-func (c CommentNode) String() string {
+func (c Comment) String() string {
 	return fmt.Sprintf("# %s", strings.TrimSpace(c.Text))
 }
 
-func (c CommentNode) Write(s *strings.Builder) {
+func (c Comment) Write(s *strings.Builder) {
 	s.WriteString(c.String())
 }
 
-// StringNode holds a string.
-type StringNode struct {
+// String holds a string.
+type String struct {
 	Text string
 	NodeType
 }
 
-func (s StringNode) String() string {
+func (s String) String() string {
 	return fmt.Sprintf("%q", s.Text)
 }
 
-func (s StringNode) Write(sb *strings.Builder) {
+func (s String) Write(sb *strings.Builder) {
 	sb.WriteString(s.String())
 }
 
-// IdentNode holds an identifier.
-type IdentNode struct {
+// Ident holds an identifier.
+type Ident struct {
 	Name string // The name of the identifier.
 	NodeType
 }
 
-func (i IdentNode) String() string {
+func (i Ident) String() string {
 	return i.Name
 }
 
-func (i IdentNode) Write(s *strings.Builder) {
+func (i Ident) Write(s *strings.Builder) {
 	s.WriteString(i.String())
 }
 
-// AssignNode holds a global variable assignment.
-type AssignNode struct {
-	Name  *IdentNode // The identifier e.g. GIT_COMMIT
-	Value Node       // The value it's set to (string, or builtin)
+// Assign holds a global variable assignment.
+type Assign struct {
+	Name  *Ident // The identifier e.g. GIT_COMMIT
+	Value Node   // The value it's set to (string, or builtin)
 	NodeType
 }
 
-func (a AssignNode) String() string {
+func (a Assign) String() string {
 	return fmt.Sprintf("%s := %s", a.Name.String(), a.Value.String())
 }
 
-func (a AssignNode) Write(s *strings.Builder) {
+func (a Assign) Write(s *strings.Builder) {
 	s.WriteString(a.String())
 }
 
-// CommandNode holds a task command.
-type CommandNode struct {
+// Command holds a task command.
+type Command struct {
 	Command string // The shell command to run
 	NodeType
 }
 
-func (c CommandNode) String() string {
+func (c Command) String() string {
 	return c.Command
 }
 
-func (c CommandNode) Write(s *strings.Builder) {
+func (c Command) Write(s *strings.Builder) {
 	s.WriteString(c.String())
 }
 
-// TaskNode holds a spok task.
-type TaskNode struct {
-	Name         *IdentNode
-	Docstring    *CommentNode
+// Task holds a spok task.
+type Task struct {
+	Name         *Ident
+	Docstring    *Comment
 	Dependencies []Node
 	Outputs      []Node
-	Commands     []*CommandNode
+	Commands     []*Command
 	NodeType
 }
 
-func (t TaskNode) String() string {
+func (t Task) String() string {
 	s := strings.Builder{}
 	deps := []string{}
 	commands := []string{}
@@ -177,6 +177,6 @@ func (t TaskNode) String() string {
 	return s.String()
 }
 
-func (t TaskNode) Write(s *strings.Builder) {
+func (t Task) Write(s *strings.Builder) {
 	s.WriteString(t.String())
 }

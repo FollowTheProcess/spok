@@ -62,16 +62,16 @@ func (p *Parser) expect(expected token.Type) error {
 
 // parseComment parses a comment token into a comment ast node,
 // the # has already been consumed.
-func (p *Parser) parseComment(comment token.Token) *ast.CommentNode {
-	return &ast.CommentNode{
+func (p *Parser) parseComment(comment token.Token) *ast.Comment {
+	return &ast.Comment{
 		Text:     comment.Value,
 		NodeType: ast.NodeComment,
 	}
 }
 
 // parseIdent parses an ident token into an ident ast node.
-func (p *Parser) parseIdent(ident token.Token) *ast.IdentNode {
-	return &ast.IdentNode{
+func (p *Parser) parseIdent(ident token.Token) *ast.Ident {
+	return &ast.Ident{
 		Name:     ident.Value,
 		NodeType: ast.NodeIdent,
 	}
@@ -79,26 +79,26 @@ func (p *Parser) parseIdent(ident token.Token) *ast.IdentNode {
 
 // parseAssign parses a global variable assignment into an assign ast node.
 // the ':=' is known to exist and has already been consumed, the encountered ident token is passed in.
-func (p *Parser) parseAssign(ident token.Token) *ast.AssignNode {
+func (p *Parser) parseAssign(ident token.Token) *ast.Assign {
 	name := p.parseIdent(ident)
 
 	var rhs ast.Node
 
 	switch next := p.next(); {
 	case next.Is(token.STRING):
-		rhs = &ast.StringNode{
+		rhs = &ast.String{
 			Text:     next.Value,
 			NodeType: ast.NodeString,
 		}
 	case next.Is(token.IDENT):
 		// Only other thing is a built in function
-		rhs = &ast.IdentNode{
+		rhs = &ast.Ident{
 			Name:     next.Value,
 			NodeType: ast.NodeIdent,
 		}
 	}
 
-	return &ast.AssignNode{
+	return &ast.Assign{
 		Name:     name,
 		Value:    rhs,
 		NodeType: ast.NodeAssign,

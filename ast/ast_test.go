@@ -10,47 +10,47 @@ func TestNodeString(t *testing.T) {
 	}{
 		{
 			name: "comment",
-			node: CommentNode{Text: " A comment", NodeType: NodeComment},
+			node: Comment{Text: " A comment", NodeType: NodeComment},
 			want: "# A comment",
 		},
 		{
 			name: "string",
-			node: StringNode{Text: "hello", NodeType: NodeString},
+			node: String{Text: "hello", NodeType: NodeString},
 			want: `"hello"`,
 		},
 		{
 			name: "ident",
-			node: IdentNode{Name: "GIT_COMMIT", NodeType: NodeIdent},
+			node: Ident{Name: "GIT_COMMIT", NodeType: NodeIdent},
 			want: "GIT_COMMIT",
 		},
 		{
 			name: "assign",
-			node: AssignNode{
-				Name:     &IdentNode{Name: "GIT_COMMIT", NodeType: NodeIdent},
-				Value:    StringNode{Text: "a2736ef997c926", NodeType: NodeString},
+			node: Assign{
+				Name:     &Ident{Name: "GIT_COMMIT", NodeType: NodeIdent},
+				Value:    String{Text: "a2736ef997c926", NodeType: NodeString},
 				NodeType: NodeAssign,
 			},
 			want: `GIT_COMMIT := "a2736ef997c926"`,
 		},
 		{
 			name: "command",
-			node: CommandNode{Command: "go test ./...", NodeType: NodeCommand},
+			node: Command{Command: "go test ./...", NodeType: NodeCommand},
 			want: "go test ./...",
 		},
 		{
 			name: "basic task",
-			node: TaskNode{
-				Name: &IdentNode{
+			node: Task{
+				Name: &Ident{
 					Name:     "test",
 					NodeType: NodeIdent,
 				},
 				Dependencies: []Node{
-					&StringNode{
+					&String{
 						Text:     "file.go",
 						NodeType: NodeString,
 					},
 				},
-				Commands: []*CommandNode{
+				Commands: []*Command{
 					{
 						Command:  "go test ./...",
 						NodeType: NodeCommand,
@@ -64,12 +64,12 @@ func TestNodeString(t *testing.T) {
 		},
 		{
 			name: "task no args",
-			node: TaskNode{
-				Name: &IdentNode{
+			node: Task{
+				Name: &Ident{
 					Name:     "test",
 					NodeType: NodeIdent,
 				},
-				Commands: []*CommandNode{
+				Commands: []*Command{
 					{
 						Command:  "go test ./...",
 						NodeType: NodeCommand,
