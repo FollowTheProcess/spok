@@ -40,9 +40,9 @@ func newToken(typ token.Type, value string) token.Token {
 var (
 	tHash    = newToken(token.HASH, "#")
 	tDeclare = newToken(token.DECLARE, ":=")
-	// tTask    = newToken(token.TASK, "task")
 	// tLParen  = newToken(token.LPAREN, "(")
 	// tRParen  = newToken(token.RPAREN, ")")
+	// tTask    = newToken(token.TASK, "task")
 	// tLBrace  = newToken(token.LBRACE, "{")
 	// tRBrace  = newToken(token.RBRACE, "}")
 	// tOutput  = newToken(token.OUTPUT, "->").
@@ -121,6 +121,19 @@ func TestParseAssign(t *testing.T) {
 			want: &ast.AssignNode{
 				Name:     &ast.IdentNode{Name: "GLOBAL", NodeType: ast.NodeIdent},
 				Value:    &ast.StringNode{Text: "hello", NodeType: ast.NodeString},
+				NodeType: ast.NodeAssign,
+			},
+		},
+		{
+			name: "ident rhs",
+			stream: []token.Token{
+				newToken(token.IDENT, "GLOBAL"),
+				tDeclare,
+				newToken(token.IDENT, "VARIABLE"),
+			},
+			want: &ast.AssignNode{
+				Name:     &ast.IdentNode{Name: "GLOBAL", NodeType: ast.NodeIdent},
+				Value:    &ast.IdentNode{Name: "VARIABLE", NodeType: ast.NodeIdent},
 				NodeType: ast.NodeAssign,
 			},
 		},
