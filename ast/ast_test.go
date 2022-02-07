@@ -38,6 +38,18 @@ func TestNodeString(t *testing.T) {
 			want: "go test ./...",
 		},
 		{
+			name: "function",
+			node: Function{
+				Name: &Ident{
+					Name:     "exec",
+					NodeType: NodeIdent,
+				},
+				Arguments: []Node{
+					String{Text: "git rev-parse HEAD", NodeType: NodeString},
+				}},
+			want: `exec("git rev-parse HEAD")`,
+		},
+		{
 			name: "basic task",
 			node: Task{
 				Name: &Ident{

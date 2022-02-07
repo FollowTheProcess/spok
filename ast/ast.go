@@ -180,3 +180,23 @@ func (t Task) String() string {
 func (t Task) Write(s *strings.Builder) {
 	s.WriteString(t.String())
 }
+
+type Function struct {
+	Name      *Ident
+	Arguments []Node
+	NodeType
+}
+
+func (f Function) String() string {
+	args := []string{}
+
+	for _, arg := range f.Arguments {
+		args = append(args, arg.String())
+	}
+
+	return fmt.Sprintf("%s(%s)", f.Name.String(), strings.Join(args, ", "))
+}
+
+func (f Function) Write(s *strings.Builder) {
+	s.WriteString(f.String())
+}
