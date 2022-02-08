@@ -77,6 +77,14 @@ func (p *Parser) parseIdent(ident token.Token) *ast.Ident {
 	}
 }
 
+// parseString parses a string token into a string ast node.
+func (p *Parser) parseString(s token.Token) *ast.String {
+	return &ast.String{
+		Text:     s.Value,
+		NodeType: ast.NodeString,
+	}
+}
+
 // parseFunction parses an ident token into a function ast node.
 func (p *Parser) parseFunction(ident token.Token) *ast.Function {
 	args := []ast.Node{}
@@ -85,7 +93,7 @@ func (p *Parser) parseFunction(ident token.Token) *ast.Function {
 	for next := p.next(); !next.Is(token.RPAREN); {
 		switch {
 		case next.Is(token.STRING):
-			args = append(args, &ast.String{Text: next.Value, NodeType: ast.NodeString})
+			args = append(args, p.parseString(next))
 		case next.Is(token.IDENT):
 			args = append(args, p.parseIdent(next))
 		}
@@ -109,10 +117,7 @@ func (p *Parser) parseAssign(ident token.Token) *ast.Assign {
 
 	switch next := p.next(); {
 	case next.Is(token.STRING):
-		rhs = &ast.String{
-			Text:     next.Value,
-			NodeType: ast.NodeString,
-		}
+		rhs = p.parseString(next)
 	case next.Is(token.IDENT):
 		// Only other thing is a built in function
 		rhs = p.parseFunction(next)
