@@ -129,3 +129,78 @@ func (p *Parser) parseAssign(ident token.Token) *ast.Assign {
 		NodeType: ast.NodeAssign,
 	}
 }
+
+// parseTask parses and returns a task ast node, the task keyword has already
+// been encountered and consumed, the docstring comment is passed in if present
+// and will be nil if no docstring.
+func (p *Parser) parseTask(doc *ast.Comment) *ast.Task {
+	name := p.parseIdent(p.next())
+
+	docstring := &ast.Comment{NodeType: ast.NodeComment}
+	if doc != nil {
+		docstring = doc
+	}
+
+	p.next() // '('
+
+	dependencies := []ast.Node{}
+	for next := p.next(); !next.Is(token.RPAREN); {
+		switch {
+		case next.Is(token.STRING):
+			dependencies = append(dependencies, p.parseString(next))
+		case next.Is(token.IDENT):
+			dependencies = append(dependencies, p.parseIdent(next))
+		}
+		next = p.next()
+	}
+
+	outputs := []ast.Node{}
+	if p.peek().Is(token.OUTPUT) {
+		switch next := p.next(); {
+		case next.Is(token.STRING):
+			outputs = append(outputs, p.parseString(next))
+		case next.Is(token.IDENT):
+			outputs = append(outputs, p.parseIdent(next))
+		case next.Is(token.LPAREN):
+			for tok := p.next(); !tok.Is(token.RPAREN); {
+				switch {
+				case tok.Is(token.STRING):
+					outputs = append(outputs, p.parseString(tok))
+				case tok.Is(token.IDENT):
+					outputs = append(outputs, p.parseIdent(tok))
+				}
+				tok = p.next()
+			}
+		}
+	}
+
+	p.next() // '{'
+
+	commands := []*ast.Command{}
+	for {
+		next := p.next()
+		if next.Is(token.RBRACE) {
+			break
+		}
+		if next.Is(token.COMMAND) {
+			commands = append(commands, p.parseCommand(next))
+		}
+	}
+
+	return &ast.Task{
+		Name:         name,
+		Docstring:    docstring,
+		Dependencies: dependencies,
+		Outputs:      outputs,
+		Commands:     commands,
+		NodeType:     ast.NodeTask,
+	}
+}
+
+// parseCommand parses task commands into ast command nodes.
+func (p *Parser) parseCommand(command token.Token) *ast.Command {
+	return &ast.Command{
+		Command:  command.Value,
+		NodeType: ast.NodeCommand,
+	}
+}

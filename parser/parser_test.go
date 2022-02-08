@@ -42,9 +42,9 @@ var (
 	tDeclare = newToken(token.DECLARE, ":=")
 	tLParen  = newToken(token.LPAREN, "(")
 	tRParen  = newToken(token.RPAREN, ")")
-	// tTask    = newToken(token.TASK, "task")
-	// tLBrace  = newToken(token.LBRACE, "{")
-	// tRBrace  = newToken(token.RBRACE, "}")
+	tTask    = newToken(token.TASK, "task")
+	tLBrace  = newToken(token.LBRACE, "{")
+	tRBrace  = newToken(token.RBRACE, "}")
 	// tOutput  = newToken(token.OUTPUT, "->").
 )
 
@@ -187,4 +187,91 @@ func TestParseAssign(t *testing.T) {
 		})
 	}
 
+}
+
+func TestParseTask(t *testing.T) {
+	tests := []struct {
+		want   *ast.Task
+		name   string
+		stream []token.Token
+	}{
+		{
+			name: "basic task",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "test"),
+				tLParen,
+				tRParen,
+				tLBrace,
+				newToken(token.COMMAND, "go test ./..."),
+				tRBrace,
+			},
+			want: &ast.Task{
+				Name: &ast.Ident{
+					Name:     "test",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring:    &ast.Comment{NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{},
+				Outputs:      []ast.Node{},
+				Commands: []*ast.Command{
+					{
+						Command:  "go test ./...",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
+		},
+		{
+			name: "task with dependency",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "build"),
+				tLParen,
+				newToken(token.STRING, `"file.go"`),
+				tRParen,
+				tLBrace,
+				newToken(token.COMMAND, "go build"),
+				tRBrace,
+			},
+			want: &ast.Task{
+				Name: &ast.Ident{
+					Name:     "build",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{
+					&ast.String{
+						Text:     `"file.go"`,
+						NodeType: ast.NodeString,
+					},
+				},
+				Outputs: []ast.Node{},
+				Commands: []*ast.Command{
+					{
+						Command:  "go build",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &Parser{
+				lexer:     &testLexer{stream: tt.stream},
+				buffer:    [3]token.Token{},
+				peekCount: 0,
+			}
+			p.next() // task keyword
+			task := p.parseTask(nil)
+
+			if !reflect.DeepEqual(task, tt.want) {
+				t.Errorf("got %v, wanted %v", task, tt.want)
+			}
+		})
+	}
 }
