@@ -45,7 +45,7 @@ var (
 	tTask    = newToken(token.TASK, "task")
 	tLBrace  = newToken(token.LBRACE, "{")
 	tRBrace  = newToken(token.RBRACE, "}")
-	// tOutput  = newToken(token.OUTPUT, "->").
+	tOutput  = newToken(token.OUTPUT, "->")
 )
 
 func TestEOF(t *testing.T) {
@@ -399,6 +399,47 @@ func TestParseTask(t *testing.T) {
 					},
 				},
 				Outputs: []ast.Node{},
+				Commands: []*ast.Command{
+					{
+						Command:  "go build",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
+		},
+		{
+			name: "task with string output",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "build"),
+				tLParen,
+				newToken(token.STRING, "**/*.go"),
+				tRParen,
+				tOutput,
+				newToken(token.STRING, "./bin/main"),
+				tLBrace,
+				newToken(token.COMMAND, "go build"),
+				tRBrace,
+			},
+			want: &ast.Task{
+				Name: &ast.Ident{
+					Name:     "build",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{
+					&ast.String{
+						Text:     "**/*.go",
+						NodeType: ast.NodeString,
+					},
+				},
+				Outputs: []ast.Node{
+					&ast.String{
+						Text:     "./bin/main",
+						NodeType: ast.NodeString,
+					},
+				},
 				Commands: []*ast.Command{
 					{
 						Command:  "go build",

@@ -155,9 +155,11 @@ func (p *Parser) parseTask(doc *ast.Comment) *ast.Task {
 	}
 
 	outputs := []ast.Node{}
-	if p.peek().Is(token.OUTPUT) {
+	if p.next().Is(token.OUTPUT) {
+		fmt.Println("In output")
 		switch next := p.next(); {
 		case next.Is(token.STRING):
+			fmt.Printf("Next: %v\n", next)
 			outputs = append(outputs, p.parseString(next))
 		case next.Is(token.IDENT):
 			outputs = append(outputs, p.parseIdent(next))
@@ -173,8 +175,6 @@ func (p *Parser) parseTask(doc *ast.Comment) *ast.Task {
 			}
 		}
 	}
-
-	p.next() // '{'
 
 	commands := []*ast.Command{}
 	for {
