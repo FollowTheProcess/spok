@@ -159,6 +159,21 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "global variable join RHS",
+		input: `TEST := join(ROOT, "docs", "build")`,
+		tokens: []token.Token{
+			newToken(token.IDENT, "TEST"),
+			tDeclare,
+			newToken(token.IDENT, "join"),
+			tLParen,
+			newToken(token.IDENT, "ROOT"),
+			newToken(token.STRING, `"docs"`),
+			newToken(token.STRING, `"build"`),
+			tRParen,
+			tEOF,
+		},
+	},
+	{
 		name:  "basic task",
 		input: `task test("file.go") { go test ./... }`,
 		tokens: []token.Token{
