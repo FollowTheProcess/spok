@@ -40,8 +40,8 @@ func newToken(typ token.Type, value string) token.Token {
 var (
 	tHash    = newToken(token.HASH, "#")
 	tDeclare = newToken(token.DECLARE, ":=")
-	// tLParen  = newToken(token.LPAREN, "(")
-	// tRParen  = newToken(token.RPAREN, ")")
+	tLParen  = newToken(token.LPAREN, "(")
+	tRParen  = newToken(token.RPAREN, ")")
 	// tTask    = newToken(token.TASK, "task")
 	// tLBrace  = newToken(token.LBRACE, "{")
 	// tRBrace  = newToken(token.RBRACE, "}")
@@ -129,11 +129,39 @@ func TestParseAssign(t *testing.T) {
 			stream: []token.Token{
 				newToken(token.IDENT, "GLOBAL"),
 				tDeclare,
-				newToken(token.IDENT, "VARIABLE"),
+				newToken(token.STRING, "VARIABLE"),
 			},
 			want: &ast.Assign{
 				Name:     &ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent},
-				Value:    &ast.Ident{Name: "VARIABLE", NodeType: ast.NodeIdent},
+				Value:    &ast.String{Text: "VARIABLE", NodeType: ast.NodeString},
+				NodeType: ast.NodeAssign,
+			},
+		},
+		{
+			name: "function rhs",
+			stream: []token.Token{
+				newToken(token.IDENT, "GIT_COMMIT"),
+				tDeclare,
+				newToken(token.IDENT, "exec"),
+				tLParen,
+				newToken(token.STRING, "git rev-parse HEAD"),
+				tRParen,
+			},
+			want: &ast.Assign{
+				Name: &ast.Ident{Name: "GIT_COMMIT", NodeType: ast.NodeIdent},
+				Value: &ast.Function{
+					Name: &ast.Ident{
+						Name:     "exec",
+						NodeType: ast.NodeIdent,
+					},
+					Arguments: []ast.Node{
+						&ast.String{
+							Text:     "git rev-parse HEAD",
+							NodeType: ast.NodeString,
+						},
+					},
+					NodeType: ast.NodeFunction,
+				},
 				NodeType: ast.NodeAssign,
 			},
 		},
@@ -154,7 +182,7 @@ func TestParseAssign(t *testing.T) {
 			assign := p.parseAssign(ident)
 
 			if !reflect.DeepEqual(assign, tt.want) {
-				t.Errorf("got %#v, wanted %#v", assign, tt.want)
+				t.Errorf("got %v, wanted %v", assign, tt.want)
 			}
 		})
 	}

@@ -77,6 +77,29 @@ func (p *Parser) parseIdent(ident token.Token) *ast.Ident {
 	}
 }
 
+// parseFunction parses an ident token into a function ast node.
+func (p *Parser) parseFunction(ident token.Token) *ast.Function {
+	args := []ast.Node{}
+	p.next() // '('
+
+	for next := p.next(); !next.Is(token.RPAREN); {
+		switch {
+		case next.Is(token.STRING):
+			args = append(args, &ast.String{Text: next.Value, NodeType: ast.NodeString})
+		case next.Is(token.IDENT):
+			args = append(args, p.parseIdent(next))
+		}
+		next = p.next()
+	}
+
+	fn := &ast.Function{
+		Name:      p.parseIdent(ident),
+		Arguments: args,
+		NodeType:  ast.NodeFunction,
+	}
+	return fn
+}
+
 // parseAssign parses a global variable assignment into an assign ast node.
 // the ':=' is known to exist and has already been consumed, the encountered ident token is passed in.
 func (p *Parser) parseAssign(ident token.Token) *ast.Assign {
@@ -92,10 +115,7 @@ func (p *Parser) parseAssign(ident token.Token) *ast.Assign {
 		}
 	case next.Is(token.IDENT):
 		// Only other thing is a built in function
-		rhs = &ast.Ident{
-			Name:     next.Value,
-			NodeType: ast.NodeIdent,
-		}
+		rhs = p.parseFunction(next)
 	}
 
 	return &ast.Assign{
