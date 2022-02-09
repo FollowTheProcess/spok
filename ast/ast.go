@@ -180,9 +180,10 @@ func (t Task) String() string {
 			s.WriteString(")")
 		}
 	}
-	s.WriteString(" {\n\t")
-	s.WriteString(strings.Join(commands, "\n"))
-	s.WriteString("\n")
+	s.WriteString(" {\n")
+	for _, command := range commands {
+		s.WriteString(fmt.Sprintf("    %s\n", command))
+	}
 	s.WriteString("}")
 
 	return s.String()

@@ -71,7 +71,7 @@ func TestNodeString(t *testing.T) {
 				NodeType: NodeTask,
 			},
 			want: `task test("file.go") {
-	go test ./...
+    go test ./...
 }`,
 		},
 		{
@@ -90,7 +90,7 @@ func TestNodeString(t *testing.T) {
 				NodeType: NodeTask,
 			},
 			want: `task test() {
-	go test ./...
+    go test ./...
 }`,
 		},
 	}
@@ -98,7 +98,7 @@ func TestNodeString(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.node.String(); got != tt.want {
-				t.Errorf("got %s, wanted %s", got, tt.want)
+				t.Errorf("got %#v, wanted %#v", got, tt.want)
 			}
 		})
 	}
