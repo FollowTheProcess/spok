@@ -72,16 +72,6 @@ func (p *Parser) next() token.Token {
 	return p.buffer[p.peekCount]
 }
 
-// peek returns, but does not consume, the next token from the lexer.
-func (p *Parser) peek() token.Token { // nolint: unused
-	if p.peekCount > 0 {
-		return p.buffer[p.peekCount-1]
-	}
-	p.peekCount = 1
-	p.buffer[0] = p.lexer.NextToken()
-	return p.buffer[0]
-}
-
 // backups backs up in the input stream by one token.
 func (p *Parser) backup() {
 	p.peekCount++
