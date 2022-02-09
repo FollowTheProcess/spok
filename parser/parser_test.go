@@ -51,7 +51,7 @@ var (
 
 func TestParseComment(t *testing.T) {
 	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment")}
-	p := &Parser{
+	p := Parser{
 		lexer:     &testLexer{stream: commentStream},
 		buffer:    [3]token.Token{},
 		peekCount: 0,
@@ -73,7 +73,7 @@ func TestParseIdent(t *testing.T) {
 	identStream := []token.Token{
 		newToken(token.IDENT, "GLOBAL"),
 	}
-	p := &Parser{
+	p := Parser{
 		lexer:     &testLexer{stream: identStream},
 		buffer:    [3]token.Token{},
 		peekCount: 0,
@@ -89,9 +89,9 @@ func TestParseIdent(t *testing.T) {
 
 func TestParseAssign(t *testing.T) {
 	tests := []struct {
-		want   *ast.Assign
 		name   string
 		stream []token.Token
+		want   ast.Assign
 	}{
 		{
 			name: "string rhs",
@@ -100,9 +100,9 @@ func TestParseAssign(t *testing.T) {
 				tDeclare,
 				newToken(token.STRING, "hello"),
 			},
-			want: &ast.Assign{
-				Name:     &ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent},
-				Value:    &ast.String{Text: "hello", NodeType: ast.NodeString},
+			want: ast.Assign{
+				Name:     ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent},
+				Value:    ast.String{Text: "hello", NodeType: ast.NodeString},
 				NodeType: ast.NodeAssign,
 			},
 		},
@@ -113,9 +113,9 @@ func TestParseAssign(t *testing.T) {
 				tDeclare,
 				newToken(token.STRING, "VARIABLE"),
 			},
-			want: &ast.Assign{
-				Name:     &ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent},
-				Value:    &ast.String{Text: "VARIABLE", NodeType: ast.NodeString},
+			want: ast.Assign{
+				Name:     ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent},
+				Value:    ast.String{Text: "VARIABLE", NodeType: ast.NodeString},
 				NodeType: ast.NodeAssign,
 			},
 		},
@@ -129,15 +129,15 @@ func TestParseAssign(t *testing.T) {
 				newToken(token.STRING, "git rev-parse HEAD"),
 				tRParen,
 			},
-			want: &ast.Assign{
-				Name: &ast.Ident{Name: "GIT_COMMIT", NodeType: ast.NodeIdent},
-				Value: &ast.Function{
-					Name: &ast.Ident{
+			want: ast.Assign{
+				Name: ast.Ident{Name: "GIT_COMMIT", NodeType: ast.NodeIdent},
+				Value: ast.Function{
+					Name: ast.Ident{
 						Name:     "exec",
 						NodeType: ast.NodeIdent,
 					},
 					Arguments: []ast.Node{
-						&ast.String{
+						ast.String{
 							Text:     "git rev-parse HEAD",
 							NodeType: ast.NodeString,
 						},
@@ -151,7 +151,7 @@ func TestParseAssign(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &Parser{
+			p := Parser{
 				lexer:     &testLexer{stream: tt.stream},
 				buffer:    [3]token.Token{},
 				peekCount: 0,
@@ -170,9 +170,9 @@ func TestParseAssign(t *testing.T) {
 
 func TestParseTask(t *testing.T) {
 	tests := []struct {
-		want   *ast.Task
 		name   string
 		stream []token.Token
+		want   ast.Task
 	}{
 		{
 			name: "basic",
@@ -185,15 +185,15 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go test ./..."),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "test",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring:    &ast.Comment{NodeType: ast.NodeComment},
+				Docstring:    ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{},
 				Outputs:      []ast.Node{},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go test ./...",
 						NodeType: ast.NodeCommand,
@@ -215,18 +215,18 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go test ./..."),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "test",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{
+				Docstring: ast.Comment{
 					Text:     " This one has a docstring",
 					NodeType: ast.NodeComment,
 				},
 				Dependencies: []ast.Node{},
 				Outputs:      []ast.Node{},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go test ./...",
 						NodeType: ast.NodeCommand,
@@ -247,20 +247,20 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "build",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Docstring: ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "file.go",
 						NodeType: ast.NodeString,
 					},
 				},
 				Outputs: []ast.Node{},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go build",
 						NodeType: ast.NodeCommand,
@@ -281,20 +281,20 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "build",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Docstring: ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
-					&ast.Ident{
+					ast.Ident{
 						Name:     "VARIABLE",
 						NodeType: ast.NodeIdent,
 					},
 				},
 				Outputs: []ast.Node{},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go build",
 						NodeType: ast.NodeCommand,
@@ -316,24 +316,24 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "build",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Docstring: ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "file.go",
 						NodeType: ast.NodeString,
 					},
-					&ast.String{
+					ast.String{
 						Text:     "file2.go",
 						NodeType: ast.NodeString,
 					},
 				},
 				Outputs: []ast.Node{},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go build",
 						NodeType: ast.NodeCommand,
@@ -355,24 +355,24 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "build",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Docstring: ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
-					&ast.Ident{
+					ast.Ident{
 						Name:     "VARIABLE",
 						NodeType: ast.NodeIdent,
 					},
-					&ast.Ident{
+					ast.Ident{
 						Name:     "VARIABLE2",
 						NodeType: ast.NodeIdent,
 					},
 				},
 				Outputs: []ast.Node{},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go build",
 						NodeType: ast.NodeCommand,
@@ -394,24 +394,24 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "build",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Docstring: ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "file.go",
 						NodeType: ast.NodeString,
 					},
-					&ast.Ident{
+					ast.Ident{
 						Name:     "FILE",
 						NodeType: ast.NodeIdent,
 					},
 				},
 				Outputs: []ast.Node{},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go build",
 						NodeType: ast.NodeCommand,
@@ -434,25 +434,25 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "build",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Docstring: ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "**/*.go",
 						NodeType: ast.NodeString,
 					},
 				},
 				Outputs: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "./bin/main",
 						NodeType: ast.NodeString,
 					},
 				},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go build",
 						NodeType: ast.NodeCommand,
@@ -475,25 +475,25 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "build",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Docstring: ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "**/*.go",
 						NodeType: ast.NodeString,
 					},
 				},
 				Outputs: []ast.Node{
-					&ast.Ident{
+					ast.Ident{
 						Name:     "BIN",
 						NodeType: ast.NodeIdent,
 					},
 				},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go build",
 						NodeType: ast.NodeCommand,
@@ -520,33 +520,33 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "build",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Docstring: ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "**/*.go",
 						NodeType: ast.NodeString,
 					},
 				},
 				Outputs: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "output1",
 						NodeType: ast.NodeString,
 					},
-					&ast.String{
+					ast.String{
 						Text:     "output2",
 						NodeType: ast.NodeString,
 					},
-					&ast.String{
+					ast.String{
 						Text:     "output3",
 						NodeType: ast.NodeString,
 					},
 				},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go build",
 						NodeType: ast.NodeCommand,
@@ -573,33 +573,33 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "build",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Docstring: ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "**/*.go",
 						NodeType: ast.NodeString,
 					},
 				},
 				Outputs: []ast.Node{
-					&ast.Ident{
+					ast.Ident{
 						Name:     "BIN",
 						NodeType: ast.NodeIdent,
 					},
-					&ast.Ident{
+					ast.Ident{
 						Name:     "BIN2",
 						NodeType: ast.NodeIdent,
 					},
-					&ast.Ident{
+					ast.Ident{
 						Name:     "BIN3",
 						NodeType: ast.NodeIdent,
 					},
 				},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go build",
 						NodeType: ast.NodeCommand,
@@ -625,29 +625,29 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "build",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Docstring: ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "**/*.go",
 						NodeType: ast.NodeString,
 					},
 				},
 				Outputs: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "output1",
 						NodeType: ast.NodeString,
 					},
-					&ast.Ident{
+					ast.Ident{
 						Name:     "SOMETHING",
 						NodeType: ast.NodeIdent,
 					},
 				},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go build",
 						NodeType: ast.NodeCommand,
@@ -678,36 +678,36 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, `go build -ldflags="-X github.com/FollowTheProcess/spok/cli/cmd.version=dev"`),
 				tRBrace,
 			},
-			want: &ast.Task{
-				Name: &ast.Ident{
+			want: ast.Task{
+				Name: ast.Ident{
 					Name:     "complex",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: &ast.Comment{
+				Docstring: ast.Comment{
 					Text:     " A complex task with every component",
 					NodeType: ast.NodeComment,
 				},
 				Dependencies: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "**/*.go",
 						NodeType: ast.NodeString,
 					},
-					&ast.Ident{
+					ast.Ident{
 						Name:     "fmt",
 						NodeType: ast.NodeIdent,
 					},
 				},
 				Outputs: []ast.Node{
-					&ast.String{
+					ast.String{
 						Text:     "./bin/main",
 						NodeType: ast.NodeString,
 					},
-					&ast.Ident{
+					ast.Ident{
 						Name:     "SOMETHINGELSE",
 						NodeType: ast.NodeIdent,
 					},
 				},
-				Commands: []*ast.Command{
+				Commands: []ast.Command{
 					{
 						Command:  "go fmt ./...",
 						NodeType: ast.NodeCommand,
@@ -728,7 +728,7 @@ func TestParseTask(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &Parser{
+			p := Parser{
 				lexer:     &testLexer{stream: tt.stream},
 				buffer:    [3]token.Token{},
 				peekCount: 0,
@@ -736,10 +736,10 @@ func TestParseTask(t *testing.T) {
 
 			// Simulate us passing in the *ast.Comment if it was encountered by the
 			// top level parse method.
-			var comment *ast.Comment
+			var comment ast.Comment
 			if tt.stream[0].Is(token.HASH) {
 				p.next() // #
-				comment = &ast.Comment{
+				comment = ast.Comment{
 					Text:     p.next().Value, // Comment
 					NodeType: ast.NodeComment,
 				}
@@ -874,7 +874,7 @@ var fullSpokfileStream = []token.Token{
 }
 
 func TestParserIntegration(t *testing.T) {
-	p := &Parser{
+	p := Parser{
 		lexer: &testLexer{
 			stream: fullSpokfileStream,
 		},
@@ -887,30 +887,26 @@ func TestParserIntegration(t *testing.T) {
 		t.Fatalf("Parser produced an error: %v", err)
 	}
 
-	if tree == nil {
-		t.Fatal("Parser produced a nil AST")
-	}
-
 	if tree.IsEmpty() {
 		t.Fatal("Parser produced an empty AST")
 	}
 
-	want := &ast.Tree{
+	want := ast.Tree{
 		Nodes: []ast.Node{
-			&ast.Comment{
+			ast.Comment{
 				Text:     " This is a top level comment",
 				NodeType: ast.NodeComment,
 			},
-			&ast.Comment{
+			ast.Comment{
 				Text:     " This variable is presumably important later",
 				NodeType: ast.NodeComment,
 			},
-			&ast.Assign{
-				Name: &ast.Ident{
+			ast.Assign{
+				Name: ast.Ident{
 					Name:     "GLOBAL",
 					NodeType: ast.NodeIdent,
 				},
-				Value: &ast.String{
+				Value: ast.String{
 					Text:     "very important stuff here",
 					NodeType: ast.NodeString,
 				},
@@ -921,5 +917,21 @@ func TestParserIntegration(t *testing.T) {
 
 	if !reflect.DeepEqual(tree, want) {
 		t.Errorf("got %s, wanted %s", tree.String(), want.String())
+	}
+}
+
+func BenchmarkParseFullSpokfile(b *testing.B) {
+	p := Parser{
+		lexer: &testLexer{
+			stream: fullSpokfileStream,
+		},
+		buffer:    [3]token.Token{},
+		peekCount: 0,
+	}
+
+	b.ResetTimer()
+	_, err := p.Parse()
+	if err != nil {
+		b.Fatalf("Parser produced an error: %v", err)
 	}
 }

@@ -1,4 +1,4 @@
-// Package parser implements spok's parser.
+// Package parser implements spok's *Parser.
 package parser
 
 import (
@@ -9,7 +9,7 @@ import (
 	"github.com/FollowTheProcess/spok/token"
 )
 
-// Parser is spok's AST parser.
+// Parser is spok's AST *Parser.
 type Parser struct {
 	lexer     lexer.Tokeniser // The lexer.
 	buffer    [3]token.Token  // 3 token buffer, allows us to peek and backup in the token stream.
@@ -25,8 +25,8 @@ func New(text string) *Parser {
 
 // Parse is the top level parse method. It parses the entire
 // input text to EOF or Error and returns the full AST.
-func (p *Parser) Parse() (*ast.Tree, error) {
-	tree := &ast.Tree{}
+func (p *Parser) Parse() (ast.Tree, error) {
+	tree := ast.Tree{}
 
 	for next := p.next(); !next.Is(token.EOF); {
 		switch {
@@ -73,32 +73,32 @@ func (p *Parser) expect(expected token.Type) error {
 
 // parseComment parses a comment token into a comment ast node,
 // the # has already been consumed.
-func (p *Parser) parseComment() *ast.Comment {
+func (p *Parser) parseComment() ast.Comment {
 	comment := p.next()
-	return &ast.Comment{
+	return ast.Comment{
 		Text:     comment.Value,
 		NodeType: ast.NodeComment,
 	}
 }
 
 // parseIdent parses an ident token into an ident ast node.
-func (p *Parser) parseIdent(ident token.Token) *ast.Ident {
-	return &ast.Ident{
+func (p *Parser) parseIdent(ident token.Token) ast.Ident {
+	return ast.Ident{
 		Name:     ident.Value,
 		NodeType: ast.NodeIdent,
 	}
 }
 
 // parseString parses a string token into a string ast node.
-func (p *Parser) parseString(s token.Token) *ast.String {
-	return &ast.String{
+func (p *Parser) parseString(s token.Token) ast.String {
+	return ast.String{
 		Text:     s.Value,
 		NodeType: ast.NodeString,
 	}
 }
 
 // parseFunction parses an ident token into a function ast node.
-func (p *Parser) parseFunction(ident token.Token) *ast.Function {
+func (p *Parser) parseFunction(ident token.Token) ast.Function {
 	args := []ast.Node{}
 	p.next() // '('
 
@@ -112,7 +112,7 @@ func (p *Parser) parseFunction(ident token.Token) *ast.Function {
 		next = p.next()
 	}
 
-	fn := &ast.Function{
+	fn := ast.Function{
 		Name:      p.parseIdent(ident),
 		Arguments: args,
 		NodeType:  ast.NodeFunction,
@@ -122,7 +122,7 @@ func (p *Parser) parseFunction(ident token.Token) *ast.Function {
 
 // parseAssign parses a global variable assignment into an assign ast node.
 // the ':=' is known to exist and has already been consumed, the encountered ident token is passed in.
-func (p *Parser) parseAssign(ident token.Token) *ast.Assign {
+func (p *Parser) parseAssign(ident token.Token) ast.Assign {
 	name := p.parseIdent(ident)
 	p.next() // :=
 
@@ -136,7 +136,7 @@ func (p *Parser) parseAssign(ident token.Token) *ast.Assign {
 		rhs = p.parseFunction(next)
 	}
 
-	return &ast.Assign{
+	return ast.Assign{
 		Name:     name,
 		Value:    rhs,
 		NodeType: ast.NodeAssign,
@@ -146,13 +146,8 @@ func (p *Parser) parseAssign(ident token.Token) *ast.Assign {
 // parseTask parses and returns a task ast node, the task keyword has already
 // been encountered and consumed, the docstring comment is passed in if present
 // and will be nil if no docstring.
-func (p *Parser) parseTask(doc *ast.Comment) *ast.Task {
+func (p *Parser) parseTask(doc ast.Comment) ast.Task {
 	name := p.parseIdent(p.next())
-
-	docstring := &ast.Comment{NodeType: ast.NodeComment}
-	if doc != nil {
-		docstring = doc
-	}
 
 	p.next() // '('
 
@@ -187,7 +182,7 @@ func (p *Parser) parseTask(doc *ast.Comment) *ast.Task {
 		}
 	}
 
-	commands := []*ast.Command{}
+	commands := []ast.Command{}
 	for {
 		next := p.next()
 		if next.Is(token.RBRACE) {
@@ -198,9 +193,9 @@ func (p *Parser) parseTask(doc *ast.Comment) *ast.Task {
 		}
 	}
 
-	return &ast.Task{
+	return ast.Task{
 		Name:         name,
-		Docstring:    docstring,
+		Docstring:    doc,
 		Dependencies: dependencies,
 		Outputs:      outputs,
 		Commands:     commands,
@@ -209,8 +204,8 @@ func (p *Parser) parseTask(doc *ast.Comment) *ast.Task {
 }
 
 // parseCommand parses task commands into ast command nodes.
-func (p *Parser) parseCommand(command token.Token) *ast.Command {
-	return &ast.Command{
+func (p *Parser) parseCommand(command token.Token) ast.Command {
+	return ast.Command{
 		Command:  command.Value,
 		NodeType: ast.NodeCommand,
 	}

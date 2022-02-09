@@ -108,8 +108,8 @@ func (i Ident) Write(s *strings.Builder) {
 
 // Assign holds a global variable assignment.
 type Assign struct {
-	Name  *Ident // The identifier e.g. GIT_COMMIT
-	Value Node   // The value it's set to (string, or builtin)
+	Value Node  // The value it's set to
+	Name  Ident // The name of the identifier
 	NodeType
 }
 
@@ -137,11 +137,11 @@ func (c Command) Write(s *strings.Builder) {
 
 // Task holds a spok task.
 type Task struct {
-	Name         *Ident
-	Docstring    *Comment
+	Name         Ident
+	Docstring    Comment
 	Dependencies []Node
 	Outputs      []Node
-	Commands     []*Command
+	Commands     []Command
 	NodeType
 }
 
@@ -162,10 +162,8 @@ func (t Task) String() string {
 		}
 	}
 
-	if t.Docstring != nil {
-		s.WriteString(t.Docstring.String())
-		s.WriteString("\n")
-	}
+	s.WriteString(t.Docstring.String())
+
 	s.WriteString("task ")
 	s.WriteString(t.Name.String())
 	s.WriteString("(")
@@ -200,7 +198,7 @@ func (t Task) Write(s *strings.Builder) {
 }
 
 type Function struct {
-	Name      *Ident
+	Name      Ident
 	Arguments []Node
 	NodeType
 }

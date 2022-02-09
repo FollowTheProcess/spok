@@ -26,7 +26,7 @@ func TestNodeString(t *testing.T) {
 		{
 			name: "assign",
 			node: Assign{
-				Name:     &Ident{Name: "GIT_COMMIT", NodeType: NodeIdent},
+				Name:     Ident{Name: "GIT_COMMIT", NodeType: NodeIdent},
 				Value:    String{Text: "a2736ef997c926", NodeType: NodeString},
 				NodeType: NodeAssign,
 			},
@@ -40,7 +40,7 @@ func TestNodeString(t *testing.T) {
 		{
 			name: "function",
 			node: Function{
-				Name: &Ident{
+				Name: Ident{
 					Name:     "exec",
 					NodeType: NodeIdent,
 				},
@@ -52,7 +52,7 @@ func TestNodeString(t *testing.T) {
 		{
 			name: "basic task",
 			node: Task{
-				Name: &Ident{
+				Name: Ident{
 					Name:     "test",
 					NodeType: NodeIdent,
 				},
@@ -62,7 +62,7 @@ func TestNodeString(t *testing.T) {
 						NodeType: NodeString,
 					},
 				},
-				Commands: []*Command{
+				Commands: []Command{
 					{
 						Command:  "go test ./...",
 						NodeType: NodeCommand,
@@ -78,11 +78,11 @@ func TestNodeString(t *testing.T) {
 		{
 			name: "task no args",
 			node: Task{
-				Name: &Ident{
+				Name: Ident{
 					Name:     "test",
 					NodeType: NodeIdent,
 				},
-				Commands: []*Command{
+				Commands: []Command{
 					{
 						Command:  "go test ./...",
 						NodeType: NodeCommand,
