@@ -1,11 +1,11 @@
 package parser
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/token"
+	"github.com/google/go-cmp/cmp"
 )
 
 // testLexer is an object that implements the lexer.Tokeniser interface
@@ -160,8 +160,8 @@ func TestParseAssign(t *testing.T) {
 			ident := p.next()
 			assign := p.parseAssign(ident)
 
-			if !reflect.DeepEqual(assign, tt.want) {
-				t.Errorf("got %v, wanted %v", assign, tt.want)
+			if diff := cmp.Diff(tt.want, assign); diff != "" {
+				t.Errorf("Assign mismatch (-want +assign):\n%s", diff)
 			}
 		})
 	}
@@ -747,8 +747,8 @@ func TestParseTask(t *testing.T) {
 			p.next() // task keyword
 			task := p.parseTask(comment)
 
-			if !reflect.DeepEqual(task, tt.want) {
-				t.Errorf("got %v, wanted %v", task, tt.want)
+			if diff := cmp.Diff(tt.want, task); diff != "" {
+				t.Errorf("Task mismatch (-want +task):\n%s", diff)
 			}
 		})
 	}
@@ -765,28 +765,28 @@ var fullSpokfileStream = []token.Token{
 	newToken(token.IDENT, "GLOBAL"),
 	tDeclare,
 	newToken(token.STRING, "very important stuff here"),
-	// newToken(token.IDENT, "GIT_COMMIT"),
-	// tDeclare,
-	// newToken(token.IDENT, "exec"),
-	// tLParen,
-	// newToken(token.STRING, `"git rev-parse HEAD"`),
-	// tRParen,
-	// tHash,
-	// newToken(token.COMMENT, " Run the project unit tests"),
-	// tTask,
-	// newToken(token.IDENT, "test"),
-	// tLParen,
-	// newToken(token.IDENT, "fmt"),
-	// tRParen,
-	// tLBrace,
-	// newToken(token.COMMAND, "go test -race ./..."),
-	// tRBrace,
+	newToken(token.IDENT, "GIT_COMMIT"),
+	tDeclare,
+	newToken(token.IDENT, "exec"),
+	tLParen,
+	newToken(token.STRING, "git rev-parse HEAD"),
+	tRParen,
+	tHash,
+	newToken(token.COMMENT, " Run the project unit tests"),
+	tTask,
+	newToken(token.IDENT, "test"),
+	tLParen,
+	newToken(token.IDENT, "fmt"),
+	tRParen,
+	tLBrace,
+	newToken(token.COMMAND, "go test -race ./..."),
+	tRBrace,
 	// tHash,
 	// newToken(token.COMMENT, " Format the project source"),
 	// tTask,
 	// newToken(token.IDENT, "fmt"),
 	// tLParen,
-	// newToken(token.STRING, `"**/*.go"`),
+	// newToken(token.STRING, "**/*.go"),
 	// tRParen,
 	// tLBrace,
 	// newToken(token.COMMAND, "go fmt ./..."),
@@ -808,10 +808,10 @@ var fullSpokfileStream = []token.Token{
 	// tTask,
 	// newToken(token.IDENT, "build"),
 	// tLParen,
-	// newToken(token.STRING, `"**/*.go"`),
+	// newToken(token.STRING, "**/*.go"),
 	// tRParen,
 	// tOutput,
-	// newToken(token.STRING, `"./bin/main"`),
+	// newToken(token.STRING, "./bin/main"),
 	// tLBrace,
 	// newToken(token.COMMAND, `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`),
 	// tRBrace,
@@ -832,8 +832,8 @@ var fullSpokfileStream = []token.Token{
 	// tRParen,
 	// tOutput,
 	// tLParen,
-	// newToken(token.STRING, `"output1.go"`),
-	// newToken(token.STRING, `"output2.go"`),
+	// newToken(token.STRING, "output1.go"),
+	// newToken(token.STRING, "output2.go"),
 	// tRParen,
 	// tLBrace,
 	// newToken(token.COMMAND, "do some stuff here"),
@@ -912,11 +912,54 @@ func TestParserIntegration(t *testing.T) {
 				},
 				NodeType: ast.NodeAssign,
 			},
+			ast.Assign{
+				Value: ast.Function{
+					Name: ast.Ident{
+						Name:     "exec",
+						NodeType: ast.NodeIdent,
+					},
+					Arguments: []ast.Node{
+						ast.String{
+							Text:     "git rev-parse HEAD",
+							NodeType: ast.NodeString,
+						},
+					}, NodeType: ast.NodeFunction,
+				},
+				Name: ast.Ident{
+					Name:     "GIT_COMMIT",
+					NodeType: ast.NodeIdent,
+				},
+				NodeType: ast.NodeAssign,
+			},
+			ast.Task{
+				Name: ast.Ident{
+					Name:     "test",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring: ast.Comment{
+					Text:     " Run the project unit tests",
+					NodeType: ast.NodeComment,
+				},
+				Dependencies: []ast.Node{
+					ast.Ident{
+						Name:     "fmt",
+						NodeType: ast.NodeIdent,
+					},
+				},
+				Outputs: []ast.Node{},
+				Commands: []ast.Command{
+					{
+						Command:  "go test -race ./...",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
 		},
 	}
 
-	if !reflect.DeepEqual(tree, want) {
-		t.Errorf("got %s, wanted %s", tree.String(), want.String())
+	if diff := cmp.Diff(want, tree); diff != "" {
+		t.Errorf("AST mismatch (-want +tree):\n%s", diff)
 	}
 }
 

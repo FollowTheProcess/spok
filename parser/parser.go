@@ -30,10 +30,27 @@ func (p *Parser) Parse() (ast.Tree, error) {
 
 	for next := p.next(); !next.Is(token.EOF); {
 		switch {
+
 		case next.Is(token.HASH):
-			tree.Append(p.parseComment())
+			comment := p.parseComment()
+			switch {
+
+			case p.next().Is(token.TASK):
+				// The comment was a tasks's docstring
+				tree.Append(p.parseTask(comment))
+
+			default:
+				// Just a normal comment
+				p.backup()
+				tree.Append(comment)
+			}
+
 		case next.Is(token.IDENT):
 			tree.Append(p.parseAssign(next))
+
+		default:
+			// TODO: Error properly
+			return tree, fmt.Errorf("Unhandled token: %s", next)
 		}
 		next = p.next()
 	}
@@ -59,6 +76,11 @@ func (p *Parser) peek() token.Token { // nolint: unused
 	p.peekCount = 1
 	p.buffer[0] = p.lexer.NextToken()
 	return p.buffer[0]
+}
+
+// backups backs up in the input stream by one token.
+func (p *Parser) backup() {
+	p.peekCount++
 }
 
 // expect consumes the given token if present, and returns
