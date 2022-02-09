@@ -48,6 +48,10 @@ func (p *Parser) Parse() (ast.Tree, error) {
 		case next.Is(token.IDENT):
 			tree.Append(p.parseAssign(next))
 
+		case next.Is(token.TASK):
+			// Pass an empty comment in if it doesn't have one
+			tree.Append(p.parseTask(ast.Comment{NodeType: ast.NodeComment}))
+
 		default:
 			// TODO: Error properly
 			return tree, fmt.Errorf("Unhandled token: %s", next)
