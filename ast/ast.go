@@ -62,7 +62,10 @@ type Comment struct {
 }
 
 func (c Comment) String() string {
-	return fmt.Sprintf("# %s", strings.TrimSpace(c.Text))
+	if c.Text != "" {
+		return fmt.Sprintf("# %s", strings.TrimSpace(c.Text))
+	}
+	return ""
 }
 
 func (c Comment) Write(s *strings.Builder) {
@@ -141,13 +144,18 @@ func (t Task) String() string {
 	deps := []string{}
 	commands := []string{}
 
-	for _, p := range t.Dependencies {
-		deps = append(deps, p.String())
+	if len(t.Dependencies) != 0 {
+		for _, p := range t.Dependencies {
+			deps = append(deps, p.String())
+		}
 	}
 
-	for _, c := range t.Commands {
-		commands = append(commands, c.String())
+	if len(t.Commands) != 0 {
+		for _, c := range t.Commands {
+			commands = append(commands, c.String())
+		}
 	}
+
 	if t.Docstring != nil {
 		s.WriteString(t.Docstring.String())
 		s.WriteString("\n")

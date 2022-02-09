@@ -229,7 +229,7 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, `"file.go"`),
+				newToken(token.STRING, "file.go"),
 				tRParen,
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
@@ -243,7 +243,7 @@ func TestParseTask(t *testing.T) {
 				Docstring: &ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
 					&ast.String{
-						Text:     `"file.go"`,
+						Text:     "file.go",
 						NodeType: ast.NodeString,
 					},
 				},
@@ -297,8 +297,8 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, `"file.go"`),
-				newToken(token.STRING, `"file2.go"`),
+				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, "file2.go"),
 				tRParen,
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
@@ -312,11 +312,11 @@ func TestParseTask(t *testing.T) {
 				Docstring: &ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
 					&ast.String{
-						Text:     `"file.go"`,
+						Text:     "file.go",
 						NodeType: ast.NodeString,
 					},
 					&ast.String{
-						Text:     `"file2.go"`,
+						Text:     "file2.go",
 						NodeType: ast.NodeString,
 					},
 				},
@@ -375,7 +375,7 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, `"file.go"`),
+				newToken(token.STRING, "file.go"),
 				newToken(token.IDENT, "FILE"),
 				tRParen,
 				tLBrace,
@@ -390,7 +390,7 @@ func TestParseTask(t *testing.T) {
 				Docstring: &ast.Comment{NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{
 					&ast.String{
-						Text:     `"file.go"`,
+						Text:     "file.go",
 						NodeType: ast.NodeString,
 					},
 					&ast.Ident{
@@ -438,6 +438,47 @@ func TestParseTask(t *testing.T) {
 					&ast.String{
 						Text:     "./bin/main",
 						NodeType: ast.NodeString,
+					},
+				},
+				Commands: []*ast.Command{
+					{
+						Command:  "go build",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
+		},
+		{
+			name: "task with ident output",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "build"),
+				tLParen,
+				newToken(token.STRING, "**/*.go"),
+				tRParen,
+				tOutput,
+				newToken(token.IDENT, "BIN"),
+				tLBrace,
+				newToken(token.COMMAND, "go build"),
+				tRBrace,
+			},
+			want: &ast.Task{
+				Name: &ast.Ident{
+					Name:     "build",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{
+					&ast.String{
+						Text:     "**/*.go",
+						NodeType: ast.NodeString,
+					},
+				},
+				Outputs: []ast.Node{
+					&ast.Ident{
+						Name:     "BIB",
+						NodeType: ast.NodeIdent,
 					},
 				},
 				Commands: []*ast.Command{
