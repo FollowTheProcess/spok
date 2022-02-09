@@ -67,7 +67,7 @@ A `spokfile` looks like this...
 # Comments are preceeded by a hash
 
 # You can store global variables like this (caps are optional)
-GLOBAL_VARIABLE := "hello
+GLOBAL_VARIABLE := "hello"
 BIN := "./bin/main"
 
 # You can store the output of a shell command as a variable
