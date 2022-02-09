@@ -49,6 +49,23 @@ var (
 	tEOF     = newToken(token.EOF, "")
 )
 
+func TestEOF(t *testing.T) {
+	p := &Parser{
+		lexer:     &testLexer{},
+		buffer:    [3]token.Token{},
+		peekCount: 0,
+	}
+
+	tree, err := p.Parse()
+	if err != nil {
+		t.Fatalf("Parser returned an error: %s", err)
+	}
+
+	if !tree.IsEmpty() {
+		t.Errorf("Expected an empty AST")
+	}
+}
+
 func TestParseComment(t *testing.T) {
 	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment")}
 	p := &Parser{
@@ -57,9 +74,7 @@ func TestParseComment(t *testing.T) {
 		peekCount: 0,
 	}
 
-	if err := p.expect(token.HASH); err != nil {
-		t.Fatal(err)
-	}
+	p.next() // #
 
 	comment := p.parseComment()
 

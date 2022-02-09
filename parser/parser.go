@@ -1,4 +1,4 @@
-// Package parser implements spok's *Parser.
+// Package parser implements spok's parser.
 package parser
 
 import (
@@ -9,7 +9,7 @@ import (
 	"github.com/FollowTheProcess/spok/token"
 )
 
-// Parser is spok's AST *Parser.
+// Parser is spok's AST parser.
 type Parser struct {
 	lexer     lexer.Tokeniser // The lexer.
 	buffer    [3]token.Token  // 3 token buffer, allows us to peek and backup in the token stream.
@@ -30,31 +30,24 @@ func (p *Parser) Parse() (ast.Tree, error) {
 
 	for next := p.next(); !next.Is(token.EOF); {
 		switch {
-
 		case next.Is(token.HASH):
 			comment := p.parseComment()
 			switch {
-
 			case p.next().Is(token.TASK):
 				// The comment was a tasks' docstring
 				tree.Append(p.parseTask(comment))
-
 			default:
 				// Just a normal comment
 				p.backup()
 				tree.Append(comment)
 			}
-
 		case next.Is(token.IDENT):
 			tree.Append(p.parseAssign(next))
-
 		case next.Is(token.TASK):
 			// Pass an empty comment in if it doesn't have one
 			tree.Append(p.parseTask(ast.Comment{NodeType: ast.NodeComment}))
-
 		default:
-			// TODO: Error properly
-			return tree, fmt.Errorf("Unhandled token: %s", next)
+			return tree, fmt.Errorf("Unexpected token: %s", next)
 		}
 		next = p.next()
 	}
@@ -75,15 +68,6 @@ func (p *Parser) next() token.Token {
 // backups backs up in the input stream by one token.
 func (p *Parser) backup() {
 	p.peekCount++
-}
-
-// expect consumes the given token if present, and returns an error if not.
-func (p *Parser) expect(expected token.Type) error {
-	next := p.next()
-	if !next.Is(expected) {
-		return fmt.Errorf("Unexpected token: %s", next)
-	}
-	return nil
 }
 
 // parseComment parses a comment token into a comment ast node,
