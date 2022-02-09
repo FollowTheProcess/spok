@@ -66,6 +66,29 @@ func TestEOF(t *testing.T) {
 	}
 }
 
+func TestParseError(t *testing.T) {
+	stream := []token.Token{
+		newToken(token.IDENT, "TEST"),
+		tDeclare,
+		newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1, Position 8)"),
+	}
+	p := &Parser{
+		lexer:     &testLexer{stream: stream},
+		buffer:    [3]token.Token{},
+		peekCount: 0,
+	}
+
+	_, err := p.Parse()
+	if err == nil {
+		t.Fatalf("Expected an error but got nil")
+	}
+
+	want := "SyntaxError: Unexpected token '2' (Line 1, Position 8)"
+	if err.Error() != want {
+		t.Errorf("Wrong error message: got %s, wanted %s", err.Error(), want)
+	}
+}
+
 func TestParseComment(t *testing.T) {
 	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment")}
 	p := &Parser{

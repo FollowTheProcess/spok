@@ -2,6 +2,7 @@
 package parser
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/FollowTheProcess/spok/ast"
@@ -11,9 +12,10 @@ import (
 
 // Parser is spok's AST parser.
 type Parser struct {
-	lexer     lexer.Tokeniser // The lexer.
-	buffer    [3]token.Token  // 3 token buffer, allows us to peek and backup in the token stream.
-	peekCount int             // How far we've "peeked" into our buffer.
+	lexer     lexer.Tokeniser // The lexer
+	errors    []error         // Stack of errors collected during the parse
+	buffer    [3]token.Token  // 3 token buffer, allows us to peek and backup in the token stream
+	peekCount int             // How far we've peeked into our buffer
 }
 
 // New creates and returns a new Parser for an input string.
@@ -47,9 +49,14 @@ func (p *Parser) Parse() (ast.Tree, error) {
 			// Pass an empty comment in if it doesn't have one
 			tree.Append(p.parseTask(ast.Comment{NodeType: ast.NodeComment}))
 		default:
-			return tree, fmt.Errorf("Unexpected token: %s", next)
+			p.errors = append(p.errors, fmt.Errorf("Unexpected token: %s", next))
 		}
 		next = p.next()
+	}
+
+	// Check for errors and pop the first one
+	if p.hasErrors() {
+		return tree, p.popError()
 	}
 
 	return tree, nil
@@ -62,6 +69,9 @@ func (p *Parser) next() token.Token {
 	} else {
 		p.buffer[0] = p.lexer.NextToken()
 	}
+	if p.buffer[p.peekCount].Is(token.ERROR) {
+		p.errors = append(p.errors, errors.New(p.buffer[p.peekCount].Value))
+	}
 	return p.buffer[p.peekCount]
 }
 
@@ -70,12 +80,30 @@ func (p *Parser) backup() {
 	p.peekCount++
 }
 
+// expect checks if the next token is of the expected type, consuming it in the process
+// if not it will add an error to the parser error stack.
+func (p *Parser) expect(token token.Type) {
+	tok := p.next()
+	if !tok.Is(token) {
+		p.errors = append(p.errors, fmt.Errorf("Unexpected token: got %s, expected %s", tok.String(), token.String()))
+	}
+}
+
+// hasErrors returns whether or not the parser has encountered errors on it's travels.
+func (p *Parser) hasErrors() bool {
+	return len(p.errors) != 0
+}
+
+// popError returns the first error in the stack of errors.
+func (p *Parser) popError() error {
+	return p.errors[0]
+}
+
 // parseComment parses a comment token into a comment ast node,
 // the # has already been consumed.
 func (p *Parser) parseComment() ast.Comment {
-	comment := p.next()
 	return ast.Comment{
-		Text:     comment.Value,
+		Text:     p.next().Value,
 		NodeType: ast.NodeComment,
 	}
 }
@@ -99,7 +127,7 @@ func (p *Parser) parseString(s token.Token) ast.String {
 // parseFunction parses an ident token into a function ast node.
 func (p *Parser) parseFunction(ident token.Token) ast.Function {
 	args := []ast.Node{}
-	p.next() // '('
+	p.expect(token.LPAREN) // '('
 
 	for next := p.next(); !next.Is(token.RPAREN); {
 		switch {
@@ -123,7 +151,7 @@ func (p *Parser) parseFunction(ident token.Token) ast.Function {
 // the ':=' is known to exist and has already been consumed, the encountered ident token is passed in.
 func (p *Parser) parseAssign(ident token.Token) ast.Assign {
 	name := p.parseIdent(ident)
-	p.next() // :=
+	p.expect(token.DECLARE) // :=
 
 	var rhs ast.Node
 
@@ -148,7 +176,7 @@ func (p *Parser) parseAssign(ident token.Token) ast.Assign {
 func (p *Parser) parseTask(doc ast.Comment) ast.Task {
 	name := p.parseIdent(p.next())
 
-	p.next() // '('
+	p.expect(token.LPAREN) // '('
 
 	dependencies := []ast.Node{}
 	for next := p.next(); !next.Is(token.RPAREN); {
