@@ -31,6 +31,12 @@ type Tree struct {
 	Nodes []Node // List of all AST nodes.
 }
 
+func (t *Tree) String() string {
+	s := &strings.Builder{}
+	t.Write(s)
+	return s.String()
+}
+
 // Write out the entire AST to a strings.Builder.
 func (t *Tree) Write(s *strings.Builder) {
 	for _, n := range t.Nodes {
@@ -63,7 +69,7 @@ type Comment struct {
 
 func (c Comment) String() string {
 	if c.Text != "" {
-		return fmt.Sprintf("# %s", strings.TrimSpace(c.Text))
+		return fmt.Sprintf("# %s\n", strings.TrimSpace(c.Text))
 	}
 	return ""
 }
@@ -108,7 +114,7 @@ type Assign struct {
 }
 
 func (a Assign) String() string {
-	return fmt.Sprintf("%s := %s", a.Name.String(), a.Value.String())
+	return fmt.Sprintf("%s := %s\n", a.Name.String(), a.Value.String())
 }
 
 func (a Assign) Write(s *strings.Builder) {
@@ -184,7 +190,7 @@ func (t Task) String() string {
 	for _, command := range commands {
 		s.WriteString(fmt.Sprintf("    %s\n", command))
 	}
-	s.WriteString("}")
+	s.WriteString("}\n")
 
 	return s.String()
 }
@@ -206,7 +212,7 @@ func (f Function) String() string {
 		args = append(args, arg.String())
 	}
 
-	return fmt.Sprintf("%s(%s)", f.Name.String(), strings.Join(args, ", "))
+	return fmt.Sprintf("%s(%s)\n", f.Name.String(), strings.Join(args, ", "))
 }
 
 func (f Function) Write(s *strings.Builder) {

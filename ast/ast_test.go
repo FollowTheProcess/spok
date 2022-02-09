@@ -11,7 +11,7 @@ func TestNodeString(t *testing.T) {
 		{
 			name: "comment",
 			node: Comment{Text: " A comment", NodeType: NodeComment},
-			want: "# A comment",
+			want: "# A comment\n",
 		},
 		{
 			name: "string",
@@ -30,7 +30,7 @@ func TestNodeString(t *testing.T) {
 				Value:    String{Text: "a2736ef997c926", NodeType: NodeString},
 				NodeType: NodeAssign,
 			},
-			want: `GIT_COMMIT := "a2736ef997c926"`,
+			want: `GIT_COMMIT := "a2736ef997c926"` + "\n",
 		},
 		{
 			name: "command",
@@ -47,7 +47,7 @@ func TestNodeString(t *testing.T) {
 				Arguments: []Node{
 					String{Text: "git rev-parse HEAD", NodeType: NodeString},
 				}},
-			want: `exec("git rev-parse HEAD")`,
+			want: `exec("git rev-parse HEAD")` + "\n",
 		},
 		{
 			name: "basic task",
@@ -72,7 +72,8 @@ func TestNodeString(t *testing.T) {
 			},
 			want: `task test("file.go") {
     go test ./...
-}`,
+}
+`,
 		},
 		{
 			name: "task no args",
@@ -91,7 +92,8 @@ func TestNodeString(t *testing.T) {
 			},
 			want: `task test() {
     go test ./...
-}`,
+}
+`,
 		},
 	}
 

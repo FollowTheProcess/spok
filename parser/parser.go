@@ -27,6 +27,17 @@ func New(text string) *Parser {
 // input text to EOF or Error and returns the full AST.
 func (p *Parser) Parse() (*ast.Tree, error) {
 	tree := &ast.Tree{}
+
+	for next := p.next(); !next.Is(token.EOF); {
+		switch {
+		case next.Is(token.HASH):
+			tree.Append(p.parseComment())
+		case next.Is(token.IDENT):
+			tree.Append(p.parseAssign(next))
+		}
+		next = p.next()
+	}
+
 	return tree, nil
 }
 
@@ -62,7 +73,8 @@ func (p *Parser) expect(expected token.Type) error {
 
 // parseComment parses a comment token into a comment ast node,
 // the # has already been consumed.
-func (p *Parser) parseComment(comment token.Token) *ast.Comment {
+func (p *Parser) parseComment() *ast.Comment {
+	comment := p.next()
 	return &ast.Comment{
 		Text:     comment.Value,
 		NodeType: ast.NodeComment,
@@ -112,6 +124,7 @@ func (p *Parser) parseFunction(ident token.Token) *ast.Function {
 // the ':=' is known to exist and has already been consumed, the encountered ident token is passed in.
 func (p *Parser) parseAssign(ident token.Token) *ast.Assign {
 	name := p.parseIdent(ident)
+	p.next() // :=
 
 	var rhs ast.Node
 
@@ -156,10 +169,8 @@ func (p *Parser) parseTask(doc *ast.Comment) *ast.Task {
 
 	outputs := []ast.Node{}
 	if p.next().Is(token.OUTPUT) {
-		fmt.Println("In output")
 		switch next := p.next(); {
 		case next.Is(token.STRING):
-			fmt.Printf("Next: %v\n", next)
 			outputs = append(outputs, p.parseString(next))
 		case next.Is(token.IDENT):
 			outputs = append(outputs, p.parseIdent(next))
