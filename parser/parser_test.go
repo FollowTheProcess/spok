@@ -51,7 +51,7 @@ var (
 
 func TestParseComment(t *testing.T) {
 	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment")}
-	p := Parser{
+	p := &Parser{
 		lexer:     &testLexer{stream: commentStream},
 		buffer:    [3]token.Token{},
 		peekCount: 0,
@@ -73,7 +73,7 @@ func TestParseIdent(t *testing.T) {
 	identStream := []token.Token{
 		newToken(token.IDENT, "GLOBAL"),
 	}
-	p := Parser{
+	p := &Parser{
 		lexer:     &testLexer{stream: identStream},
 		buffer:    [3]token.Token{},
 		peekCount: 0,
@@ -151,7 +151,7 @@ func TestParseAssign(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := Parser{
+			p := &Parser{
 				lexer:     &testLexer{stream: tt.stream},
 				buffer:    [3]token.Token{},
 				peekCount: 0,
@@ -728,13 +728,13 @@ func TestParseTask(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := Parser{
+			p := &Parser{
 				lexer:     &testLexer{stream: tt.stream},
 				buffer:    [3]token.Token{},
 				peekCount: 0,
 			}
 
-			// Simulate us passing in the *ast.Comment if it was encountered by the
+			// Simulate us passing in the ast.Comment if it was encountered by the
 			// top level parse method.
 			var comment ast.Comment
 			if tt.stream[0].Is(token.HASH) {
@@ -874,7 +874,7 @@ var fullSpokfileStream = []token.Token{
 }
 
 func TestParserIntegration(t *testing.T) {
-	p := Parser{
+	p := &Parser{
 		lexer: &testLexer{
 			stream: fullSpokfileStream,
 		},
@@ -921,7 +921,7 @@ func TestParserIntegration(t *testing.T) {
 }
 
 func BenchmarkParseFullSpokfile(b *testing.B) {
-	p := Parser{
+	p := &Parser{
 		lexer: &testLexer{
 			stream: fullSpokfileStream,
 		},
