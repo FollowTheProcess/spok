@@ -172,9 +172,12 @@ func (t Task) String() string {
 			s.WriteString(t.Outputs[0].String())
 		default:
 			s.WriteString("(")
+			outs := []string{}
 			for _, output := range t.Outputs {
-				s.WriteString(output.String())
+				outs = append(outs, output.String())
 			}
+			s.WriteString(strings.Join(outs, ", "))
+			s.WriteString(")")
 		}
 	}
 	s.WriteString(" {\n\t")

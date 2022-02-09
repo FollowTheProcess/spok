@@ -499,7 +499,11 @@ func TestParseTask(t *testing.T) {
 				newToken(token.STRING, "**/*.go"),
 				tRParen,
 				tOutput,
-				newToken(token.STRING, "./bin/main"),
+				tLParen,
+				newToken(token.STRING, "output1"),
+				newToken(token.STRING, "output2"),
+				newToken(token.STRING, "output3"),
+				tRParen,
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
@@ -518,8 +522,69 @@ func TestParseTask(t *testing.T) {
 				},
 				Outputs: []ast.Node{
 					&ast.String{
-						Text:     "./bin/main",
+						Text:     "output1",
 						NodeType: ast.NodeString,
+					},
+					&ast.String{
+						Text:     "output2",
+						NodeType: ast.NodeString,
+					},
+					&ast.String{
+						Text:     "output3",
+						NodeType: ast.NodeString,
+					},
+				},
+				Commands: []*ast.Command{
+					{
+						Command:  "go build",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
+		},
+		{
+			name: "multi ident output",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "build"),
+				tLParen,
+				newToken(token.STRING, "**/*.go"),
+				tRParen,
+				tOutput,
+				tLParen,
+				newToken(token.IDENT, "BIN"),
+				newToken(token.IDENT, "BIN2"),
+				newToken(token.IDENT, "BIN3"),
+				tRParen,
+				tLBrace,
+				newToken(token.COMMAND, "go build"),
+				tRBrace,
+			},
+			want: &ast.Task{
+				Name: &ast.Ident{
+					Name:     "build",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring: &ast.Comment{NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{
+					&ast.String{
+						Text:     "**/*.go",
+						NodeType: ast.NodeString,
+					},
+				},
+				Outputs: []ast.Node{
+					&ast.Ident{
+						Name:     "BIN",
+						NodeType: ast.NodeIdent,
+					},
+					&ast.Ident{
+						Name:     "BIN2",
+						NodeType: ast.NodeIdent,
+					},
+					&ast.Ident{
+						Name:     "BIN3",
+						NodeType: ast.NodeIdent,
 					},
 				},
 				Commands: []*ast.Command{
