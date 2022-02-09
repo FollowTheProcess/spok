@@ -56,7 +56,7 @@ func (l *Lexer) rest() string {
 	return l.input[l.pos:]
 }
 
-// all returns the string from the lexer start position to the end of the input.
+// all returns the string from the lexer start position to it's current position.
 func (l *Lexer) all() string {
 	if l.start >= len(l.input) || l.pos > len(l.input) {
 		return ""
@@ -120,7 +120,7 @@ func (l *Lexer) backup() {
 	}
 }
 
-// absorb advances the lexer position over to the end of the given token.
+// absorb advances the lexer position over the given token.
 func (l *Lexer) absorb(t token.Type) {
 	l.pos += len(t.String())
 }
@@ -143,8 +143,8 @@ func (l *Lexer) discard() {
 	l.start = l.pos
 }
 
-// errorf returns an error token and terminates the scan by passing back
-// a nil pointer that will be the next state, terminating l.nextToken.
+// errorf emits an error token and terminates the scan by passing back
+// a nil pointer that will be the next state, terminating l.run().
 func (l *Lexer) errorf(format string, args ...interface{}) lexFn {
 	l.tokens <- token.Token{
 		Value: fmt.Sprintf(format, args...),
@@ -161,8 +161,7 @@ func (l *Lexer) NextToken() token.Token {
 	return <-l.tokens
 }
 
-// New creates a new lexer for the input string and sets it off
-// in a goroutine.
+// New creates a new lexer for the input string and sets it off in a goroutine.
 func New(input string) *Lexer {
 	l := &Lexer{
 		tokens: make(chan token.Token),

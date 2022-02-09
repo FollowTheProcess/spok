@@ -36,7 +36,7 @@ func (p *Parser) Parse() (ast.Tree, error) {
 			switch {
 
 			case p.next().Is(token.TASK):
-				// The comment was a tasks's docstring
+				// The comment was a tasks' docstring
 				tree.Append(p.parseTask(comment))
 
 			default:
@@ -77,8 +77,7 @@ func (p *Parser) backup() {
 	p.peekCount++
 }
 
-// expect consumes the given token if present, and returns
-// an error if not.
+// expect consumes the given token if present, and returns an error if not.
 func (p *Parser) expect(expected token.Type) error {
 	next := p.next()
 	if !next.Is(expected) {
