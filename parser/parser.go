@@ -69,11 +69,10 @@ func (p *Parser) next() token.Token {
 	} else {
 		p.buffer[0] = p.lexer.NextToken()
 	}
-	tok := p.buffer[p.peekCount]
-	if tok.Is(token.ERROR) {
-		p.errors = append(p.errors, errors.New(tok.Value))
+	if p.buffer[p.peekCount].Is(token.ERROR) {
+		p.errors = append(p.errors, errors.New(p.buffer[p.peekCount].Value))
 	}
-	return tok
+	return p.buffer[p.peekCount]
 }
 
 // backups backs up in the input stream by one token.

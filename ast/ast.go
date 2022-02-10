@@ -31,14 +31,15 @@ type Tree struct {
 	Nodes []Node // List of all AST nodes.
 }
 
-func (t *Tree) String() string {
+// String allows us to pretty print an entire file for e.g. automatic formatting.
+func (t Tree) String() string {
 	s := &strings.Builder{}
 	t.Write(s)
 	return s.String()
 }
 
 // Write out the entire AST to a strings.Builder.
-func (t *Tree) Write(s *strings.Builder) {
+func (t Tree) Write(s *strings.Builder) {
 	for _, n := range t.Nodes {
 		n.Write(s)
 	}
@@ -188,7 +189,7 @@ func (t Task) String() string {
 	for _, command := range commands {
 		s.WriteString(fmt.Sprintf("    %s\n", command))
 	}
-	s.WriteString("}\n")
+	s.WriteString("}\n\n")
 
 	return s.String()
 }

@@ -20,6 +20,9 @@ type testLexer struct {
 func (l *testLexer) NextToken() token.Token {
 	// Grab the first in the stream, "consume" it from the stream
 	// and return it
+	if len(l.stream) == 0 {
+		return tEOF
+	}
 	tok := l.stream[0]
 	l.stream = l.stream[1:]
 	return tok
@@ -1318,8 +1321,10 @@ func BenchmarkParseFullSpokfile(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	_, err := p.Parse()
-	if err != nil {
-		b.Fatalf("Parser produced an error: %v", err)
+	for n := 0; n < b.N; n++ {
+		_, err := p.Parse()
+		if err != nil {
+			b.Fatalf("Parser produced an error: %v", err)
+		}
 	}
 }
