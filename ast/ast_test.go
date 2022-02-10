@@ -6,6 +6,36 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestAppend(t *testing.T) {
+	tree := Tree{
+		Nodes: []Node{
+			Comment{
+				Text:     " I'm a comment",
+				NodeType: NodeComment,
+			},
+		},
+	}
+
+	tree.Append(Ident{Name: "GLOBAL", NodeType: NodeIdent})
+
+	want := Tree{
+		Nodes: []Node{
+			Comment{
+				Text:     " I'm a comment",
+				NodeType: NodeComment,
+			},
+			Ident{
+				Name:     "GLOBAL",
+				NodeType: NodeIdent,
+			},
+		},
+	}
+
+	if diff := cmp.Diff(want, tree); diff != "" {
+		t.Errorf("AST mismatch (-want +tree):\n%s", diff)
+	}
+}
+
 func TestNodeString(t *testing.T) {
 	tests := []struct {
 		node Node
