@@ -34,6 +34,7 @@ type Tree struct {
 // String allows us to pretty print an entire file for e.g. automatic formatting.
 func (t Tree) String() string {
 	s := &strings.Builder{}
+	s.Grow(1500) // Average spokfile has about 1500 characters
 	t.Write(s)
 	return s.String()
 }
@@ -148,12 +149,13 @@ type Task struct {
 
 func (t Task) String() string {
 	s := strings.Builder{}
-	deps := []string{}
-	commands := []string{}
+	s.Grow(200) // An average spok task has about 200 characters
+	var deps []string
+	var commands []string
 
 	if len(t.Dependencies) != 0 {
-		for _, p := range t.Dependencies {
-			deps = append(deps, p.String())
+		for _, dep := range t.Dependencies {
+			deps = append(deps, dep.String())
 		}
 	}
 

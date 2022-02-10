@@ -21,6 +21,10 @@ spok
 *.out
 coverage.html
 
+# Profiling
+*.prof
+*.pprof
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
 

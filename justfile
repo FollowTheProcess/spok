@@ -39,10 +39,11 @@ test *flags: fmt
 
 # Run all project benchmarks
 bench: fmt
-    go test ./... -bench=. -benchmem
+    go test ./... -benchmem -bench .
 
-# View a CPU/Memory profile (type = {cpu|mem})
-pprof type:
+# Generate and view a CPU/Memory profile
+pprof pkg type:
+    go test ./{{ pkg }} -cpuprofile cpu.pprof -memprofile mem.pprof -bench .
     go tool pprof -http=:8000 {{ type }}.pprof
 
 # Trace the program
@@ -63,6 +64,7 @@ cover:
 clean:
     go clean ./...
     rm -rf {{ PROJECT_NAME }} {{ PROJECT_BIN }} {{ COVERAGE_DATA }} {{ COVERAGE_HTML }} {{ GORELEASER_DIST }}
+    rm -rf *.test *.pprof
 
 # Run unit tests and linting in one go
 check: test lint
