@@ -36,6 +36,40 @@ func TestAppend(t *testing.T) {
 	}
 }
 
+func TestIsEmpty(t *testing.T) {
+	tests := []struct {
+		name  string
+		tree  Tree
+		empty bool
+	}{
+		{
+			name:  "empty",
+			tree:  Tree{},
+			empty: true,
+		},
+		{
+			name: "not empty",
+			tree: Tree{
+				Nodes: []Node{
+					Comment{
+						Text:     " Hello",
+						NodeType: NodeComment,
+					},
+				},
+			},
+			empty: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.tree.IsEmpty() != tt.empty {
+				t.Errorf("got %v, wanted %v", tt.tree.IsEmpty(), tt.empty)
+			}
+		})
+	}
+}
+
 func TestNodeString(t *testing.T) {
 	tests := []struct {
 		node Node
