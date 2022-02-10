@@ -1,4 +1,14 @@
 // Package parser implements spok's parser.
+//
+// Spok is a very simple mostly declarative language and as such, the parser is incredibly simple. It is
+// a simple top-down parser with a very small initial state space and requires only 1 token of lookahead.
+//
+// It switches on the token it encounters to process the appropriate ast.Node (parseXXX methods), appending
+// each to the list of nodes as it goes.
+//
+// The parser also keeps a stack of errors and adds to this if it encounters an error from the lexer
+// or if it encounters an error during it's own operation. The errors are checked before the AST is returned
+// and if any are present it will return the tree it's managed to parse so far and the error encountered.
 package parser
 
 import (
