@@ -18,11 +18,13 @@ type testLexer struct {
 }
 
 func (l *testLexer) NextToken() token.Token {
-	// Grab the first in the stream, "consume" it from the stream
-	// and return it
+	// Prevent slice panics
 	if len(l.stream) == 0 {
 		return tEOF
 	}
+
+	// Grab the first in the stream, "consume" it from the stream
+	// and return it
 	tok := l.stream[0]
 	l.stream = l.stream[1:]
 	return tok
@@ -878,6 +880,8 @@ func TestParseTask(t *testing.T) {
 	}
 }
 
+// TestParseFullSpokfile tests the parser against a stream of tokens
+// indicative of a fully populated, syntactically valid spokfile.
 func TestParseFullSpokfile(t *testing.T) {
 	p := &Parser{
 		lexer: &testLexer{
@@ -902,7 +906,7 @@ func TestParseFullSpokfile(t *testing.T) {
 }
 
 // BenchmarkParseFullSpokfile determines the parser's performance on a stream
-// of tokens indicative of a fully populated spokfile.
+// of tokens indicative of a fully populated, syntactically valid spokfile.
 func BenchmarkParseFullSpokfile(b *testing.B) {
 	p := &Parser{
 		lexer: &testLexer{
@@ -921,6 +925,9 @@ func BenchmarkParseFullSpokfile(b *testing.B) {
 	}
 }
 
+//
+// INTEGRATION TESTS START HERE
+//
 // Thar be larger, integration or coupled lexer-parser tests below. If the real lexer is changed
 // none of the above tests will break as they stub out the lexer for our testLexer
 // the tests and benchmarks below make use of the real lexer and will break if that lexer breaks.
@@ -984,7 +991,7 @@ task makestuff() -> (DOCS, BUILD) {
 }
 `
 
-// fullSpokfileStream is the stream of the tokens the lexer is confirmed to generate
+// fullSpokfileStream is the stream of tokens the lexer is confirmed to generate
 // given the above fullSpokfile text as input.
 // Keep in sync with the expected output in the lexer_text.go integration test.
 var fullSpokfileStream = []token.Token{
