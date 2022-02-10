@@ -158,7 +158,7 @@ func (p *Parser) parseFunction(ident token.Token) ast.Function {
 }
 
 // parseAssign parses a global variable assignment into an assign ast node.
-// the ':=' is known to exist and has already been consumed, the encountered ident token is passed in.
+// the ':=' is known to exist but has yet to be consumed, the encountered ident token is passed in.
 func (p *Parser) parseAssign(ident token.Token) ast.Assign {
 	name := p.parseIdent(ident)
 	p.expect(token.DECLARE) // ':='
@@ -188,7 +188,7 @@ func (p *Parser) parseAssign(ident token.Token) ast.Assign {
 
 // parseTask parses and returns a task ast node, the task keyword has already
 // been encountered and consumed, the docstring comment is passed in if present
-// and will be nil if no docstring.
+// and will be empty if there is no comment.
 func (p *Parser) parseTask(doc ast.Comment) ast.Task {
 	name := p.parseIdent(p.next())
 
