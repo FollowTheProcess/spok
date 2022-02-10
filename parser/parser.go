@@ -48,8 +48,6 @@ func (p *Parser) Parse() (ast.Tree, error) {
 		case next.Is(token.TASK):
 			// Pass an empty comment in if it doesn't have one
 			tree.Append(p.parseTask(ast.Comment{NodeType: ast.NodeComment}))
-		default:
-			p.errors = append(p.errors, fmt.Errorf("Unexpected token: %s", next))
 		}
 		next = p.next()
 	}
@@ -62,17 +60,20 @@ func (p *Parser) Parse() (ast.Tree, error) {
 	return tree, nil
 }
 
-// next returns, and consumes, the next token from the lexer.
+// next returns, and consumes, the next token from the lexer
+// if it encounters an error token emitted by the lexer, it adds it to
+// the stack of parser errors.
 func (p *Parser) next() token.Token {
 	if p.peekCount > 0 {
 		p.peekCount--
 	} else {
 		p.buffer[0] = p.lexer.NextToken()
 	}
-	if p.buffer[p.peekCount].Is(token.ERROR) {
-		p.errors = append(p.errors, errors.New(p.buffer[p.peekCount].Value))
+	tok := p.buffer[p.peekCount]
+	if tok.Is(token.ERROR) {
+		p.errors = append(p.errors, errors.New(tok.Value))
 	}
-	return p.buffer[p.peekCount]
+	return tok
 }
 
 // backups backs up in the input stream by one token.

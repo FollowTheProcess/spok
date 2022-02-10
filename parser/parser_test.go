@@ -18,11 +18,6 @@ type testLexer struct {
 }
 
 func (l *testLexer) NextToken() token.Token {
-	if len(l.stream) == 0 {
-		// We don't have to manually add EOF now
-		l.stream = append(l.stream, newToken(token.EOF, ""))
-	}
-
 	// Grab the first in the stream, "consume" it from the stream
 	// and return it
 	tok := l.stream[0]
@@ -51,7 +46,7 @@ var (
 
 func TestEOF(t *testing.T) {
 	p := &Parser{
-		lexer:     &testLexer{},
+		lexer:     &testLexer{stream: []token.Token{tEOF}},
 		buffer:    [3]token.Token{},
 		peekCount: 0,
 	}
@@ -66,11 +61,32 @@ func TestEOF(t *testing.T) {
 	}
 }
 
+func TestExpect(t *testing.T) {
+	p := &Parser{
+		lexer:     &testLexer{stream: []token.Token{newToken(token.STRING, "hello"), tEOF}},
+		buffer:    [3]token.Token{},
+		peekCount: 0,
+	}
+
+	p.expect(token.IDENT)
+
+	if len(p.errors) != 1 {
+		t.Errorf("Wrong number of errors: got %d, wanted %d", len(p.errors), 1)
+	}
+
+	want := `Unexpected token: got "hello", expected IDENT`
+	err := p.popError()
+	if err.Error() != want {
+		t.Errorf("Wrong error message: got %s, wanted %s", err.Error(), want)
+	}
+}
+
 func TestParseError(t *testing.T) {
 	stream := []token.Token{
 		newToken(token.IDENT, "TEST"),
 		tDeclare,
 		newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1, Position 8)"),
+		tEOF,
 	}
 	p := &Parser{
 		lexer:     &testLexer{stream: stream},
@@ -90,7 +106,7 @@ func TestParseError(t *testing.T) {
 }
 
 func TestParseComment(t *testing.T) {
-	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment")}
+	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment"), tEOF}
 	p := &Parser{
 		lexer:     &testLexer{stream: commentStream},
 		buffer:    [3]token.Token{},
@@ -110,6 +126,7 @@ func TestParseComment(t *testing.T) {
 func TestParseIdent(t *testing.T) {
 	identStream := []token.Token{
 		newToken(token.IDENT, "GLOBAL"),
+		tEOF,
 	}
 	p := &Parser{
 		lexer:     &testLexer{stream: identStream},
@@ -125,6 +142,81 @@ func TestParseIdent(t *testing.T) {
 
 }
 
+func TestParseFunction(t *testing.T) {
+	tests := []struct {
+		name   string
+		stream []token.Token
+		want   ast.Function
+	}{
+		{
+			name: "exec",
+			stream: []token.Token{
+				newToken(token.IDENT, "exec"),
+				tLParen,
+				newToken(token.STRING, "git rev-parse HEAD"),
+				tRParen,
+				tEOF,
+			},
+			want: ast.Function{
+				Name: ast.Ident{
+					Name:     "exec",
+					NodeType: ast.NodeIdent,
+				},
+				Arguments: []ast.Node{
+					ast.String{
+						Text:     "git rev-parse HEAD",
+						NodeType: ast.NodeString,
+					},
+				},
+				NodeType: ast.NodeFunction,
+			},
+		},
+		{
+			name: "join",
+			stream: []token.Token{
+				newToken(token.IDENT, "join"),
+				tLParen,
+				newToken(token.IDENT, "ROOT"),
+				newToken(token.STRING, "docs"),
+				tRParen,
+				tEOF,
+			},
+			want: ast.Function{
+				Name: ast.Ident{
+					Name:     "join",
+					NodeType: ast.NodeIdent,
+				},
+				Arguments: []ast.Node{
+					ast.Ident{
+						Name:     "ROOT",
+						NodeType: ast.NodeIdent,
+					},
+					ast.String{
+						Text:     "docs",
+						NodeType: ast.NodeString,
+					},
+				},
+				NodeType: ast.NodeFunction,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &Parser{
+				lexer:     &testLexer{stream: tt.stream},
+				buffer:    [3]token.Token{},
+				peekCount: 0,
+			}
+			fn := p.parseFunction(p.next())
+
+			if diff := cmp.Diff(tt.want, fn); diff != "" {
+				t.Errorf("Function mismatch (-want +assign):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestParseAssign(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -137,6 +229,7 @@ func TestParseAssign(t *testing.T) {
 				newToken(token.IDENT, "GLOBAL"),
 				tDeclare,
 				newToken(token.STRING, "hello"),
+				tEOF,
 			},
 			want: ast.Assign{
 				Name:     ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent},
@@ -150,6 +243,7 @@ func TestParseAssign(t *testing.T) {
 				newToken(token.IDENT, "GLOBAL"),
 				tDeclare,
 				newToken(token.STRING, "VARIABLE"),
+				tEOF,
 			},
 			want: ast.Assign{
 				Name:     ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent},
@@ -166,6 +260,7 @@ func TestParseAssign(t *testing.T) {
 				tLParen,
 				newToken(token.STRING, "git rev-parse HEAD"),
 				tRParen,
+				tEOF,
 			},
 			want: ast.Assign{
 				Name: ast.Ident{Name: "GIT_COMMIT", NodeType: ast.NodeIdent},
@@ -222,6 +317,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go test ./..."),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -252,6 +348,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go test ./..."),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -284,6 +381,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -318,6 +416,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -353,6 +452,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -392,6 +492,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -431,6 +532,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -471,6 +573,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -512,6 +615,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -557,6 +661,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -610,6 +715,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -662,6 +768,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
@@ -715,6 +822,7 @@ func TestParseTask(t *testing.T) {
 				newToken(token.COMMAND, "go test -race ./..."),
 				newToken(token.COMMAND, `go build -ldflags="-X github.com/FollowTheProcess/spok/cli/cmd.version=dev"`),
 				tRBrace,
+				tEOF,
 			},
 			want: ast.Task{
 				Name: ast.Ident{
