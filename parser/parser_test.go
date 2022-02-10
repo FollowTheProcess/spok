@@ -18,7 +18,9 @@ type testLexer struct {
 }
 
 func (l *testLexer) NextToken() token.Token {
-	// Prevent slice panics
+	// If the stream is empty, return an EOF to emulate the real lexer
+	// closing the token.Token channel which will cause the parser to read
+	// an EOF (channel zero value)
 	if len(l.stream) == 0 {
 		return tEOF
 	}

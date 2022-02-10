@@ -7,6 +7,8 @@ import "fmt"
 // Type is the set of lexical tokens in spok.
 type Type int
 
+// Note: EOF is the zero value such that when the parser reads from a closed channel
+// the read value will be token.EOF.
 //go:generate stringer -type=Type -linecomment -output=token_string.go
 const (
 	EOF     Type = iota // EOF

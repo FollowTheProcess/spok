@@ -171,6 +171,12 @@ func New(input string) *Lexer {
 }
 
 // run starts the state machine for the lexer.
+// when the next state is nil (EOF or Error), the loop is broken and the tokens channel is closed.
+// There's a nice little go trick here:
+// Closing the channel means that, if it reads from the channel, the parser will receive the zero value
+// without blocking, and because our channel is a channel of token.Token, which has an underlying
+// type of int, the zero value is 0. And in the enumerated constants defined in token.go, 0 is
+// mapped to EOF. This means our parser will always have an EOF as the last token.
 func (l *Lexer) run() {
 	for state := lexStart; state != nil; {
 		state = state(l)
