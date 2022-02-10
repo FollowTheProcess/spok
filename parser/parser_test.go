@@ -245,12 +245,12 @@ func TestParseAssign(t *testing.T) {
 			stream: []token.Token{
 				newToken(token.IDENT, "GLOBAL"),
 				tDeclare,
-				newToken(token.STRING, "VARIABLE"),
+				newToken(token.IDENT, "VARIABLE"),
 				tEOF,
 			},
 			want: ast.Assign{
 				Name:     ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent},
-				Value:    ast.String{Text: "VARIABLE", NodeType: ast.NodeString},
+				Value:    ast.Ident{Name: "VARIABLE", NodeType: ast.NodeIdent},
 				NodeType: ast.NodeAssign,
 			},
 		},
