@@ -161,7 +161,7 @@ func (p *Parser) parseFunction(ident token.Token) ast.Function {
 // the ':=' is known to exist and has already been consumed, the encountered ident token is passed in.
 func (p *Parser) parseAssign(ident token.Token) ast.Assign {
 	name := p.parseIdent(ident)
-	p.expect(token.DECLARE) // :=)
+	p.expect(token.DECLARE) // ':='
 
 	var rhs ast.Node
 
