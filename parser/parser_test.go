@@ -84,36 +84,11 @@ func TestExpect(t *testing.T) {
 	}
 }
 
-func TestParseError(t *testing.T) {
-	stream := []token.Token{
-		newToken(token.IDENT, "TEST"),
-		tDeclare,
-		newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1, Position 8)"),
-		tEOF,
-	}
-	p := &Parser{
-		lexer:     &testLexer{stream: stream},
-		buffer:    [3]token.Token{},
-		peekCount: 0,
-	}
-
-	_, err := p.Parse()
-	if err == nil {
-		t.Fatalf("Expected an error but got nil")
-	}
-
-	want := "SyntaxError: Unexpected token '2' (Line 1, Position 8)"
-	if err.Error() != want {
-		t.Errorf("Wrong error message: got %s, wanted %s", err.Error(), want)
-	}
-}
-
 func TestParseComment(t *testing.T) {
 	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment"), tEOF}
 	p := &Parser{
-		lexer:     &testLexer{stream: commentStream},
-		buffer:    [3]token.Token{},
-		peekCount: 0,
+		lexer:  &testLexer{stream: commentStream},
+		buffer: [3]token.Token{},
 	}
 
 	p.next() // #
@@ -903,9 +878,115 @@ func TestParseTask(t *testing.T) {
 	}
 }
 
-// fullSpokfile stream is the same stream of tokens as used as the target output in the lexer integration test
-// here used as input for the parser integration test. If the parser can handle all this, we know our parsing
-// system as a whole is capable of parsing every construct in a spokfile from plain text to AST.
+func TestParseFullSpokfile(t *testing.T) {
+	p := &Parser{
+		lexer: &testLexer{
+			stream: fullSpokfileStream,
+		},
+		buffer:    [3]token.Token{},
+		peekCount: 0,
+	}
+
+	tree, err := p.Parse()
+	if err != nil {
+		t.Fatalf("Parser produced an error: %v", err)
+	}
+
+	if tree.IsEmpty() {
+		t.Fatal("Parser produced an empty AST")
+	}
+
+	if diff := cmp.Diff(fullSpokfileAST, tree); diff != "" {
+		t.Errorf("AST mismatch (-want +tree):\n%s", diff)
+	}
+}
+
+// BenchmarkParseFullSpokfile determines the parser's performance on a stream
+// of tokens indicative of a fully populated spokfile.
+func BenchmarkParseFullSpokfile(b *testing.B) {
+	p := &Parser{
+		lexer: &testLexer{
+			stream: fullSpokfileStream,
+		},
+		buffer:    [3]token.Token{},
+		peekCount: 0,
+	}
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		_, err := p.Parse()
+		if err != nil {
+			b.Fatalf("Parser produced an error: %v", err)
+		}
+	}
+}
+
+// Thar be larger, integration or coupled lexer-parser tests below. If the real lexer is changed
+// none of the above tests will break as they stub out the lexer for our testLexer
+// the tests and benchmarks below make use of the real lexer and will break if that lexer breaks.
+
+// A more or less complete spokfile with all the allowed constructs to act as
+// an integration test and benchmark.
+// Keep in sync with it's counterpart in lexer_test.go.
+var fullSpokfile = `
+# This is a top level comment
+
+# This variable is presumably important later
+GLOBAL := "very important stuff here"
+
+GIT_COMMIT := exec("git rev-parse HEAD")
+
+# Run the project unit tests
+task test(fmt) {
+	go test -race ./...
+}
+
+# Format the project source
+task fmt("**/*.go") {
+	go fmt ./...
+}
+
+# Do many things
+task many() {
+	line 1
+	line 2
+	line 3
+	line 4
+}
+
+# Compile the project
+task build("**/*.go") -> "./bin/main" {
+	go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"
+}
+
+# Show the global variables
+task show() {
+	echo GLOBAL
+}
+
+# Generate multiple outputs
+task moar_things() -> ("output1.go", "output2.go") {
+	do some stuff here
+}
+
+task no_comment() {
+	echo "this task has no docstring"
+}
+
+# Generate output from a variable
+task makedocs() -> DOCS {
+	echo "making docs"
+}
+
+# Generate multiple outputs in variables
+task makestuff() -> (DOCS, BUILD) {
+	echo "doing things"
+}
+`
+
+// fullSpokfileStream is the stream of the tokens the lexer is confirmed to generate
+// given the above fullSpokfile text as input.
+// Keep in sync with the expected output in the lexer_text.go integration test.
 var fullSpokfileStream = []token.Token{
 	tHash,
 	newToken(token.COMMENT, " This is a top level comment"),
@@ -913,12 +994,12 @@ var fullSpokfileStream = []token.Token{
 	newToken(token.COMMENT, " This variable is presumably important later"),
 	newToken(token.IDENT, "GLOBAL"),
 	tDeclare,
-	newToken(token.STRING, "very important stuff here"),
+	newToken(token.STRING, `"very important stuff here"`),
 	newToken(token.IDENT, "GIT_COMMIT"),
 	tDeclare,
 	newToken(token.IDENT, "exec"),
 	tLParen,
-	newToken(token.STRING, "git rev-parse HEAD"),
+	newToken(token.STRING, `"git rev-parse HEAD"`),
 	tRParen,
 	tHash,
 	newToken(token.COMMENT, " Run the project unit tests"),
@@ -935,7 +1016,7 @@ var fullSpokfileStream = []token.Token{
 	tTask,
 	newToken(token.IDENT, "fmt"),
 	tLParen,
-	newToken(token.STRING, "**/*.go"),
+	newToken(token.STRING, `"**/*.go"`),
 	tRParen,
 	tLBrace,
 	newToken(token.COMMAND, "go fmt ./..."),
@@ -957,10 +1038,10 @@ var fullSpokfileStream = []token.Token{
 	tTask,
 	newToken(token.IDENT, "build"),
 	tLParen,
-	newToken(token.STRING, "**/*.go"),
+	newToken(token.STRING, `"**/*.go"`),
 	tRParen,
 	tOutput,
-	newToken(token.STRING, "./bin/main"),
+	newToken(token.STRING, `"./bin/main"`),
 	tLBrace,
 	newToken(token.COMMAND, `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`),
 	tRBrace,
@@ -981,8 +1062,8 @@ var fullSpokfileStream = []token.Token{
 	tRParen,
 	tOutput,
 	tLParen,
-	newToken(token.STRING, "output1.go"),
-	newToken(token.STRING, "output2.go"),
+	newToken(token.STRING, `"output1.go"`),
+	newToken(token.STRING, `"output2.go"`),
 	tRParen,
 	tLBrace,
 	newToken(token.COMMAND, "do some stuff here"),
@@ -1022,303 +1103,294 @@ var fullSpokfileStream = []token.Token{
 	tEOF,
 }
 
-func TestParserIntegration(t *testing.T) {
-	p := &Parser{
-		lexer: &testLexer{
-			stream: fullSpokfileStream,
+// fullSpokfileAST is the expected abstract syntax tree that should be generated when
+// parsing the fullSpokfileStream of tokens.
+var fullSpokfileAST = ast.Tree{
+	Nodes: []ast.Node{
+		ast.Comment{
+			Text:     " This is a top level comment",
+			NodeType: ast.NodeComment,
 		},
-		buffer:    [3]token.Token{},
-		peekCount: 0,
-	}
-
-	tree, err := p.Parse()
-	if err != nil {
-		t.Fatalf("Parser produced an error: %v", err)
-	}
-
-	if tree.IsEmpty() {
-		t.Fatal("Parser produced an empty AST")
-	}
-
-	want := ast.Tree{
-		Nodes: []ast.Node{
-			ast.Comment{
-				Text:     " This is a top level comment",
+		ast.Comment{
+			Text:     " This variable is presumably important later",
+			NodeType: ast.NodeComment,
+		},
+		ast.Assign{
+			Name: ast.Ident{
+				Name:     "GLOBAL",
+				NodeType: ast.NodeIdent,
+			},
+			Value: ast.String{
+				Text:     `"very important stuff here"`,
+				NodeType: ast.NodeString,
+			},
+			NodeType: ast.NodeAssign,
+		},
+		ast.Assign{
+			Value: ast.Function{
+				Name: ast.Ident{
+					Name:     "exec",
+					NodeType: ast.NodeIdent,
+				},
+				Arguments: []ast.Node{
+					ast.String{
+						Text:     `"git rev-parse HEAD"`,
+						NodeType: ast.NodeString,
+					},
+				}, NodeType: ast.NodeFunction,
+			},
+			Name: ast.Ident{
+				Name:     "GIT_COMMIT",
+				NodeType: ast.NodeIdent,
+			},
+			NodeType: ast.NodeAssign,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "test",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Run the project unit tests",
 				NodeType: ast.NodeComment,
 			},
-			ast.Comment{
-				Text:     " This variable is presumably important later",
-				NodeType: ast.NodeComment,
-			},
-			ast.Assign{
-				Name: ast.Ident{
-					Name:     "GLOBAL",
-					NodeType: ast.NodeIdent,
-				},
-				Value: ast.String{
-					Text:     "very important stuff here",
-					NodeType: ast.NodeString,
-				},
-				NodeType: ast.NodeAssign,
-			},
-			ast.Assign{
-				Value: ast.Function{
-					Name: ast.Ident{
-						Name:     "exec",
-						NodeType: ast.NodeIdent,
-					},
-					Arguments: []ast.Node{
-						ast.String{
-							Text:     "git rev-parse HEAD",
-							NodeType: ast.NodeString,
-						},
-					}, NodeType: ast.NodeFunction,
-				},
-				Name: ast.Ident{
-					Name:     "GIT_COMMIT",
-					NodeType: ast.NodeIdent,
-				},
-				NodeType: ast.NodeAssign,
-			},
-			ast.Task{
-				Name: ast.Ident{
-					Name:     "test",
-					NodeType: ast.NodeIdent,
-				},
-				Docstring: ast.Comment{
-					Text:     " Run the project unit tests",
-					NodeType: ast.NodeComment,
-				},
-				Dependencies: []ast.Node{
-					ast.Ident{
-						Name:     "fmt",
-						NodeType: ast.NodeIdent,
-					},
-				},
-				Outputs: []ast.Node{},
-				Commands: []ast.Command{
-					{
-						Command:  "go test -race ./...",
-						NodeType: ast.NodeCommand,
-					},
-				},
-				NodeType: ast.NodeTask,
-			},
-			ast.Task{
-				Name: ast.Ident{
+			Dependencies: []ast.Node{
+				ast.Ident{
 					Name:     "fmt",
 					NodeType: ast.NodeIdent,
 				},
-				Docstring: ast.Comment{
-					Text:     " Format the project source",
-					NodeType: ast.NodeComment,
-				},
-				Dependencies: []ast.Node{
-					ast.String{
-						Text:     "**/*.go",
-						NodeType: ast.NodeString,
-					},
-				},
-				Outputs: []ast.Node{},
-				Commands: []ast.Command{
-					{
-						Command:  "go fmt ./...",
-						NodeType: ast.NodeCommand,
-					},
-				},
-				NodeType: ast.NodeTask,
 			},
-			ast.Task{
-				Name: ast.Ident{
-					Name:     "many",
-					NodeType: ast.NodeIdent,
+			Outputs: []ast.Node{},
+			Commands: []ast.Command{
+				{
+					Command:  "go test -race ./...",
+					NodeType: ast.NodeCommand,
 				},
-				Docstring: ast.Comment{
-					Text:     " Do many things",
-					NodeType: ast.NodeComment,
-				},
-				Dependencies: []ast.Node{},
-				Outputs:      []ast.Node{},
-				Commands: []ast.Command{
-					{
-						Command:  "line 1",
-						NodeType: ast.NodeCommand,
-					},
-					{
-						Command:  "line 2",
-						NodeType: ast.NodeCommand,
-					},
-					{
-						Command:  "line 3",
-						NodeType: ast.NodeCommand,
-					},
-					{
-						Command:  "line 4",
-						NodeType: ast.NodeCommand,
-					},
-				},
-				NodeType: ast.NodeTask,
 			},
-			ast.Task{
-				Name: ast.Ident{
-					Name:     "build",
-					NodeType: ast.NodeIdent,
-				},
-				Docstring: ast.Comment{
-					Text:     " Compile the project",
-					NodeType: ast.NodeComment,
-				},
-				Dependencies: []ast.Node{
-					ast.String{
-						Text:     "**/*.go",
-						NodeType: ast.NodeString,
-					},
-				},
-				Outputs: []ast.Node{
-					ast.String{
-						Text:     "./bin/main",
-						NodeType: ast.NodeString,
-					},
-				},
-				Commands: []ast.Command{
-					{
-						Command:  `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`,
-						NodeType: ast.NodeCommand,
-					},
-				},
-				NodeType: ast.NodeTask,
-			},
-			ast.Task{
-				Name: ast.Ident{
-					Name:     "show",
-					NodeType: ast.NodeIdent,
-				},
-				Docstring: ast.Comment{
-					Text:     " Show the global variables",
-					NodeType: ast.NodeComment,
-				},
-				Dependencies: []ast.Node{},
-				Outputs:      []ast.Node{},
-				Commands: []ast.Command{
-					{
-						Command:  "echo GLOBAL",
-						NodeType: ast.NodeCommand,
-					},
-				},
-				NodeType: ast.NodeTask,
-			},
-			ast.Task{
-				Name: ast.Ident{
-					Name:     "moar_things",
-					NodeType: ast.NodeIdent,
-				},
-				Docstring: ast.Comment{
-					Text:     " Generate multiple outputs",
-					NodeType: ast.NodeComment,
-				},
-				Dependencies: []ast.Node{},
-				Outputs: []ast.Node{
-					ast.String{
-						Text:     "output1.go",
-						NodeType: ast.NodeString,
-					},
-					ast.String{
-						Text:     "output2.go",
-						NodeType: ast.NodeString,
-					},
-				},
-				Commands: []ast.Command{
-					{
-						Command:  "do some stuff here",
-						NodeType: ast.NodeCommand,
-					},
-				},
-				NodeType: ast.NodeTask,
-			},
-			ast.Task{
-				Name: ast.Ident{
-					Name:     "no_comment",
-					NodeType: ast.NodeIdent,
-				},
-				Docstring:    ast.Comment{},
-				Dependencies: []ast.Node{},
-				Outputs:      []ast.Node{},
-				Commands: []ast.Command{
-					{
-						Command:  `echo "this task has no docstring"`,
-						NodeType: ast.NodeCommand,
-					},
-				},
-				NodeType: ast.NodeTask,
-			},
-			ast.Task{
-				Name: ast.Ident{
-					Name:     "makedocs",
-					NodeType: ast.NodeIdent,
-				},
-				Docstring: ast.Comment{
-					Text:     " Generate output from a variable",
-					NodeType: ast.NodeComment,
-				},
-				Dependencies: []ast.Node{},
-				Outputs: []ast.Node{
-					ast.Ident{
-						Name:     "DOCS",
-						NodeType: ast.NodeIdent,
-					},
-				},
-				Commands: []ast.Command{
-					{
-						Command:  `echo "making docs"`,
-						NodeType: ast.NodeCommand,
-					},
-				},
-				NodeType: ast.NodeTask,
-			},
-			ast.Task{
-				Name: ast.Ident{
-					Name:     "makestuff",
-					NodeType: ast.NodeIdent,
-				},
-				Docstring: ast.Comment{
-					Text:     " Generate multiple outputs in variables",
-					NodeType: ast.NodeComment,
-				},
-				Dependencies: []ast.Node{},
-				Outputs: []ast.Node{
-					ast.Ident{
-						Name:     "DOCS",
-						NodeType: ast.NodeIdent,
-					},
-					ast.Ident{
-						Name:     "BUILD",
-						NodeType: ast.NodeIdent,
-					},
-				},
-				Commands: []ast.Command{
-					{
-						Command:  `echo "doing things"`,
-						NodeType: ast.NodeCommand,
-					},
-				},
-				NodeType: ast.NodeTask,
-			},
+			NodeType: ast.NodeTask,
 		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "fmt",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Format the project source",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{
+				ast.String{
+					Text:     `"**/*.go"`,
+					NodeType: ast.NodeString,
+				},
+			},
+			Outputs: []ast.Node{},
+			Commands: []ast.Command{
+				{
+					Command:  "go fmt ./...",
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "many",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Do many things",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{},
+			Outputs:      []ast.Node{},
+			Commands: []ast.Command{
+				{
+					Command:  "line 1",
+					NodeType: ast.NodeCommand,
+				},
+				{
+					Command:  "line 2",
+					NodeType: ast.NodeCommand,
+				},
+				{
+					Command:  "line 3",
+					NodeType: ast.NodeCommand,
+				},
+				{
+					Command:  "line 4",
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "build",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Compile the project",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{
+				ast.String{
+					Text:     `"**/*.go"`,
+					NodeType: ast.NodeString,
+				},
+			},
+			Outputs: []ast.Node{
+				ast.String{
+					Text:     `"./bin/main"`,
+					NodeType: ast.NodeString,
+				},
+			},
+			Commands: []ast.Command{
+				{
+					Command:  `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`,
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "show",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Show the global variables",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{},
+			Outputs:      []ast.Node{},
+			Commands: []ast.Command{
+				{
+					Command:  "echo GLOBAL",
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "moar_things",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Generate multiple outputs",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{},
+			Outputs: []ast.Node{
+				ast.String{
+					Text:     `"output1.go"`,
+					NodeType: ast.NodeString,
+				},
+				ast.String{
+					Text:     `"output2.go"`,
+					NodeType: ast.NodeString,
+				},
+			},
+			Commands: []ast.Command{
+				{
+					Command:  "do some stuff here",
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "no_comment",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring:    ast.Comment{},
+			Dependencies: []ast.Node{},
+			Outputs:      []ast.Node{},
+			Commands: []ast.Command{
+				{
+					Command:  `echo "this task has no docstring"`,
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "makedocs",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Generate output from a variable",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{},
+			Outputs: []ast.Node{
+				ast.Ident{
+					Name:     "DOCS",
+					NodeType: ast.NodeIdent,
+				},
+			},
+			Commands: []ast.Command{
+				{
+					Command:  `echo "making docs"`,
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "makestuff",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Generate multiple outputs in variables",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{},
+			Outputs: []ast.Node{
+				ast.Ident{
+					Name:     "DOCS",
+					NodeType: ast.NodeIdent,
+				},
+				ast.Ident{
+					Name:     "BUILD",
+					NodeType: ast.NodeIdent,
+				},
+			},
+			Commands: []ast.Command{
+				{
+					Command:  `echo "doing things"`,
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+	},
+}
+
+// TestParserIntegration uses the real lexer to parse a fully
+// populated spokfile as string input and therefore checks the whole
+// parsing system end to end.
+func TestParserIntegration(t *testing.T) {
+
+	p := New(fullSpokfile)
+	tree, err := p.Parse()
+	if err != nil {
+		t.Fatalf("Parser error: %v", err)
 	}
 
-	if diff := cmp.Diff(want, tree); diff != "" {
+	if diff := cmp.Diff(fullSpokfileAST, tree); diff != "" {
 		t.Errorf("AST mismatch (-want +tree):\n%s", diff)
 	}
 }
 
-func BenchmarkParseFullSpokfile(b *testing.B) {
-	p := &Parser{
-		lexer: &testLexer{
-			stream: fullSpokfileStream,
-		},
-		buffer:    [3]token.Token{},
-		peekCount: 0,
-	}
+// BenchmarkParserIntegration determines the performance of the parsing
+// system as a whole, from raw string to AST.
+func BenchmarkParserIntegration(b *testing.B) {
+	p := New(fullSpokfile)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
