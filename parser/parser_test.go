@@ -882,6 +882,49 @@ func TestParseTask(t *testing.T) {
 	}
 }
 
+func TestParserErrorHandling(t *testing.T) {
+	tests := []struct {
+		name    string
+		message string
+		stream  []token.Token
+	}{
+		{
+			name: "error token from lexer",
+			stream: []token.Token{
+				newToken(token.ERROR, "beep boop"),
+			},
+			message: "beep boop",
+		},
+		{
+			name: "error from parser",
+			stream: []token.Token{
+				newToken(token.IDENT, "TEST"),
+				// parseAssign will call expect on a ':=' here
+				newToken(token.IDENT, "OOPS"),
+			},
+			message: `Unexpected token: got "OOPS", expected :=`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &Parser{
+				lexer:  &testLexer{stream: tt.stream},
+				buffer: [3]token.Token{},
+			}
+
+			_, err := p.Parse()
+			if err == nil {
+				t.Fatal("Expected error but got nil")
+			}
+
+			if err.Error() != tt.message {
+				t.Errorf("Wrong error message: got %s, wanted %s", err.Error(), tt.message)
+			}
+		})
+	}
+}
+
 // TestParseFullSpokfile tests the parser against a stream of tokens
 // indicative of a fully populated, syntactically valid spokfile.
 func TestParseFullSpokfile(t *testing.T) {
