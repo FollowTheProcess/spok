@@ -12,7 +12,6 @@
 package parser
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/FollowTheProcess/spok/ast"
@@ -58,6 +57,12 @@ func (p *Parser) Parse() (ast.Tree, error) {
 		case next.Is(token.TASK):
 			// Pass an empty comment in if it doesn't have one
 			tree.Append(p.parseTask(ast.Comment{NodeType: ast.NodeComment}))
+
+		default:
+			// Illegal top level token that slipped through the lexer somehow
+			// unlikely but let's catch it anyway
+			p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+
 		}
 		next = p.next()
 	}
@@ -79,10 +84,11 @@ func (p *Parser) next() token.Token {
 	} else {
 		p.buffer[0] = p.lexer.NextToken()
 	}
-	if p.buffer[p.peekCount].Is(token.ERROR) {
-		p.errors = append(p.errors, errors.New(p.buffer[p.peekCount].Value))
+	tok := p.buffer[p.peekCount]
+	if tok.Is(token.ERROR) {
+		p.errorf(tok.Value)
 	}
-	return p.buffer[p.peekCount]
+	return tok
 }
 
 // backups backs up in the input stream by one token.
@@ -95,13 +101,18 @@ func (p *Parser) backup() {
 func (p *Parser) expect(token token.Type) {
 	tok := p.next()
 	if !tok.Is(token) {
-		p.errors = append(p.errors, fmt.Errorf("Unexpected token (Line %d, Position %d): got %s, expected %s", tok.Line, tok.Pos, tok.String(), token.String()))
+		p.errorf("Unexpected token (Line %d, Position %d): got %s, expected %s", tok.Line, tok.Pos, tok.String(), token.String())
 	}
 }
 
 // hasErrors returns whether or not the parser has encountered errors on it's travels.
 func (p *Parser) hasErrors() bool {
 	return len(p.errors) != 0
+}
+
+// errorf adds a formatted error message to the parser's error stack.
+func (p *Parser) errorf(format string, args ...interface{}) {
+	p.errors = append(p.errors, fmt.Errorf(format, args...))
 }
 
 // popError returns the first error in the stack of errors.
@@ -145,6 +156,8 @@ func (p *Parser) parseFunction(ident token.Token) ast.Function {
 			args = append(args, p.parseString(next))
 		case next.Is(token.IDENT):
 			args = append(args, p.parseIdent(next))
+		default:
+			p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
 		}
 		next = p.next()
 	}
@@ -177,6 +190,8 @@ func (p *Parser) parseAssign(ident token.Token) ast.Assign {
 			p.backup()
 			rhs = p.parseIdent(next)
 		}
+	default:
+		p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
 	}
 
 	return ast.Assign{
@@ -201,6 +216,8 @@ func (p *Parser) parseTask(doc ast.Comment) ast.Task {
 			dependencies = append(dependencies, p.parseString(next))
 		case next.Is(token.IDENT):
 			dependencies = append(dependencies, p.parseIdent(next))
+		default:
+			p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
 		}
 		next = p.next()
 	}
@@ -219,9 +236,13 @@ func (p *Parser) parseTask(doc ast.Comment) ast.Task {
 					outputs = append(outputs, p.parseString(tok))
 				case tok.Is(token.IDENT):
 					outputs = append(outputs, p.parseIdent(tok))
+				default:
+					p.errorf("Illegal token (Line %d, Position %d): %s", tok.Line, tok.Pos, tok.String())
 				}
 				tok = p.next()
 			}
+		default:
+			p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
 		}
 	}
 

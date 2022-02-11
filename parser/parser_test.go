@@ -66,6 +66,10 @@ func TestEOF(t *testing.T) {
 	if !tree.IsEmpty() {
 		t.Errorf("Expected an empty AST")
 	}
+
+	if p.hasErrors() {
+		t.Errorf("Parser has errors: %v", p.errors)
+	}
 }
 
 func TestExpect(t *testing.T) {
@@ -104,6 +108,10 @@ func TestParseComment(t *testing.T) {
 		t.Errorf("Wrong comment text: got %s, wanted %s", comment.Text, " A comment")
 	}
 
+	if p.hasErrors() {
+		t.Errorf("Parser has errors: %v", p.errors)
+	}
+
 }
 
 func TestParseIdent(t *testing.T) {
@@ -121,6 +129,10 @@ func TestParseIdent(t *testing.T) {
 
 	if ident.Name != "GLOBAL" {
 		t.Errorf("Wrong ident name: got %s, wanted %s", ident.Name, "GLOBAL")
+	}
+
+	if p.hasErrors() {
+		t.Errorf("Parser has errors: %v", p.errors)
 	}
 
 }
@@ -192,6 +204,10 @@ func TestParseFunction(t *testing.T) {
 				peekCount: 0,
 			}
 			fn := p.parseFunction(p.next())
+
+			if p.hasErrors() {
+				t.Errorf("Parser has errors: %v", p.errors)
+			}
 
 			if diff := cmp.Diff(tt.want, fn); diff != "" {
 				t.Errorf("Function mismatch (-want +assign):\n%s", diff)
@@ -275,6 +291,10 @@ func TestParseAssign(t *testing.T) {
 
 			ident := p.next()
 			assign := p.parseAssign(ident)
+
+			if p.hasErrors() {
+				t.Errorf("Parser has errors: %v", p.errors)
+			}
 
 			if diff := cmp.Diff(tt.want, assign); diff != "" {
 				t.Errorf("Assign mismatch (-want +assign):\n%s", diff)
@@ -876,6 +896,10 @@ func TestParseTask(t *testing.T) {
 			p.next() // task keyword
 			task := p.parseTask(comment)
 
+			if p.hasErrors() {
+				t.Errorf("Parser has errors: %v", p.errors)
+			}
+
 			if diff := cmp.Diff(tt.want, task); diff != "" {
 				t.Errorf("Task mismatch (-want +task):\n%s", diff)
 			}
@@ -944,6 +968,10 @@ func TestParseFullSpokfile(t *testing.T) {
 
 	if tree.IsEmpty() {
 		t.Fatal("Parser produced an empty AST")
+	}
+
+	if p.hasErrors() {
+		t.Errorf("Parser has errors: %v", p.errors)
 	}
 
 	if diff := cmp.Diff(fullSpokfileAST, tree); diff != "" {
