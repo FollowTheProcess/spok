@@ -95,7 +95,7 @@ func (p *Parser) backup() {
 func (p *Parser) expect(token token.Type) {
 	tok := p.next()
 	if !tok.Is(token) {
-		p.errors = append(p.errors, fmt.Errorf("Unexpected token: got %s, expected %s", tok.String(), token.String()))
+		p.errors = append(p.errors, fmt.Errorf("Unexpected token (Line %d, Position %d): got %s, expected %s", tok.Line, tok.Pos, tok.String(), token.String()))
 	}
 }
 

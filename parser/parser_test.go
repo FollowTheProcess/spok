@@ -81,7 +81,8 @@ func TestExpect(t *testing.T) {
 		t.Errorf("Wrong number of errors: got %d, wanted %d", len(p.errors), 1)
 	}
 
-	want := `Unexpected token: got "hello", expected IDENT`
+	// No line or position info because it's our fake lexer but this is where it would go
+	want := `Unexpected token (Line 0, Position 0): got "hello", expected IDENT`
 	err := p.popError()
 	if err.Error() != want {
 		t.Errorf("Wrong error message: got %s, wanted %s", err.Error(), want)
@@ -902,7 +903,7 @@ func TestParserErrorHandling(t *testing.T) {
 				// parseAssign will call expect on a ':=' here
 				newToken(token.IDENT, "OOPS"),
 			},
-			message: `Unexpected token: got "OOPS", expected :=`,
+			message: `Unexpected token (Line 0, Position 0): got "OOPS", expected :=`,
 		},
 	}
 
