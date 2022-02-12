@@ -66,10 +66,6 @@ func TestEOF(t *testing.T) {
 	if !tree.IsEmpty() {
 		t.Errorf("Expected an empty AST")
 	}
-
-	if p.hasErrors() {
-		t.Errorf("Parser has errors: %v", p.errors)
-	}
 }
 
 func TestExpect(t *testing.T) {
@@ -79,15 +75,13 @@ func TestExpect(t *testing.T) {
 		peekCount: 0,
 	}
 
-	p.expect(token.IDENT)
-
-	if len(p.errors) != 1 {
-		t.Errorf("Wrong number of errors: got %d, wanted %d", len(p.errors), 1)
+	err := p.expect(token.IDENT)
+	if err == nil {
+		t.Fatal("Expected an expect error, got nil")
 	}
 
 	// No line or position info because it's our fake lexer but this is where it would go
-	want := `Unexpected token (Line 0, Position 0): got "hello", expected IDENT`
-	err := p.popError()
+	want := `Unexpected token (Line 0, Position 0): got "hello", expected "IDENT"`
 	if err.Error() != want {
 		t.Errorf("Wrong error message: got %s, wanted %s", err.Error(), want)
 	}
@@ -107,10 +101,6 @@ func TestParseComment(t *testing.T) {
 	if comment.Text != " A comment" {
 		t.Errorf("Wrong comment text: got %s, wanted %s", comment.Text, " A comment")
 	}
-
-	if p.hasErrors() {
-		t.Errorf("Parser has errors: %v", p.errors)
-	}
 }
 
 func TestParseIdent(t *testing.T) {
@@ -128,10 +118,6 @@ func TestParseIdent(t *testing.T) {
 
 	if ident.Name != "GLOBAL" {
 		t.Errorf("Wrong ident name: got %s, wanted %s", ident.Name, "GLOBAL")
-	}
-
-	if p.hasErrors() {
-		t.Errorf("Parser has errors: %v", p.errors)
 	}
 }
 
@@ -201,10 +187,10 @@ func TestParseFunction(t *testing.T) {
 				buffer:    [3]token.Token{},
 				peekCount: 0,
 			}
-			fn := p.parseFunction(p.next())
-
-			if p.hasErrors() {
-				t.Errorf("Parser has errors: %v", p.errors)
+			ident := p.next()
+			fn, err := p.parseFunction(ident)
+			if err != nil {
+				t.Fatalf("parseFunction returned an error: %v", err)
 			}
 
 			if diff := cmp.Diff(tt.want, fn); diff != "" {
@@ -288,10 +274,9 @@ func TestParseAssign(t *testing.T) {
 			}
 
 			ident := p.next()
-			assign := p.parseAssign(ident)
-
-			if p.hasErrors() {
-				t.Errorf("Parser has errors: %v", p.errors)
+			assign, err := p.parseAssign(ident)
+			if err != nil {
+				t.Fatalf("parseAssign returned an error: %v", err)
 			}
 
 			if diff := cmp.Diff(tt.want, assign); diff != "" {
@@ -891,10 +876,9 @@ func TestParseTask(t *testing.T) {
 				}
 			}
 			p.next() // task keyword
-			task := p.parseTask(comment)
-
-			if p.hasErrors() {
-				t.Errorf("Parser has errors: %v", p.errors)
+			task, err := p.parseTask(comment)
+			if err != nil {
+				t.Fatalf("parseTask returned an error: %v", err)
 			}
 
 			if diff := cmp.Diff(tt.want, task); diff != "" {
@@ -924,7 +908,7 @@ func TestParserErrorHandling(t *testing.T) {
 				// parseAssign will call expect on a ':=' here
 				newToken(token.IDENT, "OOPS"),
 			},
-			message: `Unexpected token (Line 0, Position 0): got "OOPS", expected :=`,
+			message: `Unexpected token (Line 0, Position 0): got "OOPS", expected ":="`,
 		},
 	}
 
@@ -965,10 +949,6 @@ func TestParseFullSpokfile(t *testing.T) {
 
 	if tree.IsEmpty() {
 		t.Fatal("Parser produced an empty AST")
-	}
-
-	if p.hasErrors() {
-		t.Errorf("Parser has errors: %v", p.errors)
 	}
 
 	if diff := cmp.Diff(fullSpokfileAST, tree); diff != "" {

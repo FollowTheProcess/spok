@@ -22,7 +22,6 @@ import (
 // Parser is spok's AST parser.
 type Parser struct {
 	lexer     lexer.Tokeniser // The lexer
-	errors    []error         // Stack of errors collected during the parse
 	buffer    [3]token.Token  // 3 token buffer, allows us to peek and backup in the token stream
 	peekCount int             // How far we've peeked into our buffer
 }
@@ -46,29 +45,38 @@ func (p *Parser) Parse() (ast.Tree, error) {
 			switch {
 			case p.next().Is(token.TASK):
 				// The comment was a tasks' docstring
-				tree.Append(p.parseTask(comment))
+				task, err := p.parseTask(comment)
+				if err != nil {
+					return tree, err
+				}
+				tree.Append(task)
 			default:
 				// Just a normal comment
 				p.backup()
 				tree.Append(comment)
 			}
 		case next.Is(token.IDENT):
-			tree.Append(p.parseAssign(next))
+			assign, err := p.parseAssign(next)
+			if err != nil {
+				return tree, err
+			}
+			tree.Append(assign)
 		case next.Is(token.TASK):
 			// Pass an empty comment in if it doesn't have one
-			tree.Append(p.parseTask(ast.Comment{NodeType: ast.NodeComment}))
+			task, err := p.parseTask(ast.Comment{NodeType: ast.NodeComment})
+			if err != nil {
+				return tree, err
+			}
+			tree.Append(task)
+		case next.Is(token.ERROR):
+			return tree, fmt.Errorf(next.Value)
 
 		default:
 			// Illegal top level token that slipped through the lexer somehow
 			// unlikely but let's catch it anyway
-			p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+			return tree, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
 		}
 		next = p.next()
-	}
-
-	// Check for errors and pop the first one
-	if p.hasErrors() {
-		return tree, p.popError()
 	}
 
 	return tree, nil
@@ -84,9 +92,6 @@ func (p *Parser) next() token.Token {
 		p.buffer[0] = p.lexer.NextToken()
 	}
 	tok := p.buffer[p.peekCount]
-	if tok.Is(token.ERROR) {
-		p.errorf(tok.Value)
-	}
 	return tok
 }
 
@@ -97,26 +102,12 @@ func (p *Parser) backup() {
 
 // expect checks if the next token is of the expected type, consuming it in the process
 // if not it will add an error to the parser error stack.
-func (p *Parser) expect(token token.Type) {
+func (p *Parser) expect(token token.Type) error {
 	tok := p.next()
 	if !tok.Is(token) {
-		p.errorf("Unexpected token (Line %d, Position %d): got %s, expected %s", tok.Line, tok.Pos, tok.String(), token.String())
+		return fmt.Errorf("Unexpected token (Line %d, Position %d): got %s, expected %q", tok.Line, tok.Pos, tok.String(), token.String())
 	}
-}
-
-// hasErrors returns whether or not the parser has encountered errors on it's travels.
-func (p *Parser) hasErrors() bool {
-	return len(p.errors) != 0
-}
-
-// errorf adds a formatted error message to the parser's error stack.
-func (p *Parser) errorf(format string, args ...interface{}) {
-	p.errors = append(p.errors, fmt.Errorf(format, args...))
-}
-
-// popError returns the first error in the stack of errors.
-func (p *Parser) popError() error {
-	return p.errors[0]
+	return nil
 }
 
 // parseComment parses a comment token into a comment ast node,
@@ -145,9 +136,13 @@ func (p *Parser) parseString(s token.Token) ast.String {
 }
 
 // parseFunction parses an ident token into a function ast node.
-func (p *Parser) parseFunction(ident token.Token) ast.Function {
+func (p *Parser) parseFunction(ident token.Token) (ast.Function, error) {
 	args := []ast.Node{}
-	p.expect(token.LPAREN) // '('
+
+	// If next is not '(', we have a problem
+	if err := p.expect(token.LPAREN); err != nil {
+		return ast.Function{}, err
+	}
 
 	for next := p.next(); !next.Is(token.RPAREN); {
 		switch {
@@ -155,8 +150,10 @@ func (p *Parser) parseFunction(ident token.Token) ast.Function {
 			args = append(args, p.parseString(next))
 		case next.Is(token.IDENT):
 			args = append(args, p.parseIdent(next))
+		case next.Is(token.ERROR):
+			return ast.Function{}, fmt.Errorf(next.Value)
 		default:
-			p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+			return ast.Function{}, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
 		}
 		next = p.next()
 	}
@@ -166,16 +163,21 @@ func (p *Parser) parseFunction(ident token.Token) ast.Function {
 		Arguments: args,
 		NodeType:  ast.NodeFunction,
 	}
-	return fn
+	return fn, nil
 }
 
 // parseAssign parses a global variable assignment into an assign ast node.
 // the ':=' is known to exist but has yet to be consumed, the encountered ident token is passed in.
-func (p *Parser) parseAssign(ident token.Token) ast.Assign {
+func (p *Parser) parseAssign(ident token.Token) (ast.Assign, error) {
 	name := p.parseIdent(ident)
-	p.expect(token.DECLARE) // ':='
+
+	// If next is not ':=', we have a problem
+	if err := p.expect(token.DECLARE); err != nil {
+		return ast.Assign{}, err
+	}
 
 	var rhs ast.Node
+	var err error
 
 	switch next := p.next(); {
 	case next.Is(token.STRING):
@@ -184,29 +186,40 @@ func (p *Parser) parseAssign(ident token.Token) ast.Assign {
 		// Only other thing is a built in function or assigning to another ident
 		if p.next().Is(token.LPAREN) {
 			p.backup()
-			rhs = p.parseFunction(next)
+			rhs, err = p.parseFunction(next)
+			if err != nil {
+				return ast.Assign{}, err
+			}
 		} else {
 			p.backup()
 			rhs = p.parseIdent(next)
 		}
+	case next.Is(token.ERROR):
+		return ast.Assign{}, fmt.Errorf(next.Value)
 	default:
-		p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+		return ast.Assign{}, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
 	}
 
-	return ast.Assign{
+	assign := ast.Assign{
 		Name:     name,
 		Value:    rhs,
 		NodeType: ast.NodeAssign,
 	}
+	return assign, nil
 }
 
 // parseTask parses and returns a task ast node, the task keyword has already
 // been encountered and consumed, the docstring comment is passed in if present
 // and will be empty if there is no comment.
-func (p *Parser) parseTask(doc ast.Comment) ast.Task {
+func (p *Parser) parseTask(doc ast.Comment) (ast.Task, error) { // nolint: gocyclo
 	name := p.parseIdent(p.next())
 
-	p.expect(token.LPAREN) // '('
+	// TODO: Extract bits of this out as it's quite complex
+
+	// If next is not '(' we have a problem
+	if err := p.expect(token.LPAREN); err != nil {
+		return ast.Task{}, err
+	}
 
 	dependencies := []ast.Node{}
 	for next := p.next(); !next.Is(token.RPAREN); {
@@ -215,8 +228,10 @@ func (p *Parser) parseTask(doc ast.Comment) ast.Task {
 			dependencies = append(dependencies, p.parseString(next))
 		case next.Is(token.IDENT):
 			dependencies = append(dependencies, p.parseIdent(next))
+		case next.Is(token.ERROR):
+			return ast.Task{}, fmt.Errorf(next.Value)
 		default:
-			p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+			return ast.Task{}, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
 		}
 		next = p.next()
 	}
@@ -235,15 +250,22 @@ func (p *Parser) parseTask(doc ast.Comment) ast.Task {
 					outputs = append(outputs, p.parseString(tok))
 				case tok.Is(token.IDENT):
 					outputs = append(outputs, p.parseIdent(tok))
+				case tok.Is(token.ERROR):
+					return ast.Task{}, fmt.Errorf(next.Value)
 				default:
-					p.errorf("Illegal token (Line %d, Position %d): %s", tok.Line, tok.Pos, tok.String())
+					return ast.Task{}, fmt.Errorf("Illegal token (Line %d, Position %d): %s", tok.Line, tok.Pos, tok.String())
 				}
 				tok = p.next()
 			}
+		case next.Is(token.ERROR):
+			return ast.Task{}, fmt.Errorf(next.Value)
 		default:
-			p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+			return ast.Task{}, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
 		}
 	}
+
+	// BUG: Doesn't seem to be picking up the required '{' here and it we remove it in a test
+	// we just get an infinite loop and no error
 
 	commands := []ast.Command{}
 	for {
@@ -263,7 +285,7 @@ func (p *Parser) parseTask(doc ast.Comment) ast.Task {
 		Outputs:      outputs,
 		Commands:     commands,
 		NodeType:     ast.NodeTask,
-	}
+	}, nil
 }
 
 // parseCommand parses task commands into ast command nodes.
