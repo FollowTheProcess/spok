@@ -34,15 +34,12 @@ fmt:
     gofmt -l -w -s .
 
 # Run all project tests (unit and integration)
-test: integration
+test *flags: fmt
+    SPOK_INTEGRATION_TEST=true gotest -race ./... {{ flags }}
 
 # Run all project unit tests
 unit *flags: fmt
     gotest -race ./... {{ flags }}
-
-# Run all project integration tests
-integration *flags: fmt
-    SPOK_INTEGRATION_TEST=true gotest -race ./... {{ flags }}
 
 # Run all project benchmarks
 bench: fmt
@@ -73,11 +70,8 @@ clean:
     rm -rf {{ PROJECT_NAME }} {{ PROJECT_BIN }} {{ COVERAGE_DATA }} {{ COVERAGE_HTML }} {{ GORELEASER_DIST }}
     rm -rf *.test *.pprof
 
-# Run unit tests and linting in one go
-check: integration lint
-
-# Run all recipes (other than clean) in a sensible order
-all: build test lint cover
+# Run all tests and linting in one go
+check: test lint
 
 # Print lines of code (for fun)
 sloc:
