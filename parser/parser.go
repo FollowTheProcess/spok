@@ -76,7 +76,7 @@ func (p *Parser) Parse() (ast.Tree, error) {
 		default:
 			// Illegal top level token that slipped through the lexer somehow
 			// unlikely but let's catch it anyway
-			return tree, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+			return tree, fmt.Errorf("Illegal token (Line %d, Position %d): %s. Expected one of '#', 'task', or IDENT", next.Line, next.Pos, next.String())
 		}
 		next = p.next()
 	}
@@ -102,12 +102,17 @@ func (p *Parser) backup() {
 
 // expect checks if the next token is of the expected type, consuming it in the process
 // if not it will return an unexpected token error.
-func (p *Parser) expect(token token.Type) error {
-	tok := p.next()
-	if !tok.Is(token) {
-		return fmt.Errorf("Unexpected token (Line %d, Position %d): got %s, expected %q", tok.Line, tok.Pos, tok.String(), token.String())
+func (p *Parser) expect(expected token.Type) error {
+	switch got := p.next(); {
+	case got.Is(token.ERROR):
+		// If it's already an error, just return it as is
+		// goes without saying that we don't expect an error
+		return fmt.Errorf(got.Value)
+	case !got.Is(expected):
+		return fmt.Errorf("Unexpected token (Line %d, Position %d): got %s, expected %q", got.Line, got.Pos, got.String(), expected.String())
+	default:
+		return nil
 	}
-	return nil
 }
 
 // parseComment parses a comment token into a comment ast node,
@@ -230,11 +235,15 @@ func (p *Parser) parseTask(doc ast.Comment) (ast.Task, error) {
 	}
 
 	// If next is not '{', we have a problem
-	if err := p.expect(token.LBRACE); err != nil {
+	err = p.expect(token.LBRACE)
+	if err != nil {
 		return ast.Task{}, err
 	}
 
-	commands := p.parseTaskCommands()
+	commands, err := p.parseTaskCommands()
+	if err != nil {
+		return ast.Task{}, err
+	}
 
 	task := ast.Task{
 		Name:         name,
@@ -309,10 +318,13 @@ func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
 }
 
 // parseTaskCommands parses any number of command tokens in a task body and returns them.
-func (p *Parser) parseTaskCommands() []ast.Command {
+func (p *Parser) parseTaskCommands() ([]ast.Command, error) {
 	commands := []ast.Command{}
 	for {
 		next := p.next()
+		if next.Is(token.ERROR) {
+			return commands, fmt.Errorf(next.Value)
+		}
 		if next.Is(token.RBRACE) {
 			break
 		}
@@ -321,7 +333,7 @@ func (p *Parser) parseTaskCommands() []ast.Command {
 		}
 	}
 
-	return commands
+	return commands, nil
 }
 
 // parseCommand parses task commands into ast command nodes.

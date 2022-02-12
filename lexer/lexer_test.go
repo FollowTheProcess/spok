@@ -309,7 +309,7 @@ var lexTests = []lexTest{
 			tLBrace,
 			newToken(token.COMMAND, "go test ./..."),
 			newToken(token.COMMAND, "go build ."),
-			newToken(token.ERROR, `SyntaxError: Unexpected token 'U+000A' (Line 7, Position 52)`),
+			newToken(token.ERROR, "SyntaxError: Unexpected token 'U+000A' (Line 7, Position 52)"),
 		},
 	},
 	{

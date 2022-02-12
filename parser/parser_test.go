@@ -903,13 +903,117 @@ func TestParserErrorHandling(t *testing.T) {
 			message: "beep boop",
 		},
 		{
-			name: "error from parser",
+			name:    "bad input chars",
+			stream:  []token.Token{newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1, Position 0)")},
+			message: "SyntaxError: Unexpected token '*' (Line 1, Position 0)",
+		},
+		{
+			name:    "global variable unterminated string",
+			message: "SyntaxError: Unterminated string literal (Line 1, Position 14)",
+			stream: []token.Token{
+				newToken(token.IDENT, "TEST"),
+				tDeclare,
+				newToken(token.ERROR, "SyntaxError: Unterminated string literal (Line 1, Position 14)"),
+			},
+		},
+		{
+			name:    "task bad char before body",
+			message: "SyntaxError: Unexpected token '^' (Line 1, Position 12)",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "test"),
+				tLParen,
+				tRParen,
+				newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1, Position 12)"),
+			},
+		},
+		{
+			name:    "task invalid chars end of body",
+			message: "SyntaxError: Unexpected token 'U+000A' (Line 7, Position 52)",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "test"),
+				tLParen,
+				tRParen,
+				tLBrace,
+				newToken(token.COMMAND, "go test ./..."),
+				newToken(token.COMMAND, "go build ."),
+				newToken(token.ERROR, "SyntaxError: Unexpected token 'U+000A' (Line 7, Position 52)"),
+			},
+		},
+		{
+			name:    "task unterminated body",
+			message: "SyntaxError: Unterminated task body (Line 1, Position 13)",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "test"),
+				tLParen,
+				tRParen,
+				tLBrace,
+				newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 1, Position 13)"),
+			},
+		},
+		{
+			name:    "task invalid char args",
+			message: "SyntaxError: Invalid character used in task dependency/output [2] (Line 1, Position 11). Only strings and declared variables may be used.",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "test"),
+				tLParen,
+				newToken(token.ERROR, "SyntaxError: Invalid character used in task dependency/output [2] (Line 1, Position 11). Only strings and declared variables may be used."),
+			},
+		},
+		{
+			name:    "task no curlies",
+			message: `Unexpected token (Line 0, Position 0): got EOF, expected "{"`,
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "test"),
+				tLParen,
+				newToken(token.STRING, `"file.go"`),
+				tRParen,
+				tEOF,
+			},
+		},
+		{
+			name:    "task missing output",
+			message: "SyntaxError: Task declared dependency but none found (Line 1, Position 25)",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "test"),
+				tLParen,
+				newToken(token.STRING, `"input.go"`),
+				tRParen,
+				tOutput,
+				newToken(token.ERROR, "SyntaxError: Task declared dependency but none found (Line 1, Position 25)"),
+			},
+		},
+		{
+			name:    "task bad token after output",
+			message: "SyntaxError: Unexpected token '^' (Line 1, Position 26)",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "test"),
+				tLParen,
+				newToken(token.STRING, `"input.go"`),
+				tRParen,
+				tOutput,
+				newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1, Position 26)"),
+			},
+		},
+		{
+			name: "parser expect error",
 			stream: []token.Token{
 				newToken(token.IDENT, "TEST"),
 				// parseAssign will call expect on a ':=' here
 				newToken(token.IDENT, "OOPS"),
 			},
 			message: `Unexpected token (Line 0, Position 0): got "OOPS", expected ":="`,
+		},
+		{
+			name:    "parser unexpected top level token",
+			stream:  []token.Token{newToken(token.STRING, "Unexpected")},
+			message: `Illegal token (Line 0, Position 0): "Unexpected". Expected one of '#', 'task', or IDENT`,
 		},
 	}
 
@@ -991,7 +1095,7 @@ func BenchmarkParseFullSpokfile(b *testing.B) {
 // or integration benchmarks here.
 //
 
-// A more or less complete spokfile with all the allowed constructs to act as
+// A more or less complete, syntactically valid, spokfile with all the allowed constructs to act as
 // an integration test and benchmark.
 // Keep in sync with it's counterpart in lexer_test.go.
 var fullSpokfile = `
