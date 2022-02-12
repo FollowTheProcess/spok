@@ -39,6 +39,9 @@ func (p *Parser) Parse() (ast.Tree, error) {
 
 	for next := p.next(); !next.Is(token.EOF); {
 		switch {
+		case next.Is(token.ERROR):
+			return tree, fmt.Errorf(next.Value)
+
 		case next.Is(token.HASH):
 			comment := p.parseComment()
 			switch {
@@ -54,12 +57,14 @@ func (p *Parser) Parse() (ast.Tree, error) {
 				p.backup()
 				tree.Append(comment)
 			}
+
 		case next.Is(token.IDENT):
 			assign, err := p.parseAssign(next)
 			if err != nil {
 				return tree, err
 			}
 			tree.Append(assign)
+
 		case next.Is(token.TASK):
 			// Pass an empty comment in if it doesn't have one
 			task, err := p.parseTask(ast.Comment{NodeType: ast.NodeComment})
@@ -67,8 +72,6 @@ func (p *Parser) Parse() (ast.Tree, error) {
 				return tree, err
 			}
 			tree.Append(task)
-		case next.Is(token.ERROR):
-			return tree, fmt.Errorf(next.Value)
 
 		default:
 			// Illegal top level token that slipped through the lexer somehow
@@ -226,28 +229,22 @@ func (p *Parser) parseTask(doc ast.Comment) (ast.Task, error) {
 		return ast.Task{}, err
 	}
 
-	// BUG: Doesn't seem to be picking up the required '{' here and it we remove it in a test
-	// we just get an infinite loop and no error
-
-	commands := []ast.Command{}
-	for {
-		next := p.next()
-		if next.Is(token.RBRACE) {
-			break
-		}
-		if next.Is(token.COMMAND) {
-			commands = append(commands, p.parseCommand(next))
-		}
+	if err := p.expect(token.LBRACE); err != nil {
+		return ast.Task{}, err
 	}
 
-	return ast.Task{
+	commands := p.parseTaskCommands()
+
+	task := ast.Task{
 		Name:         name,
 		Docstring:    doc,
 		Dependencies: dependencies,
 		Outputs:      outputs,
 		Commands:     commands,
 		NodeType:     ast.NodeTask,
-	}, nil
+	}
+
+	return task, nil
 }
 
 // parseTaskDependencies parses any declared dependencies in a task and returns
@@ -273,6 +270,8 @@ func (p *Parser) parseTaskDependencies() ([]ast.Node, error) {
 
 // parseTaskOutputs parses any declared outputs in a task and returns
 // the []ast.Node containing them.
+// If no output is declared, this method will backup so that the parser
+// state is the same as when it was called.
 func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
 	outputs := []ast.Node{}
 	if p.next().Is(token.OUTPUT) {
@@ -300,9 +299,28 @@ func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
 		default:
 			return nil, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
 		}
+	} else {
+		// No outputs declared, undo our call to p.next() in the if branch
+		p.backup()
 	}
 
 	return outputs, nil
+}
+
+// parseTaskCommands parses any number of command tokens in a task body and returns them.
+func (p *Parser) parseTaskCommands() []ast.Command {
+	commands := []ast.Command{}
+	for {
+		next := p.next()
+		if next.Is(token.RBRACE) {
+			break
+		}
+		if next.Is(token.COMMAND) {
+			commands = append(commands, p.parseCommand(next))
+		}
+	}
+
+	return commands
 }
 
 // parseCommand parses task commands into ast command nodes.
