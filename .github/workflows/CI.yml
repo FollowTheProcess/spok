@@ -24,6 +24,8 @@ jobs:
 
       - name: Run Tests
         run: go test -race ./...
+        env:
+          SPOK_INTEGRATION_TESTS: true
 
   # cov:
   #   name: Coverage
@@ -43,6 +45,8 @@ jobs:
 
   #     - name: Run Tests
   #       run: go test -race -cover -covermode=atomic -coverprofile=./coverage.out ./...
+  #       env:
+  #         SPOK_INTEGRATION_TESTS: true
 
   #     - name: Coverage
   #       uses: codecov/codecov-action@v2

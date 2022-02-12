@@ -34,7 +34,7 @@ fmt:
     gofmt -l -w -s .
 
 # Run all project tests (unit and integration)
-test: unit integration
+test: integration
 
 # Run all project unit tests
 unit *flags: fmt
