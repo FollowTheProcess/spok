@@ -63,7 +63,7 @@ lint: fmt
 
 # Calculate test coverage and render the html
 cover:
-    go test -race -cover -covermode=atomic -coverprofile={{ COVERAGE_DATA }} ./...
+    SPOK_INTEGRATION_TEST=true go test -race -cover -covermode=atomic -coverprofile={{ COVERAGE_DATA }} ./...
     go tool cover -html={{ COVERAGE_DATA }} -o {{ COVERAGE_HTML }}
     open {{ COVERAGE_HTML }}
 
@@ -74,7 +74,7 @@ clean:
     rm -rf *.test *.pprof
 
 # Run unit tests and linting in one go
-check: test lint
+check: integration lint
 
 # Run all recipes (other than clean) in a sensible order
 all: build test lint cover

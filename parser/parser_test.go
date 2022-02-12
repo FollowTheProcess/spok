@@ -124,9 +124,10 @@ func TestParseIdent(t *testing.T) {
 
 func TestParseFunction(t *testing.T) {
 	tests := []struct {
-		name   string
-		stream []token.Token
-		want   ast.Function
+		name    string
+		stream  []token.Token
+		want    ast.Function
+		wantErr bool
 	}{
 		{
 			name: "exec",
@@ -150,6 +151,7 @@ func TestParseFunction(t *testing.T) {
 				},
 				NodeType: ast.NodeFunction,
 			},
+			wantErr: false,
 		},
 		{
 			name: "join",
@@ -178,6 +180,48 @@ func TestParseFunction(t *testing.T) {
 				},
 				NodeType: ast.NodeFunction,
 			},
+			wantErr: false,
+		},
+		{
+			name: "missing LParen",
+			stream: []token.Token{
+				newToken(token.IDENT, "join"),
+				// Should be an LParen here
+				newToken(token.IDENT, "ROOT"),
+				newToken(token.STRING, "docs"),
+				tRParen,
+				tEOF,
+			},
+			want:    ast.Function{},
+			wantErr: true,
+		},
+		{
+			name: "lexer error token",
+			stream: []token.Token{
+				newToken(token.IDENT, "join"),
+				tLParen,
+				newToken(token.IDENT, "ROOT"),
+				newToken(token.STRING, "docs"),
+				newToken(token.ERROR, "beep boop"),
+				tRParen,
+				tEOF,
+			},
+			want:    ast.Function{},
+			wantErr: true,
+		},
+		{
+			name: "illegal token",
+			stream: []token.Token{
+				newToken(token.IDENT, "join"),
+				tLParen,
+				newToken(token.IDENT, "ROOT"),
+				newToken(token.STRING, "docs"),
+				newToken(token.TASK, "I dont belong here"),
+				tRParen,
+				tEOF,
+			},
+			want:    ast.Function{},
+			wantErr: true,
 		},
 	}
 
@@ -190,8 +234,8 @@ func TestParseFunction(t *testing.T) {
 			}
 			ident := p.next()
 			fn, err := p.parseFunction(ident)
-			if err != nil {
-				t.Fatalf("parseFunction returned an error: %v", err)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("parseFunction() err = %v, wantErr = %v", err, tt.wantErr)
 			}
 
 			if diff := cmp.Diff(tt.want, fn); diff != "" {
@@ -203,9 +247,10 @@ func TestParseFunction(t *testing.T) {
 
 func TestParseAssign(t *testing.T) {
 	tests := []struct {
-		name   string
-		stream []token.Token
-		want   ast.Assign
+		name    string
+		stream  []token.Token
+		want    ast.Assign
+		wantErr bool
 	}{
 		{
 			name: "string rhs",
@@ -220,6 +265,7 @@ func TestParseAssign(t *testing.T) {
 				Value:    ast.String{Text: "hello", NodeType: ast.NodeString},
 				NodeType: ast.NodeAssign,
 			},
+			wantErr: false,
 		},
 		{
 			name: "ident rhs",
@@ -234,6 +280,7 @@ func TestParseAssign(t *testing.T) {
 				Value:    ast.Ident{Name: "VARIABLE", NodeType: ast.NodeIdent},
 				NodeType: ast.NodeAssign,
 			},
+			wantErr: false,
 		},
 		{
 			name: "function rhs",
@@ -263,6 +310,33 @@ func TestParseAssign(t *testing.T) {
 				},
 				NodeType: ast.NodeAssign,
 			},
+			wantErr: false,
+		},
+		{
+			name: "bad function rhs",
+			stream: []token.Token{
+				newToken(token.IDENT, "GIT_COMMIT"),
+				tDeclare,
+				newToken(token.IDENT, "exec"),
+				tLParen,
+				newToken(token.ERROR, "beep boop"),
+				tRParen,
+				tEOF,
+			},
+			want:    ast.Assign{},
+			wantErr: true,
+		},
+		{
+			name: "illegal token",
+			stream: []token.Token{
+				newToken(token.IDENT, "GIT_COMMIT"),
+				tDeclare,
+				newToken(token.TASK, "I'm not allowed"),
+				tRParen,
+				tEOF,
+			},
+			want:    ast.Assign{},
+			wantErr: true,
 		},
 	}
 
@@ -276,8 +350,8 @@ func TestParseAssign(t *testing.T) {
 
 			ident := p.next()
 			assign, err := p.parseAssign(ident)
-			if err != nil {
-				t.Fatalf("parseAssign returned an error: %v", err)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("parseAssign() err = %v, wanted %v", err, tt.wantErr)
 			}
 
 			if diff := cmp.Diff(tt.want, assign); diff != "" {
@@ -289,9 +363,10 @@ func TestParseAssign(t *testing.T) {
 
 func TestParseTask(t *testing.T) {
 	tests := []struct {
-		name   string
-		stream []token.Token
-		want   ast.Task
+		name    string
+		stream  []token.Token
+		want    ast.Task
+		wantErr bool
 	}{
 		{
 			name: "basic",
@@ -856,6 +931,122 @@ func TestParseTask(t *testing.T) {
 				NodeType: ast.NodeTask,
 			},
 		},
+		{
+			name: "illegal token in dependencies",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "build"),
+				tLParen,
+				newToken(token.STRING, "file.go"),
+				newToken(token.HASH, "#"), // This isn't allowed
+				tRParen,
+				tLBrace,
+				newToken(token.COMMAND, "go build"),
+				tRBrace,
+				tEOF,
+			},
+			want:    ast.Task{},
+			wantErr: true,
+		},
+		{
+			name: "illegal token in output",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "build"),
+				tLParen,
+				newToken(token.STRING, "file.go"),
+				tRParen,
+				tOutput,
+				newToken(token.HASH, "#"), // This isn't allowed
+				tLBrace,
+				newToken(token.COMMAND, "go build"),
+				tRBrace,
+				tEOF,
+			},
+			want:    ast.Task{},
+			wantErr: true,
+		},
+		{
+			name: "lexer error in output",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "build"),
+				tLParen,
+				newToken(token.STRING, "file.go"),
+				tRParen,
+				tOutput,
+				newToken(token.ERROR, "beep boop"),
+				tLBrace,
+				newToken(token.COMMAND, "go build"),
+				tRBrace,
+				tEOF,
+			},
+			want:    ast.Task{},
+			wantErr: true,
+		},
+		{
+			name: "illegal token in mutli output",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "build"),
+				tLParen,
+				newToken(token.STRING, "file.go"),
+				tRParen,
+				tOutput,
+				tLParen,
+				newToken(token.STRING, "file.go"),
+				newToken(token.HASH, "#"), // This isn't allowed
+				tRParen,
+				tLBrace,
+				newToken(token.COMMAND, "go build"),
+				tRBrace,
+				tEOF,
+			},
+			want:    ast.Task{},
+			wantErr: true,
+		},
+		{
+			name: "lexer error in multi output",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "build"),
+				tLParen,
+				newToken(token.STRING, "file.go"),
+				tRParen,
+				tOutput,
+				tLParen,
+				newToken(token.STRING, "file.go"),
+				newToken(token.ERROR, "beep boop"),
+				tRParen,
+				tLBrace,
+				newToken(token.COMMAND, "go build"),
+				tRBrace,
+				tEOF,
+			},
+			want:    ast.Task{},
+			wantErr: true,
+		},
+		{
+			name: "missing LParen",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "build"),
+				// Should be an LParen here
+				newToken(token.STRING, "file.go"),
+				tRParen,
+				tOutput,
+				tLParen,
+				newToken(token.STRING, "file.go"),
+				newToken(token.ERROR, "beep boop"),
+				tRParen,
+				tLBrace,
+				newToken(token.COMMAND, "go build"),
+				tRBrace,
+				tEOF,
+			},
+			want:    ast.Task{},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -878,8 +1069,8 @@ func TestParseTask(t *testing.T) {
 			}
 			p.next() // task keyword
 			task, err := p.parseTask(comment)
-			if err != nil {
-				t.Fatalf("parseTask returned an error: %v", err)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("parseTask() err = %v, wanted %v", err, tt.wantErr)
 			}
 
 			if diff := cmp.Diff(tt.want, task); diff != "" {
@@ -920,6 +1111,19 @@ func TestParserErrorHandling(t *testing.T) {
 			name:    "task bad char before body",
 			message: "SyntaxError: Unexpected token '^' (Line 1, Position 12)",
 			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "test"),
+				tLParen,
+				tRParen,
+				newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1, Position 12)"),
+			},
+		},
+		{
+			name:    "task bad char before body with comment",
+			message: "SyntaxError: Unexpected token '^' (Line 1, Position 12)",
+			stream: []token.Token{
+				tHash,
+				newToken(token.COMMENT, " Hello"),
 				tTask,
 				newToken(token.IDENT, "test"),
 				tLParen,
