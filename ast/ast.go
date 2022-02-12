@@ -51,7 +51,7 @@ func (t *Tree) Append(node Node) {
 	t.Nodes = append(t.Nodes, node)
 }
 
-// isEmpty returns whether or not the AST contains no nodes i.e. empty file.
+// IsEmpty returns whether or not the AST contains no nodes i.e. empty file.
 func (t *Tree) IsEmpty() bool {
 	return len(t.Nodes) == 0
 }
@@ -200,6 +200,7 @@ func (t Task) Write(s *strings.Builder) {
 	s.WriteString(t.String())
 }
 
+// Function holds a spok builtin function e.g. 'exec' or 'join'.
 type Function struct {
 	Name      Ident
 	Arguments []Node
