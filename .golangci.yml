@@ -1,12 +1,15 @@
 linters:
   enable:
     - gofmt
+    - goimports
     - gocyclo
+    - gosec
     - revive
     - misspell
     - gocritic
     - govet
     - godot
+    - whitespace
 
 linters-settings:
   gocyclo:

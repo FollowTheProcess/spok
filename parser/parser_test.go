@@ -111,7 +111,6 @@ func TestParseComment(t *testing.T) {
 	if p.hasErrors() {
 		t.Errorf("Parser has errors: %v", p.errors)
 	}
-
 }
 
 func TestParseIdent(t *testing.T) {
@@ -134,7 +133,6 @@ func TestParseIdent(t *testing.T) {
 	if p.hasErrors() {
 		t.Errorf("Parser has errors: %v", p.errors)
 	}
-
 }
 
 func TestParseFunction(t *testing.T) {
@@ -301,7 +299,6 @@ func TestParseAssign(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestParseTask(t *testing.T) {
@@ -1456,7 +1453,6 @@ var fullSpokfileAST = ast.Tree{
 // populated spokfile as string input and therefore checks the whole
 // parsing system end to end.
 func TestParserIntegration(t *testing.T) {
-
 	p := New(fullSpokfile)
 	tree, err := p.Parse()
 	if err != nil {

@@ -194,7 +194,6 @@ func (l *Lexer) run() {
 // EOF
 // Anything else is an error.
 func lexStart(l *Lexer) lexFn {
-
 	l.skipWhitespace()
 
 	switch {
@@ -450,7 +449,6 @@ func lexDeclare(l *Lexer) lexFn {
 		l.backup()
 		return unexpectedToken
 	}
-
 }
 
 // lexString scans a quoted string, the opening quote is already known to exist.

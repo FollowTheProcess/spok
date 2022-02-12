@@ -571,7 +571,6 @@ func TestWriteWholeTree(t *testing.T) {
 	if diff := cmp.Diff(fullSpokfile, fullSpokfileAST.String()); diff != "" {
 		t.Errorf("AST mismatch (-want +got):\n%s", diff)
 	}
-
 }
 
 func BenchmarkWriteWholeTree(b *testing.B) {

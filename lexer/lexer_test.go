@@ -811,6 +811,7 @@ func equal(t1, t2 []token.Token) bool {
 func TestLexer(t *testing.T) {
 	for _, test := range lexTests {
 		t.Run(test.name, func(t *testing.T) {
+			test := test
 			tokens := collect(&test)
 			if !equal(tokens, test.tokens) {
 				t.Errorf("%s: got\n\t%+v\nexpected\n\t%+v", test.name, tokens, test.tokens)

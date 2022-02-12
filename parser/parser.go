@@ -62,7 +62,6 @@ func (p *Parser) Parse() (ast.Tree, error) {
 			// Illegal top level token that slipped through the lexer somehow
 			// unlikely but let's catch it anyway
 			p.errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
-
 		}
 		next = p.next()
 	}
