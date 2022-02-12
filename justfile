@@ -33,9 +33,16 @@ build: tidy generate fmt
 fmt:
     gofmt -l -w -s .
 
+# Run all project tests (unit and integration)
+test: unit integration
+
 # Run all project unit tests
-test *flags: fmt
+unit *flags: fmt
     gotest -race ./... {{ flags }}
+
+# Run all project integration tests
+integration *flags: fmt
+    SPOK_INTEGRATION_TEST=true gotest -race ./... {{ flags }}
 
 # Run all project benchmarks
 bench: fmt

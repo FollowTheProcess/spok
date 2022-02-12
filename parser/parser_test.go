@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"os"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
@@ -982,6 +983,13 @@ func BenchmarkParseFullSpokfile(b *testing.B) {
 // Thar be larger, integration or coupled lexer-parser tests below. If the real lexer is changed
 // none of the above tests will break as they stub out the lexer for our testLexer
 // the tests and benchmarks below make use of the real lexer and will break if that lexer breaks.
+//
+// The tests below will only run if SPOK_INTEGRATION_TEST is set, making it easy to run only isolated
+// tests while developing to limit potentially distracting failing integration test output until ready.
+//
+// The benchmarks below will run when invoking go test with the -bench flag, there is no concept of unit
+// or integration benchmarks here.
+//
 
 // A more or less complete spokfile with all the allowed constructs to act as
 // an integration test and benchmark.
@@ -1433,6 +1441,9 @@ var fullSpokfileAST = ast.Tree{
 // populated spokfile as string input and therefore checks the whole
 // parsing system end to end.
 func TestParserIntegration(t *testing.T) {
+	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
+		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
+	}
 	p := New(fullSpokfile)
 	tree, err := p.Parse()
 	if err != nil {
