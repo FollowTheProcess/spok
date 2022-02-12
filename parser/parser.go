@@ -6,9 +6,8 @@
 // It switches on the token it encounters to process the appropriate ast.Node (parseXXX methods), appending
 // each to the list of nodes as it goes.
 //
-// The parser also keeps a stack of errors and adds to this if it encounters an error from the lexer
-// or if it encounters an error during it's own operation. The errors are checked before the AST is returned
-// and if any are present it will return the tree it's managed to parse so far and the error encountered.
+// If the parser encounters an error, either an ERROR token from the lexer, or an error of it's own making
+// it will immediately return with the AST it's managed to parse so far and the error.
 package parser
 
 import (
@@ -82,9 +81,7 @@ func (p *Parser) Parse() (ast.Tree, error) {
 	return tree, nil
 }
 
-// next returns, and consumes, the next token from the lexer
-// if it encounters an error token emitted by the lexer, it adds it to
-// the stack of parser errors.
+// next returns, and consumes, the next token from the lexer.
 func (p *Parser) next() token.Token {
 	if p.peekCount > 0 {
 		p.peekCount--
@@ -95,13 +92,13 @@ func (p *Parser) next() token.Token {
 	return tok
 }
 
-// backups backs up in the input stream by one token.
+// backup backs up in the input stream by one token.
 func (p *Parser) backup() {
 	p.peekCount++
 }
 
 // expect checks if the next token is of the expected type, consuming it in the process
-// if not it will add an error to the parser error stack.
+// if not it will return an unexpected token error.
 func (p *Parser) expect(token token.Type) error {
 	tok := p.next()
 	if !tok.Is(token) {
@@ -211,57 +208,22 @@ func (p *Parser) parseAssign(ident token.Token) (ast.Assign, error) {
 // parseTask parses and returns a task ast node, the task keyword has already
 // been encountered and consumed, the docstring comment is passed in if present
 // and will be empty if there is no comment.
-func (p *Parser) parseTask(doc ast.Comment) (ast.Task, error) { // nolint: gocyclo
+func (p *Parser) parseTask(doc ast.Comment) (ast.Task, error) {
 	name := p.parseIdent(p.next())
-
-	// TODO: Extract bits of this out as it's quite complex
 
 	// If next is not '(' we have a problem
 	if err := p.expect(token.LPAREN); err != nil {
 		return ast.Task{}, err
 	}
 
-	dependencies := []ast.Node{}
-	for next := p.next(); !next.Is(token.RPAREN); {
-		switch {
-		case next.Is(token.STRING):
-			dependencies = append(dependencies, p.parseString(next))
-		case next.Is(token.IDENT):
-			dependencies = append(dependencies, p.parseIdent(next))
-		case next.Is(token.ERROR):
-			return ast.Task{}, fmt.Errorf(next.Value)
-		default:
-			return ast.Task{}, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
-		}
-		next = p.next()
+	dependencies, err := p.parseTaskDependencies()
+	if err != nil {
+		return ast.Task{}, err
 	}
 
-	outputs := []ast.Node{}
-	if p.next().Is(token.OUTPUT) {
-		switch next := p.next(); {
-		case next.Is(token.STRING):
-			outputs = append(outputs, p.parseString(next))
-		case next.Is(token.IDENT):
-			outputs = append(outputs, p.parseIdent(next))
-		case next.Is(token.LPAREN):
-			for tok := p.next(); !tok.Is(token.RPAREN); {
-				switch {
-				case tok.Is(token.STRING):
-					outputs = append(outputs, p.parseString(tok))
-				case tok.Is(token.IDENT):
-					outputs = append(outputs, p.parseIdent(tok))
-				case tok.Is(token.ERROR):
-					return ast.Task{}, fmt.Errorf(next.Value)
-				default:
-					return ast.Task{}, fmt.Errorf("Illegal token (Line %d, Position %d): %s", tok.Line, tok.Pos, tok.String())
-				}
-				tok = p.next()
-			}
-		case next.Is(token.ERROR):
-			return ast.Task{}, fmt.Errorf(next.Value)
-		default:
-			return ast.Task{}, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
-		}
+	outputs, err := p.parseTaskOutputs()
+	if err != nil {
+		return ast.Task{}, err
 	}
 
 	// BUG: Doesn't seem to be picking up the required '{' here and it we remove it in a test
@@ -286,6 +248,61 @@ func (p *Parser) parseTask(doc ast.Comment) (ast.Task, error) { // nolint: gocyc
 		Commands:     commands,
 		NodeType:     ast.NodeTask,
 	}, nil
+}
+
+// parseTaskDependencies parses any declared dependencies in a task and returns
+// the []ast.Node containing them.
+func (p *Parser) parseTaskDependencies() ([]ast.Node, error) {
+	dependencies := []ast.Node{}
+	for next := p.next(); !next.Is(token.RPAREN); {
+		switch {
+		case next.Is(token.STRING):
+			dependencies = append(dependencies, p.parseString(next))
+		case next.Is(token.IDENT):
+			dependencies = append(dependencies, p.parseIdent(next))
+		case next.Is(token.ERROR):
+			return nil, fmt.Errorf(next.Value)
+		default:
+			return nil, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+		}
+		next = p.next()
+	}
+
+	return dependencies, nil
+}
+
+// parseTaskOutputs parses any declared outputs in a task and returns
+// the []ast.Node containing them.
+func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
+	outputs := []ast.Node{}
+	if p.next().Is(token.OUTPUT) {
+		switch next := p.next(); {
+		case next.Is(token.STRING):
+			outputs = append(outputs, p.parseString(next))
+		case next.Is(token.IDENT):
+			outputs = append(outputs, p.parseIdent(next))
+		case next.Is(token.LPAREN):
+			for tok := p.next(); !tok.Is(token.RPAREN); {
+				switch {
+				case tok.Is(token.STRING):
+					outputs = append(outputs, p.parseString(tok))
+				case tok.Is(token.IDENT):
+					outputs = append(outputs, p.parseIdent(tok))
+				case tok.Is(token.ERROR):
+					return nil, fmt.Errorf(next.Value)
+				default:
+					return nil, fmt.Errorf("Illegal token (Line %d, Position %d): %s", tok.Line, tok.Pos, tok.String())
+				}
+				tok = p.next()
+			}
+		case next.Is(token.ERROR):
+			return nil, fmt.Errorf(next.Value)
+		default:
+			return nil, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+		}
+	}
+
+	return outputs, nil
 }
 
 // parseCommand parses task commands into ast command nodes.
