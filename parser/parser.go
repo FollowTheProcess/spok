@@ -229,6 +229,7 @@ func (p *Parser) parseTask(doc ast.Comment) (ast.Task, error) {
 		return ast.Task{}, err
 	}
 
+	// If next is not '{', we have a problem
 	if err := p.expect(token.LBRACE); err != nil {
 		return ast.Task{}, err
 	}
