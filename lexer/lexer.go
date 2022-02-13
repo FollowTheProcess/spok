@@ -38,12 +38,13 @@ type lexFn func(*Lexer) lexFn
 
 // Lexer is spok's semantic Lexer.
 type Lexer struct {
-	tokens chan token.Token // Channel of lexed tokens, received by the parser
-	input  string           // The string being scanned
-	start  int              // Start position of the current token
-	pos    int              // Current position in the input
-	line   int              // Current line in the input
-	width  int              // Width of the last rune read from input
+	tokens    chan token.Token // Channel of lexed tokens, received by the parser
+	input     string           // The string being scanned
+	start     int              // Start position of the current token
+	pos       int              // Current position in the input
+	line      int              // Current line in the input
+	startLine int              // The line on which the current token started
+	width     int              // Width of the last rune read from input
 }
 
 // rest returns the string from the current lexer position to the end of the input.
@@ -126,16 +127,17 @@ func (l *Lexer) emit(t token.Type) {
 		Value: l.all(),
 		Type:  t,
 		Pos:   l.start,
-		Line:  l.line,
+		Line:  l.startLine,
 	}
 	l.start = l.pos
+	l.startLine = l.line
 }
 
 // discard brings the lexer's start position up to it's current position,
 // discaring everything in between in the process but maintaining the line count.
 func (l *Lexer) discard() {
-	l.line += strings.Count(l.all(), "\n")
 	l.start = l.pos
+	l.startLine = l.line
 }
 
 // errorf emits an error token and terminates the scan by passing back
@@ -145,7 +147,7 @@ func (l *Lexer) errorf(format string, args ...interface{}) lexFn {
 		Value: fmt.Sprintf(format, args...),
 		Type:  token.ERROR,
 		Pos:   l.start,
-		Line:  l.line,
+		Line:  l.startLine,
 	}
 	return nil
 }
@@ -159,12 +161,13 @@ func (l *Lexer) NextToken() token.Token {
 // New creates a new lexer for the input string and sets it off in a goroutine.
 func New(input string) *Lexer {
 	l := &Lexer{
-		tokens: make(chan token.Token),
-		input:  input,
-		start:  0,
-		pos:    0,
-		line:   1,
-		width:  0,
+		tokens:    make(chan token.Token),
+		input:     input,
+		start:     0,
+		pos:       0,
+		line:      1,
+		startLine: 1,
+		width:     0,
 	}
 	go l.run()
 	return l

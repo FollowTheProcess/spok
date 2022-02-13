@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"os"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/token"
@@ -310,7 +309,7 @@ var lexTests = []lexTest{
 			tLBrace,
 			newToken(token.COMMAND, "go test ./..."),
 			newToken(token.COMMAND, "go build ."),
-			newToken(token.ERROR, "SyntaxError: Unexpected token 'U+000A' (Line 7, Position 52)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token 'U+000A' (Line 4, Position 52)"),
 		},
 	},
 	{
@@ -716,8 +715,7 @@ func TestLexer(t *testing.T) {
 
 // A more or less complete spokfile with all the allowed constructs to act as
 // an integration test and benchmark.
-var fullSpokfile = `
-# This is a top level comment
+var fullSpokfile = `# This is a top level comment
 
 # This variable is presumably important later
 GLOBAL := "very important stuff here"
@@ -890,9 +888,9 @@ var fullSpokfileStream = []token.Token{
 
 // TestLexerIntegration tests the lexer against a fully populated, syntactically valid spokfile.
 func TestLexerIntegration(t *testing.T) {
-	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
-		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
-	}
+	// if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
+	// 	t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
+	// }
 
 	l := New(fullSpokfile)
 	var tokens []token.Token
