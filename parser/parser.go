@@ -26,9 +26,9 @@ type Parser struct {
 }
 
 // New creates and returns a new Parser for an input string.
-func New(text string) *Parser {
+func New(input []byte) *Parser {
 	return &Parser{
-		lexer: lexer.New(text),
+		lexer: lexer.New(string(input)),
 	}
 }
 

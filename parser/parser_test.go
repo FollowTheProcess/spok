@@ -1752,7 +1752,7 @@ func TestParserIntegration(t *testing.T) {
 	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
 		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
 	}
-	p := New(fullSpokfile)
+	p := New([]byte(fullSpokfile))
 	tree, err := p.Parse()
 	if err != nil {
 		t.Fatalf("Parser error: %v", err)
@@ -1794,7 +1794,7 @@ func TestParserErrorsIntegration(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := New(tt.input)
+			p := New([]byte(tt.input))
 			_, err := p.Parse()
 			if err == nil {
 				t.Fatal("Expected a parser error but got none")
@@ -1810,7 +1810,7 @@ func TestParserErrorsIntegration(t *testing.T) {
 // BenchmarkParserIntegration determines the performance of the parsing
 // system as a whole, from raw string to AST.
 func BenchmarkParserIntegration(b *testing.B) {
-	p := New(fullSpokfile)
+	p := New([]byte(fullSpokfile))
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
