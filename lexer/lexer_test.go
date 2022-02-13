@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"os"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/token"
@@ -658,125 +659,6 @@ var lexTests = []lexTest{
 			tEOF,
 		},
 	},
-	{
-		name:  "full spokfile",
-		input: fullSpokfile,
-		tokens: []token.Token{
-			tHash,
-			newToken(token.COMMENT, " This is a top level comment"),
-			tHash,
-			newToken(token.COMMENT, " This variable is presumably important later"),
-			newToken(token.IDENT, "GLOBAL"),
-			tDeclare,
-			newToken(token.STRING, `"very important stuff here"`),
-			newToken(token.IDENT, "GIT_COMMIT"),
-			tDeclare,
-			newToken(token.IDENT, "exec"),
-			tLParen,
-			newToken(token.STRING, `"git rev-parse HEAD"`),
-			tRParen,
-			tHash,
-			newToken(token.COMMENT, " Run the project unit tests"),
-			tTask,
-			newToken(token.IDENT, "test"),
-			tLParen,
-			newToken(token.IDENT, "fmt"),
-			tRParen,
-			tLBrace,
-			newToken(token.COMMAND, "go test -race ./..."),
-			tRBrace,
-			tHash,
-			newToken(token.COMMENT, " Format the project source"),
-			tTask,
-			newToken(token.IDENT, "fmt"),
-			tLParen,
-			newToken(token.STRING, `"**/*.go"`),
-			tRParen,
-			tLBrace,
-			newToken(token.COMMAND, "go fmt ./..."),
-			tRBrace,
-			tHash,
-			newToken(token.COMMENT, " Do many things"),
-			tTask,
-			newToken(token.IDENT, "many"),
-			tLParen,
-			tRParen,
-			tLBrace,
-			newToken(token.COMMAND, "line 1"),
-			newToken(token.COMMAND, "line 2"),
-			newToken(token.COMMAND, "line 3"),
-			newToken(token.COMMAND, "line 4"),
-			tRBrace,
-			tHash,
-			newToken(token.COMMENT, " Compile the project"),
-			tTask,
-			newToken(token.IDENT, "build"),
-			tLParen,
-			newToken(token.STRING, `"**/*.go"`),
-			tRParen,
-			tOutput,
-			newToken(token.STRING, `"./bin/main"`),
-			tLBrace,
-			newToken(token.COMMAND, `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`),
-			tRBrace,
-			tHash,
-			newToken(token.COMMENT, " Show the global variables"),
-			tTask,
-			newToken(token.IDENT, "show"),
-			tLParen,
-			tRParen,
-			tLBrace,
-			newToken(token.COMMAND, "echo GLOBAL"),
-			tRBrace,
-			tHash,
-			newToken(token.COMMENT, " Generate multiple outputs"),
-			tTask,
-			newToken(token.IDENT, "moar_things"),
-			tLParen,
-			tRParen,
-			tOutput,
-			tLParen,
-			newToken(token.STRING, `"output1.go"`),
-			newToken(token.STRING, `"output2.go"`),
-			tRParen,
-			tLBrace,
-			newToken(token.COMMAND, "do some stuff here"),
-			tRBrace,
-			tTask,
-			newToken(token.IDENT, "no_comment"),
-			tLParen,
-			tRParen,
-			tLBrace,
-			newToken(token.COMMAND, `echo "this task has no docstring"`),
-			tRBrace,
-			tHash,
-			newToken(token.COMMENT, " Generate output from a variable"),
-			tTask,
-			newToken(token.IDENT, "makedocs"),
-			tLParen,
-			tRParen,
-			tOutput,
-			newToken(token.IDENT, "DOCS"),
-			tLBrace,
-			newToken(token.COMMAND, `echo "making docs"`),
-			tRBrace,
-			tHash,
-			newToken(token.COMMENT, " Generate multiple outputs in variables"),
-			tTask,
-			newToken(token.IDENT, "makestuff"),
-			tLParen,
-			tRParen,
-			tOutput,
-			tLParen,
-			newToken(token.IDENT, "DOCS"),
-			newToken(token.IDENT, "BUILD"),
-			tRParen,
-			tLBrace,
-			newToken(token.COMMAND, `echo "doing things"`),
-			tRBrace,
-			tEOF,
-		},
-	},
 }
 
 // collect gathers the emitted tokens into a slice for comparison.
@@ -819,6 +701,18 @@ func TestLexer(t *testing.T) {
 		})
 	}
 }
+
+//
+// INTEGRATION TESTS START HERE
+//
+// Thar be larger, integration tests below.
+
+// The tests below will only run if SPOK_INTEGRATION_TEST is set, making it easy to run only isolated
+// tests while developing to limit potentially distracting failing integration test output until ready.
+//
+// The benchmarks below will run when invoking go test with the -bench flag, there is no concept of unit
+// or integration benchmarks here.
+//
 
 // A more or less complete spokfile with all the allowed constructs to act as
 // an integration test and benchmark.
@@ -877,6 +771,143 @@ task makestuff() -> (DOCS, BUILD) {
 	echo "doing things"
 }
 `
+
+var fullSpokfileStream = []token.Token{
+	tHash,
+	newToken(token.COMMENT, " This is a top level comment"),
+	tHash,
+	newToken(token.COMMENT, " This variable is presumably important later"),
+	newToken(token.IDENT, "GLOBAL"),
+	tDeclare,
+	newToken(token.STRING, `"very important stuff here"`),
+	newToken(token.IDENT, "GIT_COMMIT"),
+	tDeclare,
+	newToken(token.IDENT, "exec"),
+	tLParen,
+	newToken(token.STRING, `"git rev-parse HEAD"`),
+	tRParen,
+	tHash,
+	newToken(token.COMMENT, " Run the project unit tests"),
+	tTask,
+	newToken(token.IDENT, "test"),
+	tLParen,
+	newToken(token.IDENT, "fmt"),
+	tRParen,
+	tLBrace,
+	newToken(token.COMMAND, "go test -race ./..."),
+	tRBrace,
+	tHash,
+	newToken(token.COMMENT, " Format the project source"),
+	tTask,
+	newToken(token.IDENT, "fmt"),
+	tLParen,
+	newToken(token.STRING, `"**/*.go"`),
+	tRParen,
+	tLBrace,
+	newToken(token.COMMAND, "go fmt ./..."),
+	tRBrace,
+	tHash,
+	newToken(token.COMMENT, " Do many things"),
+	tTask,
+	newToken(token.IDENT, "many"),
+	tLParen,
+	tRParen,
+	tLBrace,
+	newToken(token.COMMAND, "line 1"),
+	newToken(token.COMMAND, "line 2"),
+	newToken(token.COMMAND, "line 3"),
+	newToken(token.COMMAND, "line 4"),
+	tRBrace,
+	tHash,
+	newToken(token.COMMENT, " Compile the project"),
+	tTask,
+	newToken(token.IDENT, "build"),
+	tLParen,
+	newToken(token.STRING, `"**/*.go"`),
+	tRParen,
+	tOutput,
+	newToken(token.STRING, `"./bin/main"`),
+	tLBrace,
+	newToken(token.COMMAND, `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`),
+	tRBrace,
+	tHash,
+	newToken(token.COMMENT, " Show the global variables"),
+	tTask,
+	newToken(token.IDENT, "show"),
+	tLParen,
+	tRParen,
+	tLBrace,
+	newToken(token.COMMAND, "echo GLOBAL"),
+	tRBrace,
+	tHash,
+	newToken(token.COMMENT, " Generate multiple outputs"),
+	tTask,
+	newToken(token.IDENT, "moar_things"),
+	tLParen,
+	tRParen,
+	tOutput,
+	tLParen,
+	newToken(token.STRING, `"output1.go"`),
+	newToken(token.STRING, `"output2.go"`),
+	tRParen,
+	tLBrace,
+	newToken(token.COMMAND, "do some stuff here"),
+	tRBrace,
+	tTask,
+	newToken(token.IDENT, "no_comment"),
+	tLParen,
+	tRParen,
+	tLBrace,
+	newToken(token.COMMAND, `echo "this task has no docstring"`),
+	tRBrace,
+	tHash,
+	newToken(token.COMMENT, " Generate output from a variable"),
+	tTask,
+	newToken(token.IDENT, "makedocs"),
+	tLParen,
+	tRParen,
+	tOutput,
+	newToken(token.IDENT, "DOCS"),
+	tLBrace,
+	newToken(token.COMMAND, `echo "making docs"`),
+	tRBrace,
+	tHash,
+	newToken(token.COMMENT, " Generate multiple outputs in variables"),
+	tTask,
+	newToken(token.IDENT, "makestuff"),
+	tLParen,
+	tRParen,
+	tOutput,
+	tLParen,
+	newToken(token.IDENT, "DOCS"),
+	newToken(token.IDENT, "BUILD"),
+	tRParen,
+	tLBrace,
+	newToken(token.COMMAND, `echo "doing things"`),
+	tRBrace,
+	tEOF,
+}
+
+// TestLexerIntegration tests the lexer against a fully populated, syntactically valid spokfile.
+func TestLexerIntegration(t *testing.T) {
+	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
+		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
+	}
+
+	l := New(fullSpokfile)
+	var tokens []token.Token
+	for {
+		tok := l.NextToken()
+		tokens = append(tokens, tok)
+		if tok.Type == token.EOF || tok.Type == token.ERROR {
+			break
+		}
+	}
+
+	if !equal(tokens, fullSpokfileStream) {
+		t.Errorf("got\n\t%+v\nexpected\n\t%+v", tokens, fullSpokfile)
+	}
+}
 
 // BenchmarkLexFullSpokfile determines the performance of lexing the integration spokfile above.
 func BenchmarkLexFullSpokfile(b *testing.B) {
