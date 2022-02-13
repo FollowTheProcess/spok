@@ -109,7 +109,7 @@ func (p *Parser) expect(expected token.Type) error {
 		// goes without saying that we don't expect an error
 		return fmt.Errorf(got.Value)
 	case !got.Is(expected):
-		return fmt.Errorf("Unexpected token (Line %d, Position %d): got %s, expected %q", got.Line, got.Pos, got.String(), expected.String())
+		return fmt.Errorf("Unexpected token (Line %d, Position %d): got '%s', expected '%s'", got.Line, got.Pos, got.String(), expected.String())
 	default:
 		return nil
 	}

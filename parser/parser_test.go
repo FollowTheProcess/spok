@@ -82,7 +82,7 @@ func TestExpect(t *testing.T) {
 	}
 
 	// No line or position info because it's our fake lexer but this is where it would go
-	want := `Unexpected token (Line 0, Position 0): got "hello", expected "IDENT"`
+	want := `Unexpected token (Line 0, Position 0): got '"hello"', expected 'IDENT'`
 	if err.Error() != want {
 		t.Errorf("Wrong error message: got %s, wanted %s", err.Error(), want)
 	}
@@ -1169,7 +1169,7 @@ func TestParserErrorHandling(t *testing.T) {
 		},
 		{
 			name:    "task no curlies",
-			message: `Unexpected token (Line 0, Position 0): got EOF, expected "{"`,
+			message: "Unexpected token (Line 0, Position 0): got 'EOF', expected '{'",
 			stream: []token.Token{
 				tTask,
 				newToken(token.IDENT, "test"),
@@ -1212,7 +1212,7 @@ func TestParserErrorHandling(t *testing.T) {
 				// parseAssign will call expect on a ':=' here
 				newToken(token.IDENT, "OOPS"),
 			},
-			message: `Unexpected token (Line 0, Position 0): got "OOPS", expected ":="`,
+			message: `Unexpected token (Line 0, Position 0): got '"OOPS"', expected ':='`,
 		},
 		{
 			name:    "parser unexpected top level token",
@@ -1760,6 +1760,50 @@ func TestParserIntegration(t *testing.T) {
 
 	if diff := cmp.Diff(fullSpokfileAST, tree); diff != "" {
 		t.Errorf("AST mismatch (-want +tree):\n%s", diff)
+	}
+}
+
+// TestParserErrorsIntegration uses the real lexer to test how the parser handles real live
+// parse errors and whether we bring back the right context to the user for them to debug easily.
+func TestParserErrorsIntegration(t *testing.T) {
+	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
+		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
+	}
+
+	tests := []struct {
+		name  string
+		input string
+		err   string
+	}{
+		{
+			name: "invalid char at end of task body",
+			input: `# This is a task
+			task test() {
+				go test ./...
+				go build .
+				💥
+			}`,
+			err: "SyntaxError: Unexpected token 'U+000A' (Line 5, Position 75)",
+		},
+		{
+			name:  "task no curlies",
+			input: `task test("file.go")`,
+			err:   "Unexpected token (Line 1, Position 20): got 'EOF', expected '{'",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := New(tt.input)
+			_, err := p.Parse()
+			if err == nil {
+				t.Fatal("Expected a parser error but got none")
+			}
+
+			if err.Error() != tt.err {
+				t.Errorf("Wrong error message.\ngot:\t%s\nwanted:\t%s", err.Error(), tt.err)
+			}
+		})
 	}
 }
 
