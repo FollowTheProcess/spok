@@ -11,7 +11,7 @@
 package parser
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/lexer"
@@ -42,7 +42,7 @@ func (p *Parser) Parse() (ast.Tree, error) {
 	for next := p.next(); !next.Is(token.EOF); {
 		switch {
 		case next.Is(token.ERROR):
-			return tree, fmt.Errorf(next.Value)
+			return tree, errors.New(next.Value)
 
 		case next.Is(token.HASH):
 			comment := p.parseComment()
@@ -113,7 +113,7 @@ func (p *Parser) expect(expected token.Type) error {
 	case got.Is(token.ERROR):
 		// If it's already an error, just return it as is
 		// goes without saying that we don't expect an error
-		return fmt.Errorf(got.Value)
+		return errors.New(got.Value)
 	case !got.Is(expected):
 		return illegalToken{
 			expected:    []token.Type{expected},
@@ -165,8 +165,10 @@ func (p *Parser) parseFunction(ident token.Token) (ast.Function, error) {
 			args = append(args, p.parseString(next))
 		case next.Is(token.IDENT):
 			args = append(args, p.parseIdent(next))
+		case next.Is(token.COMMA):
+			// Absorb a comma
 		case next.Is(token.ERROR):
-			return ast.Function{}, fmt.Errorf(next.Value)
+			return ast.Function{}, errors.New(next.Value)
 		default:
 			return ast.Function{}, illegalToken{
 				expected:    []token.Type{token.STRING, token.IDENT},
@@ -214,7 +216,7 @@ func (p *Parser) parseAssign(ident token.Token) (ast.Assign, error) {
 			rhs = p.parseIdent(next)
 		}
 	case next.Is(token.ERROR):
-		return ast.Assign{}, fmt.Errorf(next.Value)
+		return ast.Assign{}, errors.New(next.Value)
 	default:
 		return ast.Assign{}, illegalToken{
 			expected:    []token.Type{token.STRING, token.IDENT},
@@ -285,8 +287,10 @@ func (p *Parser) parseTaskDependencies() ([]ast.Node, error) {
 			dependencies = append(dependencies, p.parseString(next))
 		case next.Is(token.IDENT):
 			dependencies = append(dependencies, p.parseIdent(next))
+		case next.Is(token.COMMA):
+			// Absorb a comma
 		case next.Is(token.ERROR):
-			return nil, fmt.Errorf(next.Value)
+			return nil, errors.New(next.Value)
 		default:
 			return nil, illegalToken{
 				expected:    []token.Type{token.STRING, token.ERROR},
@@ -312,6 +316,8 @@ func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
 			outputs = append(outputs, p.parseString(next))
 		case next.Is(token.IDENT):
 			outputs = append(outputs, p.parseIdent(next))
+		case next.Is(token.COMMA):
+			// Absorb a comma
 		case next.Is(token.LPAREN):
 			for tok := p.next(); !tok.Is(token.RPAREN); {
 				switch {
@@ -319,8 +325,10 @@ func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
 					outputs = append(outputs, p.parseString(tok))
 				case tok.Is(token.IDENT):
 					outputs = append(outputs, p.parseIdent(tok))
+				case tok.Is(token.COMMA):
+					// Absorb a comma
 				case tok.Is(token.ERROR):
-					return nil, fmt.Errorf(next.Value)
+					return nil, errors.New(next.Value)
 				default:
 					return nil, illegalToken{
 						expected:    []token.Type{token.STRING, token.IDENT},
@@ -331,7 +339,7 @@ func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
 				tok = p.next()
 			}
 		case next.Is(token.ERROR):
-			return nil, fmt.Errorf(next.Value)
+			return nil, errors.New(next.Value)
 		default:
 			return nil, illegalToken{
 				expected:    []token.Type{token.STRING, token.IDENT, token.LPAREN},
@@ -353,7 +361,7 @@ func (p *Parser) parseTaskCommands() ([]ast.Command, error) {
 	for {
 		next := p.next()
 		if next.Is(token.ERROR) {
-			return commands, fmt.Errorf(next.Value)
+			return commands, errors.New(next.Value)
 		}
 		if next.Is(token.RBRACE) {
 			break

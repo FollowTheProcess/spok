@@ -7,7 +7,7 @@ import (
 	"github.com/FollowTheProcess/spok/token"
 )
 
-// illegalToken is an error that handles a unexpected token encounter during the parse
+// illegalToken is an error that handles an unexpected token encounter during the parse
 // it shows a nice message with a list of expected tokens.
 type illegalToken struct {
 	expected    []token.Type
@@ -16,7 +16,7 @@ type illegalToken struct {
 }
 
 func (i illegalToken) Error() string {
-	expecteds := []string{}
+	var expecteds []string
 	for _, exp := range i.expected {
 		expecteds = append(expecteds, exp.String())
 	}

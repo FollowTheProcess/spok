@@ -422,14 +422,39 @@ func lexArgs(l *Lexer) lexFn {
 	case isValidIdent(r):
 		return lexIdent
 	case r == ',':
-		// We have a list of arguments, lex the next one
-		return lexArgs
+		// We have a list of arguments, lex the comma
+		l.backup()
+		return lexComma
 	case r == '{':
 		// The string was a task output
 		l.backup()
 		return lexLeftBrace
 	default:
 		return l.errorf(syntaxError{message: "Invalid character used in task dependency/output", line: l.line})
+	}
+}
+
+// lexComma scans a comma token.
+func lexComma(l *Lexer) lexFn {
+	l.absorb(token.COMMA)
+	l.emit(token.COMMA)
+	l.skipWhitespace()
+
+	switch r := l.next(); {
+	case r == '"':
+		// Quoted string argument
+		return lexString
+	case isValidIdent(r):
+		// Ident arg
+		return lexIdent
+	case r == ')':
+		// Allow a trailing comma
+		l.backup()
+		return lexRightParen
+	default:
+		// Anything else is disallowed
+		l.backup()
+		return unexpectedToken
 	}
 }
 
