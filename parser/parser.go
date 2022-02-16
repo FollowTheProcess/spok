@@ -21,14 +21,16 @@ import (
 // Parser is spok's AST parser.
 type Parser struct {
 	lexer     lexer.Tokeniser // The lexer
+	input     string          // The raw input, used for showing error context based on token line and position
 	buffer    [3]token.Token  // 3 token buffer, allows us to peek and backup in the token stream
 	peekCount int             // How far we've peeked into our buffer
 }
 
 // New creates and returns a new Parser for an input string.
-func New(input []byte) *Parser {
+func New(input string) *Parser {
 	return &Parser{
 		lexer: lexer.New(string(input)),
+		input: input,
 	}
 }
 
