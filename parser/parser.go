@@ -78,7 +78,11 @@ func (p *Parser) Parse() (ast.Tree, error) {
 		default:
 			// Illegal top level token that slipped through the lexer somehow
 			// unlikely but let's catch it anyway
-			return tree, fmt.Errorf("Illegal token (Line %d, Position %d): %s. Expected one of '#', 'task', or IDENT", next.Line, next.Pos, next.String())
+			return tree, illegalToken{
+				expected:    []token.Type{token.HASH, token.IDENT, token.TASK},
+				encountered: next,
+				line:        next.Line,
+			}
 		}
 		next = p.next()
 	}
@@ -111,7 +115,11 @@ func (p *Parser) expect(expected token.Type) error {
 		// goes without saying that we don't expect an error
 		return fmt.Errorf(got.Value)
 	case !got.Is(expected):
-		return fmt.Errorf("Unexpected token (Line %d, Position %d): got '%s', expected '%s'", got.Line, got.Pos, got.String(), expected.String())
+		return illegalToken{
+			expected:    []token.Type{expected},
+			encountered: got,
+			line:        got.Line,
+		}
 	default:
 		return nil
 	}
@@ -160,7 +168,11 @@ func (p *Parser) parseFunction(ident token.Token) (ast.Function, error) {
 		case next.Is(token.ERROR):
 			return ast.Function{}, fmt.Errorf(next.Value)
 		default:
-			return ast.Function{}, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+			return ast.Function{}, illegalToken{
+				expected:    []token.Type{token.STRING, token.IDENT},
+				encountered: next,
+				line:        next.Line,
+			}
 		}
 		next = p.next()
 	}
@@ -204,7 +216,11 @@ func (p *Parser) parseAssign(ident token.Token) (ast.Assign, error) {
 	case next.Is(token.ERROR):
 		return ast.Assign{}, fmt.Errorf(next.Value)
 	default:
-		return ast.Assign{}, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+		return ast.Assign{}, illegalToken{
+			expected:    []token.Type{token.STRING, token.IDENT},
+			encountered: next,
+			line:        next.Line,
+		}
 	}
 
 	assign := ast.Assign{
@@ -272,7 +288,11 @@ func (p *Parser) parseTaskDependencies() ([]ast.Node, error) {
 		case next.Is(token.ERROR):
 			return nil, fmt.Errorf(next.Value)
 		default:
-			return nil, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+			return nil, illegalToken{
+				expected:    []token.Type{token.STRING, token.ERROR},
+				encountered: next,
+				line:        next.Line,
+			}
 		}
 		next = p.next()
 	}
@@ -302,14 +322,22 @@ func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
 				case tok.Is(token.ERROR):
 					return nil, fmt.Errorf(next.Value)
 				default:
-					return nil, fmt.Errorf("Illegal token (Line %d, Position %d): %s", tok.Line, tok.Pos, tok.String())
+					return nil, illegalToken{
+						expected:    []token.Type{token.STRING, token.IDENT},
+						encountered: tok,
+						line:        tok.Line,
+					}
 				}
 				tok = p.next()
 			}
 		case next.Is(token.ERROR):
 			return nil, fmt.Errorf(next.Value)
 		default:
-			return nil, fmt.Errorf("Illegal token (Line %d, Position %d): %s", next.Line, next.Pos, next.String())
+			return nil, illegalToken{
+				expected:    []token.Type{token.STRING, token.IDENT, token.LPAREN},
+				encountered: next,
+				line:        next.Line,
+			}
 		}
 	} else {
 		// No outputs declared, undo our call to p.next() in the if branch

@@ -82,7 +82,7 @@ func TestExpect(t *testing.T) {
 	}
 
 	// No line or position info because it's our fake lexer but this is where it would go
-	want := `Unexpected token (Line 0, Position 0): got '"hello"', expected 'IDENT'`
+	want := `Illegal Token: "hello" (Line 0). Expected 'IDENT'`
 	if err.Error() != want {
 		t.Errorf("Wrong error message: got %s, wanted %s", err.Error(), want)
 	}
@@ -1169,7 +1169,7 @@ func TestParserErrorHandling(t *testing.T) {
 		},
 		{
 			name:    "task no curlies",
-			message: "Unexpected token (Line 0, Position 0): got 'EOF', expected '{'",
+			message: "Illegal Token: EOF (Line 0). Expected '{'",
 			stream: []token.Token{
 				tTask,
 				newToken(token.IDENT, "test"),
@@ -1212,12 +1212,12 @@ func TestParserErrorHandling(t *testing.T) {
 				// parseAssign will call expect on a ':=' here
 				newToken(token.IDENT, "OOPS"),
 			},
-			message: `Unexpected token (Line 0, Position 0): got '"OOPS"', expected ':='`,
+			message: `Illegal Token: "OOPS" (Line 0). Expected ':='`,
 		},
 		{
 			name:    "parser unexpected top level token",
 			stream:  []token.Token{newToken(token.STRING, "Unexpected")},
-			message: `Illegal token (Line 0, Position 0): "Unexpected". Expected one of '#', 'task', or IDENT`,
+			message: `Illegal Token: "Unexpected" (Line 0). Expected one of (#, IDENT, task)`,
 		},
 	}
 
@@ -1788,7 +1788,7 @@ func TestParserErrorsIntegration(t *testing.T) {
 		{
 			name:  "task no curlies",
 			input: `task test("file.go")`,
-			err:   "Unexpected token (Line 1, Position 20): got 'EOF', expected '{'",
+			err:   "Illegal Token: EOF (Line 1). Expected '{'",
 		},
 	}
 
