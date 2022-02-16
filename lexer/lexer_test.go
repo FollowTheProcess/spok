@@ -360,7 +360,7 @@ var lexTests = []lexTest{
 			tLBrace,
 			newToken(token.COMMAND, "go test ./..."),
 			newToken(token.COMMAND, "go build ."),
-			newToken(token.ERROR, "SyntaxError: Unexpected token 'U+000A' (Line 4)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token 'ð' (Line 4)"),
 		},
 	},
 	{
@@ -375,6 +375,42 @@ var lexTests = []lexTest{
 			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 1)"),
 		},
 	},
+	{
+		name: "task unterminated body after commands",
+		input: `task test() {
+			go test ./...
+		`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "go test ./..."),
+			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 3)"),
+		},
+	},
+	// TODO: This still fails, need to think about how to address this
+	// {
+	// 	name: "task unterminated body with another task below",
+	// 	input: `task test() {
+	// 		go test ./...
+
+	// 	# I'm a comment
+	// 	task build() {
+	// 		go build ./...
+	// 	}
+	// 	`,
+	// 	tokens: []token.Token{
+	// 		tTask,
+	// 		newToken(token.IDENT, "test"),
+	// 		tLParen,
+	// 		tRParen,
+	// 		tLBrace,
+	// 		newToken(token.COMMAND, "go test ./..."),
+	// 		newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 3)"),
+	// 	},
+	// },
 	{
 		name:  "task whitespace body",
 		input: "task test() {  \t\t \n\n  \t  }",

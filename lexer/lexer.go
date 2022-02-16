@@ -360,9 +360,12 @@ func lexTaskCommands(l *Lexer) lexFn {
 			}
 			l.skipWhitespace()
 			return lexRightBrace
+		case l.atEOF():
+			l.error(syntaxError{message: "Unterminated task body", line: l.line})
 		case isASCII(r):
 			// Potential command text, absorb.
 		default:
+			l.backup()
 			return unexpectedToken
 		}
 	}
