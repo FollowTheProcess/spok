@@ -140,9 +140,9 @@ func (l *Lexer) discard() {
 	l.startLine = l.line
 }
 
-// errorf emits an error token and terminates the scan by passing back
+// error emits an error token and terminates the scan by passing back
 // a nil pointer that will be the next state, terminating l.run().
-func (l *Lexer) errorf(err error) lexFn {
+func (l *Lexer) error(err error) lexFn {
 	l.tokens <- token.Token{
 		Value: err.Error(),
 		Type:  token.ERROR,
@@ -292,7 +292,7 @@ func lexOutputOperator(l *Lexer) lexFn {
 	case r == '{':
 		// Error: declared task has an output but didn't specify it
 		l.backup()
-		return l.errorf(syntaxError{message: "Task declared dependency but none found", line: l.line})
+		return l.error(syntaxError{message: "Task declared dependency but none found", line: l.line})
 	default:
 		return unexpectedToken
 	}
@@ -316,7 +316,7 @@ func lexRightBrace(l *Lexer) lexFn {
 // lexTaskBody scans the body of a task declaration.
 func lexTaskBody(l *Lexer) lexFn {
 	if l.atEOF() {
-		return l.errorf(syntaxError{message: "Unterminated task body", line: l.line})
+		return l.error(syntaxError{message: "Unterminated task body", line: l.line})
 	}
 	l.skipWhitespace()
 
@@ -430,7 +430,7 @@ func lexArgs(l *Lexer) lexFn {
 		l.backup()
 		return lexLeftBrace
 	default:
-		return l.errorf(syntaxError{message: "Invalid character used in task dependency/output", line: l.line})
+		return l.error(syntaxError{message: "Invalid character used in task dependency/output", line: l.line})
 	}
 }
 
@@ -488,7 +488,7 @@ func lexString(l *Lexer) lexFn {
 		}
 
 		if l.atEOF() || l.atEOL() {
-			return l.errorf(syntaxError{message: "Unterminated string literal", line: l.line})
+			return l.error(syntaxError{message: "Unterminated string literal", line: l.line})
 		}
 	}
 
@@ -523,5 +523,5 @@ func unexpectedToken(l *Lexer) lexFn {
 		message = fmt.Sprintf("Unexpected token '%U'", char)
 	}
 
-	return l.errorf(syntaxError{message: message, line: l.line})
+	return l.error(syntaxError{message: message, line: l.line})
 }

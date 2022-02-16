@@ -208,6 +208,23 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "global variable join RHS illegal token",
+		input: `TEST := join(ROOT, "docs", "build", #)`,
+		tokens: []token.Token{
+			newToken(token.IDENT, "TEST"),
+			tDeclare,
+			newToken(token.IDENT, "join"),
+			tLParen,
+			newToken(token.IDENT, "ROOT"),
+			tComma,
+			newToken(token.STRING, `"docs"`),
+			tComma,
+			newToken(token.STRING, `"build"`),
+			tComma,
+			newToken(token.ERROR, "SyntaxError: Unexpected token '#' (Line 1)"),
+		},
+	},
+	{
 		name:  "basic task",
 		input: `task test("file.go") { go test ./... }`,
 		tokens: []token.Token{
