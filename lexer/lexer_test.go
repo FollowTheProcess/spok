@@ -41,7 +41,7 @@ var lexTests = []lexTest{
 	{
 		name:   "bad input",
 		input:  "*&^%",
-		tokens: []token.Token{newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1, Position 0)")},
+		tokens: []token.Token{newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1)")},
 	},
 	{
 		name:   "hash",
@@ -89,7 +89,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: Unterminated string literal (Line 1, Position 14)"),
+			newToken(token.ERROR, "SyntaxError: Unterminated string literal (Line 1)"),
 		},
 	},
 	{
@@ -97,7 +97,7 @@ var lexTests = []lexTest{
 		input: `TEST ^^ := "hello"`,
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
-			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1, Position 5)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1)"),
 		},
 	},
 	{
@@ -111,7 +111,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1, Position 8)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1)"),
 		},
 	},
 	{
@@ -120,7 +120,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1, Position 8)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1)"),
 		},
 	},
 	{
@@ -129,7 +129,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1, Position 8)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1)"),
 		},
 	},
 	{
@@ -143,7 +143,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1, Position 8)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1)"),
 		},
 	},
 	{
@@ -280,7 +280,7 @@ var lexTests = []lexTest{
 			newToken(token.IDENT, "test"),
 			tLParen,
 			tRParen,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1, Position 12)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1)"),
 		},
 	},
 	{
@@ -292,7 +292,7 @@ var lexTests = []lexTest{
 			tLParen,
 			tRParen,
 			tLBrace,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '%!'(MISSING) (Line 1, Position 15)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '%' (Line 1)"),
 		},
 	},
 	{
@@ -310,7 +310,7 @@ var lexTests = []lexTest{
 			tLBrace,
 			newToken(token.COMMAND, "go test ./..."),
 			newToken(token.COMMAND, "go build ."),
-			newToken(token.ERROR, "SyntaxError: Unexpected token 'U+000A' (Line 4, Position 52)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token 'U+000A' (Line 4)"),
 		},
 	},
 	{
@@ -322,7 +322,7 @@ var lexTests = []lexTest{
 			tLParen,
 			tRParen,
 			tLBrace,
-			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 1, Position 13)"),
+			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 1)"),
 		},
 	},
 	{
@@ -450,7 +450,7 @@ var lexTests = []lexTest{
 			tTask,
 			newToken(token.IDENT, "test"),
 			tLParen,
-			newToken(token.ERROR, "SyntaxError: Invalid character used in task dependency/output [2] (Line 1, Position 11). Only strings and declared variables may be used."),
+			newToken(token.ERROR, "SyntaxError: Invalid character used in task dependency/output (Line 1)"),
 		},
 	},
 	{
@@ -611,7 +611,7 @@ var lexTests = []lexTest{
 			newToken(token.STRING, `"input.go"`),
 			tRParen,
 			tOutput,
-			newToken(token.ERROR, "SyntaxError: Task declared dependency but none found (Line 1, Position 25)"),
+			newToken(token.ERROR, "SyntaxError: Task declared dependency but none found (Line 1)"),
 		},
 	},
 	{
@@ -628,7 +628,7 @@ var lexTests = []lexTest{
 			newToken(token.STRING, `"input.go"`),
 			tRParen,
 			tOutput,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1, Position 26)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1)"),
 		},
 	},
 	{

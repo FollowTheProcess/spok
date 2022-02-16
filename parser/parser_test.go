@@ -1783,7 +1783,7 @@ func TestParserErrorsIntegration(t *testing.T) {
 				go build .
 				💥
 			}`,
-			err: "SyntaxError: Unexpected token 'U+000A' (Line 5, Position 75)",
+			err: "SyntaxError: Unexpected token 'U+000A' (Line 5)",
 		},
 		{
 			name:  "task no curlies",

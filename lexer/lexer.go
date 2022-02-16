@@ -142,9 +142,9 @@ func (l *Lexer) discard() {
 
 // errorf emits an error token and terminates the scan by passing back
 // a nil pointer that will be the next state, terminating l.run().
-func (l *Lexer) errorf(format string, args ...interface{}) lexFn {
+func (l *Lexer) errorf(err error) lexFn {
 	l.tokens <- token.Token{
-		Value: fmt.Sprintf(format, args...),
+		Value: err.Error(),
 		Type:  token.ERROR,
 		Pos:   l.start,
 		Line:  l.startLine,
@@ -292,7 +292,7 @@ func lexOutputOperator(l *Lexer) lexFn {
 	case r == '{':
 		// Error: declared task has an output but didn't specify it
 		l.backup()
-		return l.errorf("SyntaxError: Task declared dependency but none found (Line %d, Position %d)", l.line, l.pos)
+		return l.errorf(syntaxError{message: "Task declared dependency but none found", line: l.line})
 	default:
 		return unexpectedToken
 	}
@@ -316,7 +316,7 @@ func lexRightBrace(l *Lexer) lexFn {
 // lexTaskBody scans the body of a task declaration.
 func lexTaskBody(l *Lexer) lexFn {
 	if l.atEOF() {
-		return l.errorf("SyntaxError: Unterminated task body (Line %d, Position %d)", l.line, l.pos)
+		return l.errorf(syntaxError{message: "Unterminated task body", line: l.line})
 	}
 	l.skipWhitespace()
 
@@ -429,7 +429,7 @@ func lexArgs(l *Lexer) lexFn {
 		l.backup()
 		return lexLeftBrace
 	default:
-		return l.errorf("SyntaxError: Invalid character used in task dependency/output [%s] (Line %d, Position %d). Only strings and declared variables may be used.", string(l.current()), l.line, l.pos)
+		return l.errorf(syntaxError{message: "Invalid character used in task dependency/output", line: l.line})
 	}
 }
 
@@ -463,7 +463,7 @@ func lexString(l *Lexer) lexFn {
 		}
 
 		if l.atEOF() || l.atEOL() {
-			return l.errorf("SyntaxError: Unterminated string literal (Line %d, Position %d)", l.line, l.pos)
+			return l.errorf(syntaxError{message: "Unterminated string literal", line: l.line})
 		}
 	}
 
@@ -493,10 +493,10 @@ func unexpectedToken(l *Lexer) lexFn {
 
 	switch {
 	case unicode.IsGraphic(char):
-		message = fmt.Sprintf("SyntaxError: Unexpected token '%s' (Line %d, Position %d)", string(char), l.line, l.pos)
+		message = fmt.Sprintf("Unexpected token '%s'", string(char))
 	default:
-		message = fmt.Sprintf("SyntaxError: Unexpected token '%U' (Line %d, Position %d)", char, l.line, l.pos)
+		message = fmt.Sprintf("Unexpected token '%U'", char)
 	}
 
-	return l.errorf(message)
+	return l.errorf(syntaxError{message: message, line: l.line})
 }
