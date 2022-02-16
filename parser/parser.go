@@ -12,6 +12,7 @@ package parser
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/lexer"
@@ -380,4 +381,16 @@ func (p *Parser) parseCommand(command token.Token) ast.Command {
 		Command:  command.Value,
 		NodeType: ast.NodeCommand,
 	}
+}
+
+// getContext returns the line of the input on which the given token appears
+// primarily used to provide context for parser errors given back to the user.
+func (p *Parser) getContext(token token.Token) string {
+	rawLines := strings.Split(p.input, "\n")
+
+	var lines []string
+	for _, line := range rawLines {
+		lines = append(lines, strings.TrimSpace(line))
+	}
+	return lines[token.Line-1]
 }

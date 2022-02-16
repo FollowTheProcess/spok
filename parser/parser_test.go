@@ -1826,6 +1826,70 @@ func TestParserErrorsIntegration(t *testing.T) {
 	}
 }
 
+func TestGetContext(t *testing.T) {
+	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
+		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
+	}
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+		token token.Token
+	}{
+		{
+			name: "first line",
+			input: `# Top level comment
+			
+			GLOBAL := "hello"
+			
+			# Run the tests
+			task test("**/*.go") {
+				go test ./...
+			}
+			`,
+			want: `# Top level comment`,
+			token: token.Token{
+				Value: " Top level comment",
+				Type:  token.COMMENT,
+				Line:  1,
+			},
+		},
+		{
+			name: "variable declaration IDENT",
+			input: `# Top level comment
+			
+			GLOBAL := "hello"
+			
+			# Run the tests
+			task test("**/*.go") {
+				go test ./...
+			}
+			`,
+			want: `GLOBAL := "hello"`,
+			token: token.Token{
+				Value: ":=",
+				Type:  token.DECLARE,
+				Line:  3,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := New(tt.input)
+			_, err := p.Parse()
+			if err != nil {
+				t.Fatalf("Parser returned an error: %v", err)
+			}
+
+			if got := p.getContext(tt.token); got != tt.want {
+				t.Errorf("Wrong context. got %s, wanted %s", got, tt.want)
+			}
+		})
+	}
+}
+
 // BenchmarkParserIntegration determines the performance of the parsing
 // system as a whole, from raw string to AST.
 func BenchmarkParserIntegration(b *testing.B) {
