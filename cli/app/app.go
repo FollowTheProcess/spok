@@ -5,9 +5,6 @@ package app
 import (
 	"fmt"
 	"io"
-	"os"
-
-	"github.com/FollowTheProcess/spok/parser"
 )
 
 // App represents the spok program.
@@ -42,14 +39,7 @@ func (a *App) Run(tasks []string) error {
 	case a.Options.Clean:
 		fmt.Fprintln(a.Out, "Clean built artifacts")
 	default:
-		spokfile, err := os.ReadFile("/Users/tomfleet/Development/spok/spokfile")
-		if err != nil {
-			return err
-		}
-		_, err = parser.New(string(spokfile)).Parse()
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(a.Out, "Running tasks: %v\n", tasks)
 	}
 
 	return nil
