@@ -27,9 +27,6 @@ type Options struct {
 // Run is the entry point to the spok program, the only arguments spok accepts are names
 // of tasks, all other logic is handled via flags.
 func (a *App) Run(tasks []string) error {
-	fmt.Fprintln(a.Out, "tasks:", tasks)
-	fmt.Fprintf(a.Out, "flags: %#v\n", a.Options)
-
 	switch {
 	case a.Options.Fmt:
 		fmt.Fprintln(a.Out, "Format spokfile")

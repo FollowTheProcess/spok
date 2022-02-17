@@ -83,9 +83,9 @@ func TestExpect(t *testing.T) {
 	}
 
 	// No line or position info because it's our fake lexer but this is where it would go
-	want := `Illegal Token: "hello" (Line 0). Expected 'IDENT'`
+	want := "Illegal Token: \"hello\" (Line 0). Expected 'IDENT'\n\t\t\n0 |\t"
 	if err.Error() != want {
-		t.Errorf("Wrong error message: got %s, wanted %s", err.Error(), want)
+		t.Errorf("Wrong error message: got %#v, wanted %#v", err.Error(), want)
 	}
 }
 
@@ -1186,7 +1186,7 @@ func TestParserErrorHandling(t *testing.T) {
 		},
 		{
 			name:    "task no curlies",
-			message: "Illegal Token: EOF (Line 0). Expected '{'",
+			message: "Illegal Token: EOF (Line 0). Expected '{'\n\t\t\n0 |\t",
 			stream: []token.Token{
 				tTask,
 				newToken(token.IDENT, "test"),
@@ -1229,12 +1229,12 @@ func TestParserErrorHandling(t *testing.T) {
 				// parseAssign will call expect on a ':=' here
 				newToken(token.IDENT, "OOPS"),
 			},
-			message: `Illegal Token: "OOPS" (Line 0). Expected ':='`,
+			message: "Illegal Token: \"OOPS\" (Line 0). Expected ':='\n\t\t\n0 |\t",
 		},
 		{
 			name:    "parser unexpected top level token",
 			stream:  []token.Token{newToken(token.STRING, "Unexpected")},
-			message: `Illegal Token: "Unexpected" (Line 0). Expected one of (#, IDENT, task)`,
+			message: "Illegal Token: \"Unexpected\" (Line 0). Expected one of (#, IDENT, task)\n\t\t\n0 |\t",
 		},
 	}
 
@@ -1251,7 +1251,7 @@ func TestParserErrorHandling(t *testing.T) {
 			}
 
 			if err.Error() != tt.message {
-				t.Errorf("Wrong error message: got %s, wanted %s", err.Error(), tt.message)
+				t.Errorf("Wrong error message: got %#v, wanted %#v", err.Error(), tt.message)
 			}
 		})
 	}
@@ -1807,7 +1807,7 @@ func TestParserErrorsIntegration(t *testing.T) {
 		{
 			name:  "task no curlies",
 			input: `task test("file.go")`,
-			err:   "Illegal Token: EOF (Line 1). Expected '{'",
+			err:   "Illegal Token: EOF (Line 1). Expected '{'\n\t\t\n1 |\ttask test(\"file.go\")",
 		},
 	}
 
@@ -1820,7 +1820,7 @@ func TestParserErrorsIntegration(t *testing.T) {
 			}
 
 			if err.Error() != tt.err {
-				t.Errorf("Wrong error message.\ngot:\t%s\nwanted:\t%s", err.Error(), tt.err)
+				t.Errorf("Wrong error message.\ngot:\t%#v\nwanted:\t%#v", err.Error(), tt.err)
 			}
 		})
 	}
@@ -1883,7 +1883,7 @@ func TestGetContext(t *testing.T) {
 				t.Fatalf("Parser returned an error: %v", err)
 			}
 
-			if got := p.getContext(tt.token); got != tt.want {
+			if got := p.getLine(tt.token); got != tt.want {
 				t.Errorf("Wrong context. got %s, wanted %s", got, tt.want)
 			}
 		})

@@ -82,7 +82,7 @@ func (p *Parser) Parse() (ast.Tree, error) {
 			return tree, illegalToken{
 				expected:    []token.Type{token.HASH, token.IDENT, token.TASK},
 				encountered: next,
-				line:        next.Line,
+				line:        p.getLine(next),
 			}
 		}
 		next = p.next()
@@ -119,7 +119,7 @@ func (p *Parser) expect(expected token.Type) error {
 		return illegalToken{
 			expected:    []token.Type{expected},
 			encountered: got,
-			line:        got.Line,
+			line:        p.getLine(got),
 		}
 	default:
 		return nil
@@ -174,7 +174,7 @@ func (p *Parser) parseFunction(ident token.Token) (ast.Function, error) {
 			return ast.Function{}, illegalToken{
 				expected:    []token.Type{token.STRING, token.IDENT},
 				encountered: next,
-				line:        next.Line,
+				line:        p.getLine(next),
 			}
 		}
 		next = p.next()
@@ -222,7 +222,7 @@ func (p *Parser) parseAssign(ident token.Token) (ast.Assign, error) {
 		return ast.Assign{}, illegalToken{
 			expected:    []token.Type{token.STRING, token.IDENT},
 			encountered: next,
-			line:        next.Line,
+			line:        p.getLine(next),
 		}
 	}
 
@@ -296,7 +296,7 @@ func (p *Parser) parseTaskDependencies() ([]ast.Node, error) {
 			return nil, illegalToken{
 				expected:    []token.Type{token.STRING, token.ERROR},
 				encountered: next,
-				line:        next.Line,
+				line:        p.getLine(next),
 			}
 		}
 		next = p.next()
@@ -334,7 +334,7 @@ func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
 					return nil, illegalToken{
 						expected:    []token.Type{token.STRING, token.IDENT},
 						encountered: tok,
-						line:        tok.Line,
+						line:        p.getLine(next),
 					}
 				}
 				tok = p.next()
@@ -345,7 +345,7 @@ func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
 			return nil, illegalToken{
 				expected:    []token.Type{token.STRING, token.IDENT, token.LPAREN},
 				encountered: next,
-				line:        next.Line,
+				line:        p.getLine(next),
 			}
 		}
 	} else {
@@ -383,14 +383,17 @@ func (p *Parser) parseCommand(command token.Token) ast.Command {
 	}
 }
 
-// getContext returns the line of the input on which the given token appears
+// getLine returns the line of the input on which the given token appears
 // primarily used to provide context for parser errors given back to the user.
-func (p *Parser) getContext(token token.Token) string {
+func (p *Parser) getLine(token token.Token) string {
 	rawLines := strings.Split(p.input, "\n")
 
 	var lines []string
 	for _, line := range rawLines {
 		lines = append(lines, strings.TrimSpace(line))
+	}
+	if token.Line == 0 {
+		return lines[token.Line]
 	}
 	return lines[token.Line-1]
 }

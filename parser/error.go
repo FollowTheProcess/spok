@@ -10,9 +10,9 @@ import (
 // illegalToken is an error that handles an unexpected token encounter during the parse
 // it shows a nice message with a list of expected tokens.
 type illegalToken struct {
+	line        string
 	expected    []token.Type
 	encountered token.Token
-	line        int
 }
 
 func (i illegalToken) Error() string {
@@ -22,8 +22,16 @@ func (i illegalToken) Error() string {
 	}
 	switch len(expecteds) {
 	case 1:
-		return fmt.Sprintf("Illegal Token: %s (Line %d). Expected '%s'", i.encountered, i.line, expecteds[0])
+		return fmt.Sprintf(`Illegal Token: %s (Line %d). Expected '%s'
+		
+%d |	%s`,
+			i.encountered, i.encountered.Line, expecteds[0], i.encountered.Line, i.line,
+		)
 	default:
-		return fmt.Sprintf("Illegal Token: %s (Line %d). Expected one of (%s)", i.encountered, i.line, strings.Join(expecteds, ", "))
+		return fmt.Sprintf(`Illegal Token: %s (Line %d). Expected one of (%s)
+		
+%d |	%s`,
+			i.encountered, i.encountered.Line, strings.Join(expecteds, ", "), i.encountered.Line, i.line,
+		)
 	}
 }
