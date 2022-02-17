@@ -1802,7 +1802,7 @@ func TestParserErrorsIntegration(t *testing.T) {
 				go build .
 				💥
 			}`,
-			err: "SyntaxError: Unexpected token 'ð' (Line 5)",
+			err: "SyntaxError: Unexpected token 'ð' (Line 5). \n\t\t\n5 |\t💥",
 		},
 		{
 			name:  "task no curlies",

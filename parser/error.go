@@ -22,16 +22,8 @@ func (i illegalToken) Error() string {
 	}
 	switch len(expecteds) {
 	case 1:
-		return fmt.Sprintf(`Illegal Token: %s (Line %d). Expected '%s'
-		
-%d |	%s`,
-			i.encountered, i.encountered.Line, expecteds[0], i.encountered.Line, i.line,
-		)
+		return fmt.Sprintf("Illegal Token: %s (Line %d). Expected '%s'\n\t\t\n%d |\t%s", i.encountered, i.encountered.Line, expecteds[0], i.encountered.Line, i.line)
 	default:
-		return fmt.Sprintf(`Illegal Token: %s (Line %d). Expected one of (%s)
-		
-%d |	%s`,
-			i.encountered, i.encountered.Line, strings.Join(expecteds, ", "), i.encountered.Line, i.line,
-		)
+		return fmt.Sprintf("Illegal Token: %s (Line %d). Expected one of (%s)\n\t\t\n%d |\t%s", i.encountered, i.encountered.Line, strings.Join(expecteds, ", "), i.encountered.Line, i.line)
 	}
 }
