@@ -22,6 +22,7 @@ type Options struct {
 	Fmt       bool
 	Init      bool
 	Clean     bool
+	Check     bool
 }
 
 // Run is the entry point to the spok program, the only arguments spok accepts are names
@@ -38,6 +39,8 @@ func (a *App) Run(tasks []string) error {
 		fmt.Fprintf(a.Out, "Using spokfile at: %s\n", a.Options.Spokfile)
 	case a.Options.Clean:
 		fmt.Fprintln(a.Out, "Clean built artifacts")
+	case a.Options.Check:
+		fmt.Fprintln(a.Out, "Check spokfile for syntax errors")
 	default:
 		fmt.Fprintf(a.Out, "Running tasks: %v\n", tasks)
 	}

@@ -83,6 +83,15 @@ func TestApp_Run(t *testing.T) {
 			args:    args{tasks: []string{}},
 			wantErr: false,
 		},
+		{
+			name: "check",
+			fields: fields{
+				Out:     &bytes.Buffer{},
+				Options: &Options{Check: true},
+			},
+			args:    args{tasks: []string{}},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
