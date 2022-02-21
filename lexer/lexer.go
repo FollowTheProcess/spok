@@ -428,6 +428,14 @@ func lexIdent(l *Lexer) lexFn {
 	case l.peek() == '{':
 		// Just lexed an ident used in a task output
 		return lexLeftBrace
+	case isValidIdent(l.peek()):
+		// Most likely a comment with a forgotten starting hash
+		return l.error(syntaxError{
+			message: fmt.Sprintf("Unexpected token '%s'. Was this a comment without a '#'?", string(l.peek())),
+			context: l.getLine(),
+			line:    l.line,
+			pos:     l.pos,
+		})
 	default:
 		// Whatever it is shouldn't be here
 		return unexpectedToken

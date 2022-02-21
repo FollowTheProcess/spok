@@ -75,6 +75,14 @@ var lexTests = []lexTest{
 		tokens: []token.Token{tHash, newToken(token.COMMENT, "A comment"), tEOF},
 	},
 	{
+		name:  "comment missing its hash",
+		input: " A comment",
+		tokens: []token.Token{
+			newToken(token.IDENT, "A"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token 'c'. Was this a comment without a '#'? (Line 1). \n\n1 |\tA comment"),
+		},
+	},
+	{
 		name:   "whitespace",
 		input:  "      \t\n\t\t\n\n\n   ",
 		tokens: []token.Token{tEOF},
@@ -238,6 +246,22 @@ var lexTests = []lexTest{
 	{
 		name:  "task quotes in body",
 		input: `task test() { echo "hello" }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, `echo "hello"`),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name: "task quotes in body multi line",
+		input: `task test() {
+			echo "hello"
+		}`,
 		tokens: []token.Token{
 			tTask,
 			newToken(token.IDENT, "test"),
