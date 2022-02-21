@@ -372,27 +372,44 @@ var lexTests = []lexTest{
 			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 3). \n\n3 |\t"),
 		},
 	},
-	// TODO: This still fails, need to think about how to address this
-	// {
-	// 	name: "task unterminated body with another task below",
-	// 	input: `task test() {
-	// 		go test ./...
+	{
+		name: "task unterminated body with another task below",
+		input: `task test() {
+			go test ./...
 
-	// 	# I'm a comment
-	// 	task build() {
-	// 		go build ./...
-	// 	}
-	// 	`,
-	// 	tokens: []token.Token{
-	// 		tTask,
-	// 		newToken(token.IDENT, "test"),
-	// 		tLParen,
-	// 		tRParen,
-	// 		tLBrace,
-	// 		newToken(token.COMMAND, "go test ./..."),
-	// 		newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 3)"),
-	// 	},
-	// },
+		# I'm a comment
+		task build() {
+			go build ./...
+		}
+		`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "go test ./..."),
+			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 4). \n\n4 |\t# I'm a comment"),
+		},
+	},
+	{
+		name: "task unterminated body with another task below with no comment",
+		input: `task test() {
+			go test ./...
+
+		task build() {
+			go build ./...
+		}
+		`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			tRParen,
+			tLBrace,
+			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 2). \n\n2 |\tgo test ./..."),
+		},
+	},
 	{
 		name:  "task whitespace body",
 		input: "task test() {  \t\t \n\n  \t  }",
@@ -837,7 +854,7 @@ task moar_things() -> ("output1.go", "output2.go") {
 }
 
 task no_comment() {
-	echo "this task has no docstring"
+	some more stuff
 }
 
 # Generate output from a variable
@@ -938,7 +955,7 @@ var fullSpokfileStream = []token.Token{
 	tLParen,
 	tRParen,
 	tLBrace,
-	newToken(token.COMMAND, `echo "this task has no docstring"`),
+	newToken(token.COMMAND, "some more stuff"),
 	tRBrace,
 	tHash,
 	newToken(token.COMMENT, " Generate output from a variable"),

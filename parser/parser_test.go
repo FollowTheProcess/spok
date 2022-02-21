@@ -1379,7 +1379,7 @@ task moar_things() -> ("output1.go", "output2.go") {
 }
 
 task no_comment() {
-	echo "this task has no docstring"
+	do more stuff
 }
 
 # Generate output from a variable
@@ -1483,7 +1483,7 @@ var fullSpokfileStream = []token.Token{
 	tLParen,
 	tRParen,
 	tLBrace,
-	newToken(token.COMMAND, `echo "this task has no docstring"`),
+	newToken(token.COMMAND, "do more stuff"),
 	tRBrace,
 	tHash,
 	newToken(token.COMMENT, " Generate output from a variable"),
@@ -1721,7 +1721,7 @@ var fullSpokfileAST = ast.Tree{
 			Outputs:      []ast.Node{},
 			Commands: []ast.Command{
 				{
-					Command:  `echo "this task has no docstring"`,
+					Command:  "do more stuff",
 					NodeType: ast.NodeCommand,
 				},
 			},
