@@ -424,10 +424,18 @@ func lexIdent(l *Lexer) lexFn {
 		return lexRightParen
 	case l.peek() == ',':
 		// It's an ident in a list of task arguments
-		return lexArgs
+		return lexComma
 	case l.peek() == '{':
 		// Just lexed an ident used in a task output
 		return lexLeftBrace
+	case l.peek() == '"':
+		// Wasn't actually an ident, it was a string with no opening quote
+		return l.error(syntaxError{
+			message: "String literal missing opening quote or missing comma in variadic arguments",
+			context: l.getLine(),
+			line:    l.line,
+			pos:     l.pos,
+		})
 	case isValidIdent(l.peek()):
 		// Most likely a comment with a forgotten starting hash
 		return l.error(syntaxError{

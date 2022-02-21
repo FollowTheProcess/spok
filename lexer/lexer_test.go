@@ -102,6 +102,16 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "global variable uninitiated string",
+		input: `TEST := hello"`,
+		tokens: []token.Token{
+			newToken(token.IDENT, "TEST"),
+			tDeclare,
+			newToken(token.IDENT, "hello"),
+			newToken(token.ERROR, "SyntaxError: String literal missing opening quote or missing comma in variadic arguments (Line 1). \n\n1 |\tTEST := hello\""),
+		},
+	},
+	{
 		name:  "global variable bad ident",
 		input: `TEST ^^ := "hello"`,
 		tokens: []token.Token{
@@ -194,7 +204,7 @@ var lexTests = []lexTest{
 			newToken(token.IDENT, "join"),
 			tLParen,
 			newToken(token.IDENT, "ROOT"),
-			newToken(token.ERROR, "SyntaxError: Unexpected token '\"' (Line 1). \n\n1 |\tTEST := join(ROOT \"docs\" \"build\")"),
+			newToken(token.ERROR, "SyntaxError: String literal missing opening quote or missing comma in variadic arguments (Line 1). \n\n1 |\tTEST := join(ROOT \"docs\" \"build\")"),
 		},
 	},
 	{
