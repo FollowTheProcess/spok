@@ -11,5 +11,5 @@ type syntaxError struct {
 }
 
 func (s syntaxError) Error() string {
-	return fmt.Sprintf("SyntaxError: %s (Line %d). \n\t\t\n%d |\t%s", s.message, s.line, s.line, s.context)
+	return fmt.Sprintf("SyntaxError: %s (Line %d). \n\n%d |\t%s", s.message, s.line, s.line, s.context)
 }

@@ -42,7 +42,7 @@ var lexTests = []lexTest{
 	{
 		name:   "bad input",
 		input:  "*&^%",
-		tokens: []token.Token{newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1). \n\t\t\n1 |\t*&^%")},
+		tokens: []token.Token{newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1). \n\n1 |\t*&^%")},
 	},
 	{
 		name:   "hash",
@@ -90,7 +90,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: String literal missing closing quote: \"hell (Line 1). \n\t\t\n1 |\tTEST := \"hello"),
+			newToken(token.ERROR, "SyntaxError: String literal missing closing quote: \"hell (Line 1). \n\n1 |\tTEST := \"hello"),
 		},
 	},
 	{
@@ -98,7 +98,7 @@ var lexTests = []lexTest{
 		input: `TEST ^^ := "hello"`,
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
-			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1). \n\t\t\n1 |\tTEST ^^ := \"hello\""),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1). \n\n1 |\tTEST ^^ := \"hello\""),
 		},
 	},
 	{
@@ -112,7 +112,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1). \n\t\t\n1 |\tTEST := 27"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '2' (Line 1). \n\n1 |\tTEST := 27"),
 		},
 	},
 	{
@@ -126,7 +126,7 @@ var lexTests = []lexTest{
 		tokens: []token.Token{
 			newToken(token.IDENT, "TEST"),
 			tDeclare,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1). \n\t\t\n1 |\tTEST := *"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '*' (Line 1). \n\n1 |\tTEST := *"),
 		},
 	},
 	{
@@ -186,7 +186,7 @@ var lexTests = []lexTest{
 			newToken(token.IDENT, "join"),
 			tLParen,
 			newToken(token.IDENT, "ROOT"),
-			newToken(token.ERROR, "SyntaxError: Unexpected token '\"' (Line 1). \n\t\t\n1 |\tTEST := join(ROOT \"docs\" \"build\")"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '\"' (Line 1). \n\n1 |\tTEST := join(ROOT \"docs\" \"build\")"),
 		},
 	},
 	{
@@ -203,7 +203,7 @@ var lexTests = []lexTest{
 			tComma,
 			newToken(token.STRING, `"build"`),
 			tComma,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '#' (Line 1). \n\t\t\n1 |\tTEST := join(ROOT, \"docs\", \"build\", #)"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '#' (Line 1). \n\n1 |\tTEST := join(ROOT, \"docs\", \"build\", #)"),
 		},
 	},
 	{
@@ -312,7 +312,7 @@ var lexTests = []lexTest{
 			newToken(token.IDENT, "test"),
 			tLParen,
 			tRParen,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1). \n\t\t\n1 |\ttask test() ^ {}"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1). \n\n1 |\ttask test() ^ {}"),
 		},
 	},
 	{
@@ -324,7 +324,7 @@ var lexTests = []lexTest{
 			tLParen,
 			tRParen,
 			tLBrace,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '%' (Line 1). \n\t\t\n1 |\ttask test() { ^% }"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '%' (Line 1). \n\n1 |\ttask test() { ^% }"),
 		},
 	},
 	{
@@ -342,7 +342,7 @@ var lexTests = []lexTest{
 			tLBrace,
 			newToken(token.COMMAND, "go test ./..."),
 			newToken(token.COMMAND, "go build ."),
-			newToken(token.ERROR, "SyntaxError: Unexpected token 'ð' (Line 4). \n\t\t\n4 |\t💥"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token 'ð' (Line 4). \n\n4 |\t💥"),
 		},
 	},
 	{
@@ -354,7 +354,7 @@ var lexTests = []lexTest{
 			tLParen,
 			tRParen,
 			tLBrace,
-			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 1). \n\t\t\n1 |\ttask test() {"),
+			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 1). \n\n1 |\ttask test() {"),
 		},
 	},
 	{
@@ -369,7 +369,7 @@ var lexTests = []lexTest{
 			tRParen,
 			tLBrace,
 			newToken(token.COMMAND, "go test ./..."),
-			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 3). \n\t\t\n3 |\t"),
+			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 3). \n\n3 |\t"),
 		},
 	},
 	// TODO: This still fails, need to think about how to address this
@@ -526,7 +526,7 @@ var lexTests = []lexTest{
 			tTask,
 			newToken(token.IDENT, "test"),
 			tLParen,
-			newToken(token.ERROR, "SyntaxError: Invalid character used in task dependency/output (Line 1). \n\t\t\n1 |\ttask test(625) {}"),
+			newToken(token.ERROR, "SyntaxError: Invalid character used in task dependency/output (Line 1). \n\n1 |\ttask test(625) {}"),
 		},
 	},
 	{
@@ -690,7 +690,7 @@ var lexTests = []lexTest{
 			newToken(token.STRING, `"input.go"`),
 			tRParen,
 			tOutput,
-			newToken(token.ERROR, "SyntaxError: Task declared dependency but none found (Line 1). \n\t\t\n1 |\ttask test(\"input.go\") -> {"),
+			newToken(token.ERROR, "SyntaxError: Task declared dependency but none found (Line 1). \n\n1 |\ttask test(\"input.go\") -> {"),
 		},
 	},
 	{
@@ -707,7 +707,7 @@ var lexTests = []lexTest{
 			newToken(token.STRING, `"input.go"`),
 			tRParen,
 			tOutput,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1). \n\t\t\n1 |\ttask test(\"input.go\") -> ^^{"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '^' (Line 1). \n\n1 |\ttask test(\"input.go\") -> ^^{"),
 		},
 	},
 	{

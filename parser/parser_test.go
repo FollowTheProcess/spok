@@ -83,7 +83,7 @@ func TestExpect(t *testing.T) {
 	}
 
 	// No line or position info because it's our fake lexer but this is where it would go
-	want := "Illegal Token: \"hello\" (Line 0). Expected 'IDENT'\n\t\t\n0 |\t"
+	want := "Illegal Token: \"hello\" (Line 0). Expected 'IDENT'\n\n0 |\t"
 	if err.Error() != want {
 		t.Errorf("Wrong error message: got %#v, wanted %#v", err.Error(), want)
 	}
@@ -1186,7 +1186,7 @@ func TestParserErrorHandling(t *testing.T) {
 		},
 		{
 			name:    "task no curlies",
-			message: "Illegal Token: EOF (Line 0). Expected '{'\n\t\t\n0 |\t",
+			message: "Illegal Token: EOF (Line 0). Expected '{'\n\n0 |\t",
 			stream: []token.Token{
 				tTask,
 				newToken(token.IDENT, "test"),
@@ -1223,18 +1223,36 @@ func TestParserErrorHandling(t *testing.T) {
 			},
 		},
 		{
+			name:    "task missing closing output paren",
+			message: "Illegal Token: \"{\" (Line 0). Expected one of (STRING, IDENT, ,)\n\n0 |\t",
+			stream: []token.Token{
+				tTask,
+				newToken(token.IDENT, "test"),
+				tLParen,
+				newToken(token.STRING, `"input.go"`),
+				tRParen,
+				tOutput,
+				tLParen,
+				newToken(token.STRING, `"output1.go`),
+				tComma,
+				newToken(token.STRING, `"output2.go"`),
+				// Should be a closing RParen here, but there isn't
+				tLBrace,
+			},
+		},
+		{
 			name: "parser expect error",
 			stream: []token.Token{
 				newToken(token.IDENT, "TEST"),
 				// parseAssign will call expect on a ':=' here
 				newToken(token.IDENT, "OOPS"),
 			},
-			message: "Illegal Token: \"OOPS\" (Line 0). Expected ':='\n\t\t\n0 |\t",
+			message: "Illegal Token: \"OOPS\" (Line 0). Expected ':='\n\n0 |\t",
 		},
 		{
 			name:    "parser unexpected top level token",
 			stream:  []token.Token{newToken(token.STRING, "Unexpected")},
-			message: "Illegal Token: \"Unexpected\" (Line 0). Expected one of (#, IDENT, task)\n\t\t\n0 |\t",
+			message: "Illegal Token: \"Unexpected\" (Line 0). Expected one of (#, IDENT, task)\n\n0 |\t",
 		},
 	}
 
@@ -1802,12 +1820,12 @@ func TestParserErrorsIntegration(t *testing.T) {
 				go build .
 				💥
 			}`,
-			err: "SyntaxError: Unexpected token 'ð' (Line 5). \n\t\t\n5 |\t💥",
+			err: "SyntaxError: Unexpected token 'ð' (Line 5). \n\n5 |\t💥",
 		},
 		{
 			name:  "task no curlies",
 			input: `task test("file.go")`,
-			err:   "Illegal Token: EOF (Line 1). Expected '{'\n\t\t\n1 |\ttask test(\"file.go\")",
+			err:   "Illegal Token: EOF (Line 1). Expected '{'\n\n1 |\ttask test(\"file.go\")",
 		},
 	}
 

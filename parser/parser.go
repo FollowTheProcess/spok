@@ -332,7 +332,7 @@ func (p *Parser) parseTaskOutputs() ([]ast.Node, error) {
 					return nil, errors.New(next.Value)
 				default:
 					return nil, illegalToken{
-						expected:    []token.Type{token.STRING, token.IDENT},
+						expected:    []token.Type{token.STRING, token.IDENT, token.COMMA},
 						encountered: tok,
 						line:        p.getLine(next),
 					}
