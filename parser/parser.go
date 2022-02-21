@@ -30,7 +30,7 @@ type Parser struct {
 // New creates and returns a new Parser for an input string.
 func New(input string) *Parser {
 	return &Parser{
-		lexer: lexer.New(string(input)),
+		lexer: lexer.New(input),
 		input: input,
 	}
 }
