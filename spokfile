@@ -39,7 +39,7 @@ task moar_things() -> ("output1.go", "output2.go") {
 }
 
 task no_comment() {
-	echo "this task has no docstring"
+	more stuff here
 }
 
 # Generate output from a variable
