@@ -247,7 +247,7 @@ func lexTaskKeyword(l *Lexer) lexFn {
 	l.absorb(token.TASK)
 	l.emit(token.TASK)
 	l.skipWhitespace()
-	return lexIdent
+	return lexTaskName
 }
 
 // lexLeftParen scans an opening parenthesis.
@@ -396,6 +396,34 @@ func lexTaskCommands(l *Lexer) lexFn {
 	}
 }
 
+// lexTaskName scans an identifier in the specific context of the name of a task.
+func lexTaskName(l *Lexer) lexFn {
+	// Read until we hit an invalid ident rune
+	for {
+		r := l.next()
+		if !isValidIdent(r) {
+			l.backup()
+			break
+		}
+	}
+	l.emit(token.IDENT)
+	l.skipWhitespace()
+
+	// We know we're currently in a task name, so if the next thing
+	// is not '(', it's a syntax error
+	if l.peek() != '(' {
+		return l.error(syntaxError{
+			message: "Task missing parentheses, expected '('",
+			context: l.getLine(),
+			line:    l.line,
+			pos:     l.pos,
+		})
+	}
+
+	// We now know the next thing is a '(' and that's all we have to care about here
+	return lexLeftParen
+}
+
 // lexIdent scans an identifier e.g. global variable or name of task.
 func lexIdent(l *Lexer) lexFn {
 	// Read until we get an invalid ident rune
@@ -430,6 +458,7 @@ func lexIdent(l *Lexer) lexFn {
 		return lexLeftBrace
 	case l.peek() == '"':
 		// Wasn't actually an ident, it was a string with no opening quote
+		// or a missing comma
 		return l.error(syntaxError{
 			message: "String literal missing opening quote or missing comma in variadic arguments",
 			context: l.getLine(),
@@ -438,6 +467,8 @@ func lexIdent(l *Lexer) lexFn {
 		})
 	case isValidIdent(l.peek()):
 		// Most likely a comment with a forgotten starting hash
+		// i.e. # This is a comment becomes 'This' 'is' and the second ident
+		// is what we pick up here
 		return l.error(syntaxError{
 			message: fmt.Sprintf("Unexpected token '%s'. Was this a comment without a '#'?", string(l.peek())),
 			context: l.getLine(),

@@ -458,6 +458,15 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "task missing parens",
+		input: "task test { do stuff }",
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			newToken(token.ERROR, "SyntaxError: Task missing parentheses, expected '(' (Line 1). \n\n1 |\ttask test { do stuff }"),
+		},
+	},
+	{
 		name:  "task whitespace args",
 		input: "task test(  \t\t \n\n \t  ) {}",
 		tokens: []token.Token{
