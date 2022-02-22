@@ -901,7 +901,7 @@ func TestLexer(t *testing.T) {
 
 // A more or less complete spokfile with all the allowed constructs to act as
 // an integration test and benchmark.
-var fullSpokfile = `# This is a top level comment
+const fullSpokfile = `# This is a top level comment
 
 # This variable is presumably important later
 GLOBAL := "very important stuff here"

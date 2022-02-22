@@ -247,7 +247,7 @@ func TestNodeString(t *testing.T) {
 	}
 }
 
-var fullSpokfile = `# This is a top level comment
+const fullSpokfile = `# This is a top level comment
 # This variable is presumably important later
 GLOBAL := "very important stuff here"
 GIT_COMMIT := exec("git rev-parse HEAD")

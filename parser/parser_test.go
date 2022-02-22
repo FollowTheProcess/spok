@@ -1349,7 +1349,7 @@ func BenchmarkParseFullSpokfile(b *testing.B) {
 // A more or less complete, syntactically valid, spokfile with all the allowed constructs to act as
 // an integration test and benchmark.
 // Keep in sync with it's counterpart in lexer_test.go.
-var fullSpokfile = `
+const fullSpokfile = `
 # This is a top level comment
 
 # This variable is presumably important later
