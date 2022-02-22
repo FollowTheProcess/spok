@@ -668,6 +668,24 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name: "task with invalid string output",
+		input: `# Compile the project
+		task build("**/*.go") -> ./bin/main" {
+			go build ./...
+		}`,
+		tokens: []token.Token{
+			tHash,
+			newToken(token.COMMENT, " Compile the project"),
+			tTask,
+			newToken(token.IDENT, "build"),
+			tLParen,
+			newToken(token.STRING, `"**/*.go"`),
+			tRParen,
+			tOutput,
+			newToken(token.ERROR, "SyntaxError: Unexpected punctuation in ident '.'. String missing opening quote? (Line 2). \n\n2 |\ttask build(\"**/*.go\") -> ./bin/main\" {"),
+		},
+	},
+	{
 		name:  "task with multi ident output",
 		input: `task test("**/*.md") -> (BUILD, SOMETHING) { buildy docs }`,
 		tokens: []token.Token{

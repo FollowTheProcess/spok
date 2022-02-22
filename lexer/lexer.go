@@ -308,7 +308,17 @@ func lexOutputOperator(l *Lexer) lexFn {
 			line:    l.line,
 			pos:     l.pos,
 		})
+	case unicode.IsPunct(r):
+		// This is normally a filepath-like string (e.g. "file.go", or "./bin/main") with no opening quote
+		return l.error(syntaxError{
+			message: fmt.Sprintf("Unexpected punctuation in ident '%s'. String missing opening quote?", string(r)),
+			context: l.getLine(),
+			line:    l.line,
+			pos:     l.pos,
+		})
 	default:
+		l.backup()
+		fmt.Printf("In lexOutputOperator, l.next() is '%s'\n", string(r))
 		return unexpectedToken
 	}
 }
