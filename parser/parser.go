@@ -172,7 +172,7 @@ func (p *Parser) parseFunction(ident token.Token) (ast.Function, error) {
 			return ast.Function{}, errors.New(next.Value)
 		default:
 			return ast.Function{}, illegalToken{
-				expected:    []token.Type{token.STRING, token.IDENT},
+				expected:    []token.Type{token.STRING, token.IDENT, token.RPAREN},
 				encountered: next,
 				line:        p.getLine(next),
 			}

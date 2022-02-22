@@ -228,6 +228,18 @@ func TestParseFunction(t *testing.T) {
 			want:    ast.Function{},
 			wantErr: true,
 		},
+		{
+			name: "missing RParen",
+			stream: []token.Token{
+				newToken(token.IDENT, "join"),
+				tLParen,
+				newToken(token.IDENT, "ROOT"),
+				tComma,
+				newToken(token.STRING, "docs"),
+			},
+			want:    ast.Function{},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
