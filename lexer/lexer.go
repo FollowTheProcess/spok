@@ -318,7 +318,6 @@ func lexOutputOperator(l *Lexer) lexFn {
 		})
 	default:
 		l.backup()
-		fmt.Printf("In lexOutputOperator, l.next() is '%s'\n", string(r))
 		return unexpectedToken
 	}
 }
@@ -466,9 +465,9 @@ func lexIdent(l *Lexer) lexFn {
 	case l.peek() == '{':
 		// Just lexed an ident used in a task output
 		return lexLeftBrace
-	case l.peek() == '"':
-		// Wasn't actually an ident, it was a string with no opening quote
-		// or a missing comma
+	case unicode.IsPunct(l.peek()):
+		// This is normally a filepath-like string like "file.go" but without the opening quote
+		// or it's a missing comma in a series of args
 		return l.error(syntaxError{
 			message: "String literal missing opening quote or missing comma in variadic arguments",
 			context: l.getLine(),

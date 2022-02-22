@@ -634,6 +634,33 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "task with single output unterminated string",
+		input: `task test("input.go") -> "output.go { go build input.go }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"input.go"`),
+			tRParen,
+			tOutput,
+			newToken(token.ERROR, "SyntaxError: String literal missing closing quote: \"output.go { go build input.go  (Line 1). \n\n1 |\ttask test(\"input.go\") -> \"output.go { go build input.go }"),
+		},
+	},
+	{
+		name:  "task with single output unopened string",
+		input: `task test("input.go") -> output.go" { go build input.go }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"input.go"`),
+			tRParen,
+			tOutput,
+			newToken(token.IDENT, "output"),
+			newToken(token.ERROR, "SyntaxError: String literal missing opening quote or missing comma in variadic arguments (Line 1). \n\n1 |\ttask test(\"input.go\") -> output.go\" { go build input.go }"),
+		},
+	},
+	{
 		name:  "task with glob output",
 		input: `task test("**/*.md") -> "**/*.html" { buildy docs }`,
 		tokens: []token.Token{
