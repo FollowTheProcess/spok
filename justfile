@@ -31,7 +31,7 @@ build: tidy generate fmt
 
 # Run go fmt on all project files
 fmt:
-    gofmt -l -w -s .
+    go fmt ./...
 
 # Run all project tests (unit and integration)
 test *flags: fmt

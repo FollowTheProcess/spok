@@ -661,6 +661,27 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "task with single dependency unterminated string",
+		input: `task test("input.go) { go test ./... }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.ERROR, "SyntaxError: String literal missing closing quote: \"input.go) { go test ./...  (Line 1). \n\n1 |\ttask test(\"input.go) { go test ./... }"),
+		},
+	},
+	{
+		name:  "task with single dependency unopened string",
+		input: `task test(input.go") { go test ./... }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.IDENT, "input"),
+			newToken(token.ERROR, "SyntaxError: String literal missing opening quote or missing comma in variadic arguments (Line 1). \n\n1 |\ttask test(input.go\") { go test ./... }"),
+		},
+	},
+	{
 		name:  "task with glob output",
 		input: `task test("**/*.md") -> "**/*.html" { buildy docs }`,
 		tokens: []token.Token{
