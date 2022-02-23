@@ -1236,7 +1236,7 @@ func TestParserErrorHandling(t *testing.T) {
 		},
 		{
 			name:    "task missing closing output paren",
-			message: "Illegal Token: \"{\" (Line 0). Expected one of (STRING, IDENT, ,)\n\n0 |\t",
+			message: "Illegal Token: \"{\" (Line 0). Expected one of ['STRING', 'IDENT', ',']\n\n0 |\t",
 			stream: []token.Token{
 				tTask,
 				newToken(token.IDENT, "test"),
@@ -1264,7 +1264,7 @@ func TestParserErrorHandling(t *testing.T) {
 		{
 			name:    "parser unexpected top level token",
 			stream:  []token.Token{newToken(token.STRING, "Unexpected")},
-			message: "Illegal Token: \"Unexpected\" (Line 0). Expected one of (#, IDENT, task)\n\n0 |\t",
+			message: "Illegal Token: \"Unexpected\" (Line 0). Expected one of ['#', 'IDENT', 'task']\n\n0 |\t",
 		},
 	}
 

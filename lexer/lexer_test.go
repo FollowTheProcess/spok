@@ -79,7 +79,7 @@ var lexTests = []lexTest{
 		input: " A comment",
 		tokens: []token.Token{
 			newToken(token.IDENT, "A"),
-			newToken(token.ERROR, "SyntaxError: Unexpected token 'c'. Was this a comment without a '#'? (Line 1). \n\n1 |\tA comment"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token 'c'. Comment without a '#' or string literal missing opening quote? (Line 1). \n\n1 |\tA comment"),
 		},
 	},
 	{
@@ -750,7 +750,7 @@ var lexTests = []lexTest{
 			tRParen,
 			tOutput,
 			newToken(token.IDENT, "BUILD"),
-			newToken(token.ERROR, "SyntaxError: Unexpected token 'b'. Was this a comment without a '#'? (Line 1). \n\n1 |\ttask test(\"**/*.md\") -> BUILD  buildy docs }"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token 'b'. Comment without a '#' or string literal missing opening quote? (Line 1). \n\n1 |\ttask test(\"**/*.md\") -> BUILD  buildy docs }"),
 		},
 	},
 	{

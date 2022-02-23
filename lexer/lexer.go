@@ -487,7 +487,7 @@ func lexIdent(l *Lexer) lexFn {
 		// i.e. # This is a comment becomes 'This' 'is' and the second ident
 		// is what we pick up here
 		return l.error(syntaxError{
-			message: fmt.Sprintf("Unexpected token '%s'. Was this a comment without a '#'?", string(l.peek())),
+			message: fmt.Sprintf("Unexpected token '%s'. Comment without a '#' or string literal missing opening quote?", string(l.peek())),
 			context: l.getLine(),
 			line:    l.line,
 			pos:     l.pos,
