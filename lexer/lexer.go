@@ -280,7 +280,7 @@ func lexRightParen(l *Lexer) lexFn {
 	case r == '"', r == '(':
 		// This is when someone forgets a '->' when declaring task outputs
 		return l.error(syntaxError{
-			message: "Unexpected token '\"'. Task output missing the '->' operator?",
+			message: fmt.Sprintf("Unexpected token '%s'. Task output missing the '->' operator?", string(r)),
 			context: l.getLine(),
 			line:    l.line,
 			pos:     l.pos,

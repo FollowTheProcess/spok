@@ -654,7 +654,7 @@ var lexTests = []lexTest{
 			tLParen,
 			newToken(token.STRING, `"input.go"`),
 			tRParen,
-			newToken(token.ERROR, "SyntaxError: Unexpected token '\"'. Task output missing the '->' operator? (Line 1). \n\n1 |\ttask test(\"input.go\") (\"output1.go\", \"output2.go\") { go build input.go }"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token '('. Task output missing the '->' operator? (Line 1). \n\n1 |\ttask test(\"input.go\") (\"output1.go\", \"output2.go\") { go build input.go }"),
 		},
 	},
 	{
