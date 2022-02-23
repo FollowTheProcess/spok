@@ -13,6 +13,7 @@
 # The project binary
 spok
 !cmd/spok
+!spok/
 
 # Test binary, built with `go test -c`
 *.test

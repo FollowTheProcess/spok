@@ -10,8 +10,7 @@ import (
 func main() {
 	rootCmd := cmd.BuildRootCmd()
 	if err := rootCmd.Execute(); err != nil {
-		prefix := msg.Sfail("Error:")
-		msg.Textf("%s %s", prefix, err)
+		msg.Textf("%s %s", msg.Sfail("Error:"), err)
 		os.Exit(1)
 	}
 }
