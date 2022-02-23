@@ -740,6 +740,20 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name:  "task with ident output unopened task body",
+		input: `task test("**/*.md") -> BUILD  buildy docs }`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"**/*.md"`),
+			tRParen,
+			tOutput,
+			newToken(token.IDENT, "BUILD"),
+			newToken(token.ERROR, "SyntaxError: Unexpected token 'b'. Was this a comment without a '#'? (Line 1). \n\n1 |\ttask test(\"**/*.md\") -> BUILD  buildy docs }"),
+		},
+	},
+	{
 		name: "task with invalid string output",
 		input: `# Compile the project
 		task build("**/*.go") -> ./bin/main" {
