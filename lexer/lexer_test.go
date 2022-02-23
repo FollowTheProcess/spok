@@ -754,6 +754,23 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name: "task with multi output unterminated string",
+		input: `task moar_things() -> ("output1.go", "output2.go) {
+			do some stuff here
+		}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "moar_things"),
+			tLParen,
+			tRParen,
+			tOutput,
+			tLParen,
+			newToken(token.STRING, `"output1.go"`),
+			tComma,
+			newToken(token.ERROR, "SyntaxError: String literal missing closing quote: \"output2.go)  (Line 1). \n\n1 |\ttask moar_things() -> (\"output1.go\", \"output2.go) {"),
+		},
+	},
+	{
 		name: "task with invalid string output",
 		input: `# Compile the project
 		task build("**/*.go") -> ./bin/main" {
