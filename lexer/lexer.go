@@ -277,6 +277,14 @@ func lexRightParen(l *Lexer) lexFn {
 	case r == '#':
 		// If a global function call precedes a commented task
 		return lexHash
+	case r == '"', r == '(':
+		// This is when someone forgets a '->' when declaring task outputs
+		return l.error(syntaxError{
+			message: "Unexpected token '\"'. Task output missing the '->' operator?",
+			context: l.getLine(),
+			line:    l.line,
+			pos:     l.pos,
+		})
 	default:
 		return unexpectedToken
 	}
