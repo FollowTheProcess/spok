@@ -2,7 +2,6 @@
 package ast
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -34,7 +33,7 @@ type Tree struct {
 // String allows us to pretty print an entire file for e.g. automatic formatting.
 func (t Tree) String() string {
 	s := &strings.Builder{}
-	s.Grow(1500) // Average spokfile has about 1500 characters
+	s.Grow(2000) // Average spokfile has about 2000 characters
 	t.Write(s)
 	return s.String()
 }
@@ -71,7 +70,7 @@ type Comment struct {
 
 func (c Comment) String() string {
 	if c.Text != "" {
-		return fmt.Sprintf("# %s\n", strings.TrimSpace(c.Text))
+		return "# " + strings.TrimSpace(c.Text) + "\n"
 	}
 	return ""
 }
@@ -87,7 +86,7 @@ type String struct {
 }
 
 func (s String) String() string {
-	return fmt.Sprintf("%q", s.Text)
+	return `"` + s.Text + `"`
 }
 
 func (s String) Write(sb *strings.Builder) {
@@ -116,7 +115,7 @@ type Assign struct {
 }
 
 func (a Assign) String() string {
-	return fmt.Sprintf("%s := %s\n", a.Name.String(), a.Value.String())
+	return a.Name.String() + " := " + a.Value.String() + "\n"
 }
 
 func (a Assign) Write(s *strings.Builder) {
@@ -149,7 +148,7 @@ type Task struct {
 
 func (t Task) String() string {
 	s := strings.Builder{}
-	s.Grow(200) // An average spok task has about 200 characters
+	s.Grow(250) // An average spok task has about 250 characters
 	var deps []string
 	var commands []string
 
@@ -189,7 +188,7 @@ func (t Task) String() string {
 	}
 	s.WriteString(" {\n")
 	for _, command := range commands {
-		s.WriteString(fmt.Sprintf("    %s\n", command))
+		s.WriteString("    " + command + "\n")
 	}
 	s.WriteString("}\n\n")
 
@@ -213,8 +212,7 @@ func (f Function) String() string {
 	for _, arg := range f.Arguments {
 		args = append(args, arg.String())
 	}
-
-	return fmt.Sprintf("%s(%s)\n", f.Name.String(), strings.Join(args, ", "))
+	return f.Name.String() + "(" + strings.Join(args, ", ") + ")" + "\n"
 }
 
 func (f Function) Write(s *strings.Builder) {
