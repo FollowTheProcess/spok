@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Linting
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v3
         with:
           version: latest
 
