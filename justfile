@@ -67,7 +67,7 @@ cover:
 # Remove build artifacts and other project clutter
 clean:
     go clean ./...
-    git clean -xdf
+    rm -rf {{ COVERAGE_DATA }} {{ COVERAGE_HTML }} {{ PROJECT_BIN }} {{ GORELEASER_DIST }}
 
 # Run all tests and linting in one go
 check: test lint
