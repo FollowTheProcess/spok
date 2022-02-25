@@ -13,8 +13,15 @@
 // the entire lexical state space first to determine "are we in a global variable definition?".
 //
 // The lexer 'run' method consumes these "lexFunctions" which return states in a continual loop until nil is returned
-// marking the fact that "there is nothing more to lex" at which point the lexer closes the tokens channel, which
-// will be picked up by the parser as a signal that the input stream has ended.
+// marking the fact that either "there is nothing more to lex" or "we've hit an error" at which point the lexer closes
+// the tokens channel, which will be picked up by the parser as a signal that the input stream has ended.
+//
+// In lexing/parsing, the error checking complexity is always kept somewhere. Spok has made the choice that the lexer
+// should do much of the syntax error handling as it has the most direct access to the raw input as well as the positions,
+// characters etc. The approach the stateful "lexFunctions" helps enable this as every lexing function "knows where it is"
+// in the language, improving the quality of the error messages. The lexer handling most of the error complexity has helped
+// to keep the parser very simple which I think is a good trade off and the test cases for the parser already far outweigh
+// that of the lexer.
 package lexer
 
 import (
