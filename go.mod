@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/FollowTheProcess/msg v0.2.0
 	github.com/MakeNowJust/heredoc/v2 v2.0.1
+	github.com/bmatcuk/doublestar/v4 v4.0.2
 	github.com/fatih/color v1.13.0
 	github.com/google/go-cmp v0.5.7
 	github.com/spf13/cobra v1.3.0
