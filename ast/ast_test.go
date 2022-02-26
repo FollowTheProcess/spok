@@ -70,183 +70,6 @@ func TestIsEmpty(t *testing.T) {
 	}
 }
 
-func TestNodeString(t *testing.T) {
-	tests := []struct {
-		node Node
-		name string
-		want string
-	}{
-		{
-			name: "comment",
-			node: Comment{Text: " A comment", NodeType: NodeComment},
-			want: "# A comment\n",
-		},
-		{
-			name: "string",
-			node: String{Text: "hello", NodeType: NodeString},
-			want: `"hello"`,
-		},
-		{
-			name: "ident",
-			node: Ident{Name: "GIT_COMMIT", NodeType: NodeIdent},
-			want: "GIT_COMMIT",
-		},
-		{
-			name: "assign",
-			node: Assign{
-				Name:     Ident{Name: "GIT_COMMIT", NodeType: NodeIdent},
-				Value:    String{Text: "a2736ef997c926", NodeType: NodeString},
-				NodeType: NodeAssign,
-			},
-			want: `GIT_COMMIT := "a2736ef997c926"` + "\n",
-		},
-		{
-			name: "command",
-			node: Command{Command: "go test ./...", NodeType: NodeCommand},
-			want: "go test ./...",
-		},
-		{
-			name: "function",
-			node: Function{
-				Name: Ident{
-					Name:     "exec",
-					NodeType: NodeIdent,
-				},
-				Arguments: []Node{
-					String{Text: "git rev-parse HEAD", NodeType: NodeString},
-				}},
-			want: `exec("git rev-parse HEAD")` + "\n",
-		},
-		{
-			name: "basic task",
-			node: Task{
-				Name: Ident{
-					Name:     "test",
-					NodeType: NodeIdent,
-				},
-				Dependencies: []Node{
-					&String{
-						Text:     "file.go",
-						NodeType: NodeString,
-					},
-				},
-				Commands: []Command{
-					{
-						Command:  "go test ./...",
-						NodeType: NodeCommand,
-					},
-				},
-				NodeType: NodeTask,
-			},
-			want: `task test("file.go") {
-    go test ./...
-}
-
-`,
-		},
-		{
-			name: "task no args",
-			node: Task{
-				Name: Ident{
-					Name:     "test",
-					NodeType: NodeIdent,
-				},
-				Commands: []Command{
-					{
-						Command:  "go test ./...",
-						NodeType: NodeCommand,
-					},
-				},
-				NodeType: NodeTask,
-			},
-			want: `task test() {
-    go test ./...
-}
-
-`,
-		},
-		{
-			name: "task with single output",
-			node: Task{
-				Name: Ident{
-					Name:     "build",
-					NodeType: NodeIdent,
-				},
-				Dependencies: []Node{
-					String{
-						Text:     "**/*.go",
-						NodeType: NodeString,
-					},
-				},
-				Outputs: []Node{
-					String{
-						Text:     "./bin/main",
-						NodeType: NodeString,
-					},
-				},
-				Commands: []Command{
-					{
-						Command:  "go build .",
-						NodeType: NodeCommand,
-					},
-				},
-				NodeType: NodeTask,
-			},
-			want: `task build("**/*.go") -> "./bin/main" {
-    go build .
-}
-
-`,
-		},
-		{
-			name: "task with multiple outputs",
-			node: Task{
-				Name: Ident{
-					Name:     "build",
-					NodeType: NodeIdent,
-				},
-				Dependencies: []Node{
-					String{
-						Text:     "**/*.go",
-						NodeType: NodeString,
-					},
-				},
-				Outputs: []Node{
-					String{
-						Text:     "./bin/main",
-						NodeType: NodeString,
-					},
-					Ident{
-						Name:     "SOMETHINGELSE",
-						NodeType: NodeIdent,
-					},
-				},
-				Commands: []Command{
-					{
-						Command:  "go build .",
-						NodeType: NodeCommand,
-					},
-				},
-				NodeType: NodeTask,
-			},
-			want: `task build("**/*.go") -> ("./bin/main", SOMETHINGELSE) {
-    go build .
-}
-
-`,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.node.String()
-			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf("String mismatch (-want +got):\n%s", diff)
-			}
-		})
-	}
-}
-
 const fullSpokfile = `# This is a top level comment
 # This variable is presumably important later
 GLOBAL := "very important stuff here"
@@ -317,7 +140,7 @@ var fullSpokfileAST = Tree{
 				NodeType: NodeIdent,
 			},
 			Value: String{
-				Text:     "very important stuff here",
+				Text:     `"very important stuff here"`,
 				NodeType: NodeString,
 			},
 			NodeType: NodeAssign,
@@ -330,7 +153,7 @@ var fullSpokfileAST = Tree{
 				},
 				Arguments: []Node{
 					String{
-						Text:     "git rev-parse HEAD",
+						Text:     `"git rev-parse HEAD"`,
 						NodeType: NodeString,
 					},
 				}, NodeType: NodeFunction,
@@ -376,7 +199,7 @@ var fullSpokfileAST = Tree{
 			},
 			Dependencies: []Node{
 				String{
-					Text:     "**/*.go",
+					Text:     `"**/*.go"`,
 					NodeType: NodeString,
 				},
 			},
@@ -431,13 +254,13 @@ var fullSpokfileAST = Tree{
 			},
 			Dependencies: []Node{
 				String{
-					Text:     "**/*.go",
+					Text:     `"**/*.go"`,
 					NodeType: NodeString,
 				},
 			},
 			Outputs: []Node{
 				String{
-					Text:     "./bin/main",
+					Text:     `"./bin/main"`,
 					NodeType: NodeString,
 				},
 			},
@@ -480,11 +303,11 @@ var fullSpokfileAST = Tree{
 			Dependencies: []Node{},
 			Outputs: []Node{
 				String{
-					Text:     "output1.go",
+					Text:     `"output1.go"`,
 					NodeType: NodeString,
 				},
 				String{
-					Text:     "output2.go",
+					Text:     `"output2.go"`,
 					NodeType: NodeString,
 				},
 			},

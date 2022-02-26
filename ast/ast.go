@@ -86,7 +86,7 @@ type String struct {
 }
 
 func (s String) String() string {
-	return `"` + s.Text + `"`
+	return s.Text
 }
 
 func (s String) Write(sb *strings.Builder) {
@@ -138,11 +138,11 @@ func (c Command) Write(s *strings.Builder) {
 
 // Task holds a spok task.
 type Task struct {
-	Name         Ident
-	Docstring    Comment
-	Dependencies []Node
-	Outputs      []Node
-	Commands     []Command
+	Name         Ident     // The name of the task
+	Docstring    Comment   // Task docstring comment
+	Dependencies []Node    // Task dependencies
+	Outputs      []Node    // Task outputs
+	Commands     []Command // Shell commands to run
 	NodeType
 }
 
@@ -201,8 +201,8 @@ func (t Task) Write(s *strings.Builder) {
 
 // Function holds a spok builtin function e.g. 'exec' or 'join'.
 type Function struct {
-	Name      Ident
-	Arguments []Node
+	Name      Ident  // Function name
+	Arguments []Node // Functions arguments
 	NodeType
 }
 
