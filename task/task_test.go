@@ -1,4 +1,4 @@
-package spok
+package task
 
 import (
 	"errors"

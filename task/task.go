@@ -1,5 +1,5 @@
-// Package spok implements core spok types and behaviour e.g. tasks, file.
-package spok
+// Package task implements core spok functionality to do with it's tasks.
+package task
 
 import (
 	"errors"
