@@ -216,6 +216,33 @@ func TestNewTask(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "task with glob output",
+			want: Task{
+				Doc:               "A simple test task",
+				Name:              "simple",
+				NamedDependencies: nil,
+				FileDependencies:  nil,
+				Commands:          []string{"go test ./..."},
+				NamedOutputs:      nil,
+				FileOutputs: []string{
+					mustAbs(testdata, "top.txt"),
+					mustAbs(testdata, "sub1/sub2/blah.txt"),
+					mustAbs(testdata, "sub1/sub2/sub3/hello.txt"),
+					mustAbs(testdata, "suba/subb/stuff.txt"),
+					mustAbs(testdata, "suba/subb/subc/something.txt"),
+				},
+			},
+			in: ast.Task{
+				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
+				Docstring:    ast.Comment{Text: " A simple test task", NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{},
+				Outputs:      []ast.Node{ast.String{Text: "**/*.txt", NodeType: ast.NodeString}},
+				Commands:     []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+				NodeType:     ast.NodeTask,
+			},
+			wantErr: false,
+		},
+		{
 			name: "task with multi file output",
 			want: Task{
 				Doc:               "A simple test task",
