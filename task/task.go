@@ -34,18 +34,22 @@ func expandGlob(root, pattern string) ([]string, error) {
 
 // Task represents a spok Task.
 type Task struct {
-	Doc              string   // The task docstring
-	Name             string   // Task name
-	TaskDependencies []string // Other tasks this task depends on (by name)
-	FileDependencies []string // Filepaths this task depends on (globs expanded)
-	Commands         []string // Shell commands to run
+	Doc               string   // The task docstring
+	Name              string   // Task name
+	NamedDependencies []string // Other tasks or idents this task depends on (by name)
+	FileDependencies  []string // Filepaths this task depends on (globs expanded)
+	Commands          []string // Shell commands to run
+	NamedOutputs      []string // Other outputs by ident
+	FileOutputs       []string // Filepaths this task outputs
 }
 
 // newTask parses a task AST node into a concrete task.
 func newTask(t ast.Task, root string) (Task, error) {
 	var fileDeps []string
-	var taskDeps []string
+	var nameDeps []string
 	var commands []string
+	var fileOutputs []string
+	var nameOutputs []string
 
 	for _, dep := range t.Dependencies {
 		switch {
@@ -64,7 +68,7 @@ func newTask(t ast.Task, root string) (Task, error) {
 			}
 		case dep.Type() == ast.NodeIdent:
 			// Ident means it depends on another task
-			taskDeps = append(taskDeps, dep.String())
+			nameDeps = append(nameDeps, dep.String())
 		default:
 			return Task{}, fmt.Errorf("unknown dependency: %s", dep)
 		}
@@ -73,12 +77,38 @@ func newTask(t ast.Task, root string) (Task, error) {
 	for _, cmd := range t.Commands {
 		commands = append(commands, cmd.Command)
 	}
+
+	for _, out := range t.Outputs {
+		switch {
+		case out.Type() == ast.NodeString:
+			// String means file
+			if strings.Contains(out.String(), "*") {
+				// We have a glob pattern
+				matches, err := expandGlob(root, out.String())
+				if err != nil {
+					return Task{}, err
+				}
+				fileOutputs = append(fileOutputs, matches...)
+			} else {
+				// We have something like "file.go"
+				fileOutputs = append(fileOutputs, out.String())
+			}
+		case out.Type() == ast.NodeIdent:
+			// Ident means it outputs something named by global scope
+			nameOutputs = append(nameOutputs, out.String())
+		default:
+			return Task{}, fmt.Errorf("unknown dependency: %s", out)
+		}
+	}
+
 	task := Task{
-		Doc:              strings.TrimSpace(t.Docstring.Text),
-		Name:             t.Name.Name,
-		TaskDependencies: taskDeps,
-		FileDependencies: fileDeps,
-		Commands:         commands,
+		Doc:               strings.TrimSpace(t.Docstring.Text),
+		Name:              t.Name.Name,
+		NamedDependencies: nameDeps,
+		FileDependencies:  fileDeps,
+		Commands:          commands,
+		NamedOutputs:      nameOutputs,
+		FileOutputs:       fileOutputs,
 	}
 	return task, nil
 }
