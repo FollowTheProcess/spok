@@ -69,7 +69,7 @@ func TestNewTask(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "simple with a file dependency",
+			name: "task with a file dependency",
 			want: Task{
 				Doc:               "A simple test task",
 				Name:              "simple",
@@ -88,7 +88,7 @@ func TestNewTask(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "simple with a task dependency",
+			name: "task with a named dependency",
 			want: Task{
 				Doc:               "A simple test task",
 				Name:              "simple",
@@ -107,7 +107,7 @@ func TestNewTask(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "simple with multi file dependency",
+			name: "task with multi file dependency",
 			want: Task{
 				Doc:               "A simple test task",
 				Name:              "simple",
@@ -129,7 +129,7 @@ func TestNewTask(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "simple with multi task dependency",
+			name: "task with multi task dependency",
 			want: Task{
 				Doc:               "A simple test task",
 				Name:              "simple",
@@ -151,7 +151,7 @@ func TestNewTask(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "simple with double glob dependency",
+			name: "task with double glob dependency",
 			want: Task{
 				Doc:               "A simple test task",
 				Name:              "simple",
@@ -176,7 +176,7 @@ func TestNewTask(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "simple with single glob dependency",
+			name: "task with single glob dependency",
 			want: Task{
 				Doc:               "A simple test task",
 				Name:              "simple",
@@ -195,7 +195,7 @@ func TestNewTask(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "simple with single file output",
+			name: "task with single file output",
 			want: Task{
 				Doc:               "A simple test task",
 				Name:              "simple",
@@ -212,6 +212,75 @@ func TestNewTask(t *testing.T) {
 				Outputs:      []ast.Node{ast.String{Text: "file.go", NodeType: ast.NodeString}},
 				Commands:     []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
 				NodeType:     ast.NodeTask,
+			},
+			wantErr: false,
+		},
+		{
+			name: "task with multi file output",
+			want: Task{
+				Doc:               "A simple test task",
+				Name:              "simple",
+				NamedDependencies: nil,
+				FileDependencies:  nil,
+				Commands:          []string{"go test ./..."},
+				NamedOutputs:      nil,
+				FileOutputs:       []string{"file1.go", "file2.go"},
+			},
+			in: ast.Task{
+				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
+				Docstring:    ast.Comment{Text: " A simple test task", NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{},
+				Outputs: []ast.Node{
+					ast.String{Text: "file1.go", NodeType: ast.NodeString},
+					ast.String{Text: "file2.go", NodeType: ast.NodeString},
+				},
+				Commands: []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+				NodeType: ast.NodeTask,
+			},
+			wantErr: false,
+		},
+		{
+			name: "task with single named output",
+			want: Task{
+				Doc:               "A simple test task",
+				Name:              "simple",
+				NamedDependencies: nil,
+				FileDependencies:  nil,
+				Commands:          []string{"go test ./..."},
+				NamedOutputs:      []string{"OUT"},
+				FileOutputs:       nil,
+			},
+			in: ast.Task{
+				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
+				Docstring:    ast.Comment{Text: " A simple test task", NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{},
+				Outputs:      []ast.Node{ast.Ident{Name: "OUT", NodeType: ast.NodeIdent}},
+				Commands:     []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+				NodeType:     ast.NodeTask,
+			},
+			wantErr: false,
+		},
+		{
+			name: "task with multi named output",
+			want: Task{
+				Doc:               "A simple test task",
+				Name:              "simple",
+				NamedDependencies: nil,
+				FileDependencies:  nil,
+				Commands:          []string{"go test ./..."},
+				NamedOutputs:      []string{"OUT", "OTHER"},
+				FileOutputs:       nil,
+			},
+			in: ast.Task{
+				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
+				Docstring:    ast.Comment{Text: " A simple test task", NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{},
+				Outputs: []ast.Node{
+					ast.Ident{Name: "OUT", NodeType: ast.NodeIdent},
+					ast.Ident{Name: "OTHER", NodeType: ast.NodeIdent},
+				},
+				Commands: []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+				NodeType: ast.NodeTask,
 			},
 			wantErr: false,
 		},
