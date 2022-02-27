@@ -284,6 +284,33 @@ func TestNewTask(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "complex task with everything",
+			want: Task{
+				Doc:               "Very complex things here",
+				Name:              "complex",
+				NamedDependencies: nil,
+				FileDependencies: []string{
+					mustAbs(testdata, "top.txt"),
+					mustAbs(testdata, "sub1/sub2/blah.txt"),
+					mustAbs(testdata, "sub1/sub2/sub3/hello.txt"),
+					mustAbs(testdata, "suba/subb/stuff.txt"),
+					mustAbs(testdata, "suba/subb/subc/something.txt"),
+				},
+				Commands:     []string{"go build ."},
+				NamedOutputs: nil,
+				FileOutputs:  []string{"./bin/main"},
+			},
+			in: ast.Task{
+				Name:         ast.Ident{Name: "complex", NodeType: ast.NodeIdent},
+				Docstring:    ast.Comment{Text: " Very complex things here", NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{ast.String{Text: "**/*.txt", NodeType: ast.NodeString}},
+				Outputs:      []ast.Node{ast.String{Text: "./bin/main", NodeType: ast.NodeString}},
+				Commands:     []ast.Command{{Command: "go build .", NodeType: ast.NodeCommand}},
+				NodeType:     ast.NodeTask,
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
