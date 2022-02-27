@@ -101,6 +101,50 @@ func TestNewTask(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "simple with multi file dependency",
+			want: Task{
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
+				FileDependencies: []string{"file1.go", "file2.go"},
+				Commands:         []string{"go test ./..."},
+			},
+			in: ast.Task{
+				Name:      ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
+				Docstring: ast.Comment{Text: " A simple test task", NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{
+					ast.String{Text: "file1.go", NodeType: ast.NodeString},
+					ast.String{Text: "file2.go", NodeType: ast.NodeString},
+				},
+				Outputs:  []ast.Node{},
+				Commands: []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+				NodeType: ast.NodeTask,
+			},
+			wantErr: false,
+		},
+		{
+			name: "simple with multi task dependency",
+			want: Task{
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: []string{"fmt", "lint"},
+				FileDependencies: nil,
+				Commands:         []string{"go test ./..."},
+			},
+			in: ast.Task{
+				Name:      ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
+				Docstring: ast.Comment{Text: " A simple test task", NodeType: ast.NodeComment},
+				Dependencies: []ast.Node{
+					ast.Ident{Name: "fmt", NodeType: ast.NodeIdent},
+					ast.Ident{Name: "lint", NodeType: ast.NodeIdent},
+				},
+				Outputs:  []ast.Node{},
+				Commands: []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+				NodeType: ast.NodeTask,
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
