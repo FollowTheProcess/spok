@@ -12,18 +12,19 @@ import (
 const spokfile = "spokfile"
 
 // errNoSpokfile is what happens when spok can't find a spokfile.
-var errNoSpokfile = errors.New("no spokfile found")
+var errNoSpokfile = errors.New("No spokfile found")
 
 // File represents a concrete spokfile.
 type File struct {
 	Path  string            // The absolute path to the spokfile
-	Vars  map[string]string // Global variables in IDENT: value form
+	Vars  map[string]string // Global variables in IDENT: value form (functions already evaluated)
 	Tasks []Task            // Defined tasks
 }
 
 // find climbs the file tree from 'start' to 'stop' looking for a spokfile,
 // if it hits 'stop' before finding one, an ErrNoSpokfile will be returned
-// If a spokfile is found, it's absolute path will be returned.
+// If a spokfile is found, it's absolute path will be returned
+// typical usage will make start = $CWD and stop = $HOME.
 func find(start, stop string) (string, error) {
 	for {
 		entries, err := os.ReadDir(start)

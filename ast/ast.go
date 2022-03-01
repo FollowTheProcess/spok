@@ -207,7 +207,7 @@ type Function struct {
 }
 
 func (f Function) String() string {
-	args := []string{}
+	var args []string
 
 	for _, arg := range f.Arguments {
 		args = append(args, arg.String())
