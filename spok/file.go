@@ -1,13 +1,11 @@
-// Package file implements the core functionality to do with the spokfile.
-package file
+// Package spok implements the core functionality to do with the spokfile.
+package spok
 
 import (
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/FollowTheProcess/spok/task"
 )
 
 // Canonical spokfile filename.
@@ -20,7 +18,7 @@ var errNoSpokfile = errors.New("no spokfile found")
 type File struct {
 	Path  string            // The absolute path to the spokfile
 	Vars  map[string]string // Global variables in IDENT: value form
-	Tasks []task.Task       // Defined tasks
+	Tasks []Task            // Defined tasks
 }
 
 // find climbs the file tree from 'start' to 'stop' looking for a spokfile,

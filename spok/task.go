@@ -1,5 +1,4 @@
-// Package task implements core spok functionality to do with it's tasks.
-package task
+package spok
 
 import (
 	"fmt"
