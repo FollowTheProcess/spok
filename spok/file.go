@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/FollowTheProcess/spok/ast"
 )
 
 // Canonical spokfile filename.
@@ -46,4 +48,46 @@ func find(start, stop string) (string, error) {
 		}
 		start = filepath.Dir(start)
 	}
+}
+
+// fromTree converts a parsed spok AST into a concrete File object,
+// root is the absolute path to the directory to use as root for glob
+// expansion, typically the path to the directory the spokfile sits in.
+func fromTree(tree ast.Tree, root string) (File, error) {
+	var file File
+	file.Path = root
+	for _, node := range tree.Nodes {
+		switch {
+		case node.Type() == ast.NodeAssign:
+			assign, ok := node.(ast.Assign)
+			if !ok {
+				return File{}, fmt.Errorf("AST node has ast.NodeAssign type but could not be converted to an ast.Assign: %s", node)
+			}
+			switch {
+			case assign.Value.Type() == ast.NodeString:
+				file.Vars[assign.Name.Name] = assign.Value.String()
+
+			case assign.Value.Type() == ast.NodeFunction:
+				// TODO: This
+				panic("TODO: Builtins")
+
+			default:
+				return File{}, fmt.Errorf("Unexpected node in assignment %s: %s", assign.Value.Type(), assign.Value)
+			}
+
+		case node.Type() == ast.NodeTask:
+			taskNode, ok := node.(ast.Task)
+			if !ok {
+				return File{}, fmt.Errorf("AST node has ast.NodeTask type but could not be converted to an ast.Task: %s", node)
+			}
+
+			task, err := newTask(taskNode, root)
+			if err != nil {
+				return File{}, err
+			}
+
+			file.Tasks = append(file.Tasks, task)
+		}
+	}
+	return file, nil
 }

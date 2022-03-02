@@ -42,7 +42,9 @@ type Task struct {
 	FileOutputs       []string // Filepaths this task outputs
 }
 
-// newTask parses a task AST node into a concrete task.
+// newTask parses a task AST node into a concrete task,
+// root is the absolute path of the directory to use as the root for
+// glob expansion, typically the path to the spokfile.
 func newTask(t ast.Task, root string) (Task, error) {
 	var fileDeps []string
 	var nameDeps []string
