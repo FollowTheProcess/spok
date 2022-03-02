@@ -76,7 +76,7 @@ func TestFromTree(t *testing.T) {
 			},
 			want: File{
 				Path: testdata,
-				Vars: nil,
+				Vars: make(map[string]string),
 				Tasks: []Task{
 					{
 						Doc:      "A simple test task",
@@ -84,6 +84,51 @@ func TestFromTree(t *testing.T) {
 						Commands: []string{"go test ./..."},
 					},
 				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "just a task no docstring",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Task{
+						Name:     ast.Ident{Name: "test", NodeType: ast.NodeIdent},
+						Commands: []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+						NodeType: ast.NodeTask,
+					},
+				},
+			},
+			want: File{
+				Path: testdata,
+				Vars: make(map[string]string),
+				Tasks: []Task{
+					{
+						Name:     "test",
+						Commands: []string{"go test ./..."},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "just some globals",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Assign{
+						Value:    ast.String{Text: "hello", NodeType: ast.NodeString},
+						Name:     ast.Ident{Name: "global1", NodeType: ast.NodeIdent},
+						NodeType: ast.NodeAssign,
+					},
+					ast.Assign{
+						Value:    ast.String{Text: "hello again", NodeType: ast.NodeString},
+						Name:     ast.Ident{Name: "global2", NodeType: ast.NodeIdent},
+						NodeType: ast.NodeAssign,
+					},
+				},
+			},
+			want: File{
+				Path: testdata,
+				Vars: map[string]string{"global1": "hello", "global2": "hello again"},
 			},
 			wantErr: false,
 		},

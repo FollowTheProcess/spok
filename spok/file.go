@@ -56,6 +56,7 @@ func find(start, stop string) (string, error) {
 func fromTree(tree ast.Tree, root string) (File, error) {
 	var file File
 	file.Path = root
+	file.Vars = make(map[string]string)
 	for _, node := range tree.Nodes {
 		switch {
 		case node.Type() == ast.NodeAssign:
