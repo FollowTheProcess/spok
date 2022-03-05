@@ -66,12 +66,16 @@ func fromAST(tree ast.Tree, root string) (File, error) {
 			}
 			switch {
 			case assign.Value.Type() == ast.NodeString:
-				file.Vars[assign.Name.Name] = assign.Value.String()
+				str, ok := assign.Value.(ast.String)
+				if !ok {
+					return File{}, fmt.Errorf("AST node has ast.NodeString type but could not be converted to an ast.String: %s", assign.Value)
+				}
+				file.Vars[assign.Name.Name] = str.Text
 
 			case assign.Value.Type() == ast.NodeFunction:
 				function, ok := assign.Value.(ast.Function)
 				if !ok {
-					return File{}, fmt.Errorf("AST node has ast.NodeFunction type but could not be converted to an ast.Function: %s", node)
+					return File{}, fmt.Errorf("AST node has ast.NodeFunction type but could not be converted to an ast.Function: %s", assign.Value)
 				}
 				var args []string
 				for _, arg := range function.Arguments {

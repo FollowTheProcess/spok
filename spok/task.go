@@ -56,16 +56,20 @@ func newTask(t ast.Task, root string) (Task, error) {
 		switch {
 		case dep.Type() == ast.NodeString:
 			// String means file dependency
-			if strings.Contains(dep.String(), "*") {
+			str, ok := dep.(ast.String)
+			if !ok {
+				return Task{}, fmt.Errorf("Task dependency had type ast.NodeString but could not be converted to an ast.String: %s", dep)
+			}
+			if strings.Contains(str.Text, "*") {
 				// We have a glob pattern
-				matches, err := expandGlob(root, dep.String())
+				matches, err := expandGlob(root, str.Text)
 				if err != nil {
 					return Task{}, err
 				}
 				fileDeps = append(fileDeps, matches...)
 			} else {
 				// We have something like "file.go"
-				fileDeps = append(fileDeps, dep.String())
+				fileDeps = append(fileDeps, str.Text)
 			}
 		case dep.Type() == ast.NodeIdent:
 			// Ident means it depends on another task
@@ -83,16 +87,20 @@ func newTask(t ast.Task, root string) (Task, error) {
 		switch {
 		case out.Type() == ast.NodeString:
 			// String means file
-			if strings.Contains(out.String(), "*") {
+			str, ok := out.(ast.String)
+			if !ok {
+				return Task{}, fmt.Errorf("Task output had type ast.NodeString but could not be converted to an ast.String: %s", out)
+			}
+			if strings.Contains(str.Text, "*") {
 				// We have a glob pattern
-				matches, err := expandGlob(root, out.String())
+				matches, err := expandGlob(root, str.Text)
 				if err != nil {
 					return Task{}, err
 				}
 				fileOutputs = append(fileOutputs, matches...)
 			} else {
 				// We have something like "file.go"
-				fileOutputs = append(fileOutputs, out.String())
+				fileOutputs = append(fileOutputs, str.Text)
 			}
 		case out.Type() == ast.NodeIdent:
 			// Ident means it outputs something named by global scope

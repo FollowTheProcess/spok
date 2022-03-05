@@ -140,7 +140,7 @@ var fullSpokfileAST = Tree{
 				NodeType: NodeIdent,
 			},
 			Value: String{
-				Text:     `"very important stuff here"`,
+				Text:     "very important stuff here",
 				NodeType: NodeString,
 			},
 			NodeType: NodeAssign,
@@ -153,7 +153,7 @@ var fullSpokfileAST = Tree{
 				},
 				Arguments: []Node{
 					String{
-						Text:     `"git rev-parse HEAD"`,
+						Text:     "git rev-parse HEAD",
 						NodeType: NodeString,
 					},
 				}, NodeType: NodeFunction,
@@ -199,7 +199,7 @@ var fullSpokfileAST = Tree{
 			},
 			Dependencies: []Node{
 				String{
-					Text:     `"**/*.go"`,
+					Text:     "**/*.go",
 					NodeType: NodeString,
 				},
 			},
@@ -254,13 +254,13 @@ var fullSpokfileAST = Tree{
 			},
 			Dependencies: []Node{
 				String{
-					Text:     `"**/*.go"`,
+					Text:     "**/*.go",
 					NodeType: NodeString,
 				},
 			},
 			Outputs: []Node{
 				String{
-					Text:     `"./bin/main"`,
+					Text:     "./bin/main",
 					NodeType: NodeString,
 				},
 			},
@@ -303,11 +303,11 @@ var fullSpokfileAST = Tree{
 			Dependencies: []Node{},
 			Outputs: []Node{
 				String{
-					Text:     `"output1.go"`,
+					Text:     "output1.go",
 					NodeType: NodeString,
 				},
 				String{
-					Text:     `"output2.go"`,
+					Text:     "output2.go",
 					NodeType: NodeString,
 				},
 			},

@@ -86,7 +86,7 @@ type String struct {
 }
 
 func (s String) String() string {
-	return s.Text
+	return `"` + s.Text + `"`
 }
 
 func (s String) Write(sb *strings.Builder) {
