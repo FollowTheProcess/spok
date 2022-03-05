@@ -2,8 +2,8 @@ package spok
 
 import "path/filepath"
 
-// Join joins any number of path elements into a single path, separating
-// the elements with the OS specific separator.
-func Join(parts ...string) string {
-	return filepath.Join(parts...)
+type builtin func(...string) (string, error)
+
+var builtins = map[string]builtin{
+	"join": func(parts ...string) (string, error) { return filepath.Join(parts...), nil },
 }

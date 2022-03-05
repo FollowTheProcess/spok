@@ -132,6 +132,31 @@ func TestFromTree(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "globals with join builtin",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Assign{
+						Value: ast.Function{
+							Name: ast.Ident{Name: "join", NodeType: ast.NodeIdent},
+							Arguments: []ast.Node{
+								ast.String{Text: "path", NodeType: ast.NodeString},
+								ast.String{Text: "parts", NodeType: ast.NodeString},
+								ast.String{Text: "more", NodeType: ast.NodeString},
+							},
+							NodeType: ast.NodeFunction,
+						},
+						Name:     ast.Ident{Name: "global1", NodeType: ast.NodeIdent},
+						NodeType: ast.NodeAssign,
+					},
+				},
+			},
+			want: File{
+				Path: testdata,
+				Vars: map[string]string{"global1": filepath.Join("path", "parts", "more")},
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {

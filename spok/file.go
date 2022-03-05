@@ -69,8 +69,28 @@ func fromTree(tree ast.Tree, root string) (File, error) {
 				file.Vars[assign.Name.Name] = assign.Value.String()
 
 			case assign.Value.Type() == ast.NodeFunction:
-				// TODO: This
-				panic("TODO: Builtins")
+				function, ok := assign.Value.(ast.Function)
+				if !ok {
+					return File{}, fmt.Errorf("AST node has ast.NodeFunction type but could not be converted to an ast.Function: %s", node)
+				}
+				var args []string
+				for _, arg := range function.Arguments {
+					a, success := arg.(ast.String)
+					if !success {
+						return File{}, fmt.Errorf("Non string argument: %s", arg)
+					}
+					args = append(args, a.Text)
+				}
+				fn, ok := builtins[function.Name.Name]
+				if !ok {
+					return File{}, fmt.Errorf("Builtin function undefined: %s", function.Name.Name)
+				}
+				val, err := fn(args...)
+				if err != nil {
+					return File{}, fmt.Errorf("Builtin function %s returned an error: %s", function.Name.Name, err)
+				}
+				// Assign the value to the variable
+				file.Vars[assign.Name.Name] = val
 
 			default:
 				return File{}, fmt.Errorf("Unexpected node in assignment %s: %s", assign.Value.Type(), assign.Value)
