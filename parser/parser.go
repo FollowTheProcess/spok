@@ -143,10 +143,13 @@ func (p *Parser) parseIdent(ident token.Token) ast.Ident {
 	}
 }
 
-// parseString parses a string token into a string ast node.
+// parseString parses a string token into a string ast node,
+// note, the lexer produces a string token with the quotes still in
+// e.g. `"hello"`, parseString will remove additional quotes so that the
+// string stored inside ast.String is a true native go string e.g. "hello".
 func (p *Parser) parseString(s token.Token) ast.String {
 	return ast.String{
-		Text:     s.Value,
+		Text:     strings.ReplaceAll(s.Value, `"`, ""),
 		NodeType: ast.NodeString,
 	}
 }

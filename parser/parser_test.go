@@ -72,7 +72,7 @@ func TestEOF(t *testing.T) {
 
 func TestExpect(t *testing.T) {
 	p := &Parser{
-		lexer:     &testLexer{stream: []token.Token{newToken(token.STRING, "hello"), tEOF}},
+		lexer:     &testLexer{stream: []token.Token{newToken(token.STRING, `"hello"`), tEOF}},
 		buffer:    [3]token.Token{},
 		peekCount: 0,
 	}
@@ -83,7 +83,7 @@ func TestExpect(t *testing.T) {
 	}
 
 	// No line or position info because it's our fake lexer but this is where it would go
-	want := "Illegal Token: \"hello\" (Line 0). Expected 'IDENT'\n\n0 |\t"
+	want := "Illegal Token: [STRING] \"hello\" (Line 0). Expected 'IDENT'\n\n0 |\t"
 	if err.Error() != want {
 		t.Errorf("Wrong error message: got %#v, wanted %#v", err.Error(), want)
 	}
@@ -135,7 +135,7 @@ func TestParseFunction(t *testing.T) {
 			stream: []token.Token{
 				newToken(token.IDENT, "exec"),
 				tLParen,
-				newToken(token.STRING, "git rev-parse HEAD"),
+				newToken(token.STRING, `"git rev-parse HEAD"`),
 				tRParen,
 				tEOF,
 			},
@@ -161,7 +161,7 @@ func TestParseFunction(t *testing.T) {
 				tLParen,
 				newToken(token.IDENT, "ROOT"),
 				tComma,
-				newToken(token.STRING, "docs"),
+				newToken(token.STRING, `"docs"`),
 				tRParen,
 				tEOF,
 			},
@@ -191,7 +191,7 @@ func TestParseFunction(t *testing.T) {
 				// Should be an LParen here
 				newToken(token.IDENT, "ROOT"),
 				tComma,
-				newToken(token.STRING, "docs"),
+				newToken(token.STRING, `"docs"`),
 				tRParen,
 				tEOF,
 			},
@@ -205,7 +205,7 @@ func TestParseFunction(t *testing.T) {
 				tLParen,
 				newToken(token.IDENT, "ROOT"),
 				tComma,
-				newToken(token.STRING, "docs"),
+				newToken(token.STRING, `"docs"`),
 				newToken(token.ERROR, "beep boop"),
 				tRParen,
 				tEOF,
@@ -220,7 +220,7 @@ func TestParseFunction(t *testing.T) {
 				tLParen,
 				newToken(token.IDENT, "ROOT"),
 				tComma,
-				newToken(token.STRING, "docs"),
+				newToken(token.STRING, `"docs"`),
 				newToken(token.TASK, "I dont belong here"),
 				tRParen,
 				tEOF,
@@ -235,7 +235,7 @@ func TestParseFunction(t *testing.T) {
 				tLParen,
 				newToken(token.IDENT, "ROOT"),
 				tComma,
-				newToken(token.STRING, "docs"),
+				newToken(token.STRING, `"docs"`),
 			},
 			want:    ast.Function{},
 			wantErr: true,
@@ -274,7 +274,7 @@ func TestParseAssign(t *testing.T) {
 			stream: []token.Token{
 				newToken(token.IDENT, "GLOBAL"),
 				tDeclare,
-				newToken(token.STRING, "hello"),
+				newToken(token.STRING, `"hello"`),
 				tEOF,
 			},
 			want: ast.Assign{
@@ -306,7 +306,7 @@ func TestParseAssign(t *testing.T) {
 				tDeclare,
 				newToken(token.IDENT, "exec"),
 				tLParen,
-				newToken(token.STRING, "git rev-parse HEAD"),
+				newToken(token.STRING, `"git rev-parse HEAD"`),
 				tRParen,
 				tEOF,
 			},
@@ -454,7 +454,7 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				tRParen,
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
@@ -524,9 +524,9 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				tComma,
-				newToken(token.STRING, "file2.go"),
+				newToken(token.STRING, `"file2.go"`),
 				tRParen,
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
@@ -606,7 +606,7 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				tComma,
 				newToken(token.IDENT, "FILE"),
 				tRParen,
@@ -647,10 +647,10 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "**/*.go"),
+				newToken(token.STRING, `"**/*.go"`),
 				tRParen,
 				tOutput,
-				newToken(token.STRING, "./bin/main"),
+				newToken(token.STRING, `"./bin/main"`),
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
 				tRBrace,
@@ -689,7 +689,7 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "**/*.go"),
+				newToken(token.STRING, `"**/*.go"`),
 				tRParen,
 				tOutput,
 				newToken(token.IDENT, "BIN"),
@@ -731,15 +731,15 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "**/*.go"),
+				newToken(token.STRING, `"**/*.go"`),
 				tRParen,
 				tOutput,
 				tLParen,
-				newToken(token.STRING, "output1"),
+				newToken(token.STRING, `"output1"`),
 				tComma,
-				newToken(token.STRING, "output2"),
+				newToken(token.STRING, `"output2"`),
 				tComma,
-				newToken(token.STRING, "output3"),
+				newToken(token.STRING, `"output3"`),
 				tRParen,
 				tLBrace,
 				newToken(token.COMMAND, "go build"),
@@ -787,7 +787,7 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "**/*.go"),
+				newToken(token.STRING, `"**/*.go"`),
 				tRParen,
 				tOutput,
 				tLParen,
@@ -843,11 +843,11 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "**/*.go"),
+				newToken(token.STRING, `"**/*.go"`),
 				tRParen,
 				tOutput,
 				tLParen,
-				newToken(token.STRING, "output1"),
+				newToken(token.STRING, `"output1"`),
 				tComma,
 				newToken(token.IDENT, "SOMETHING"),
 				tRParen,
@@ -895,13 +895,13 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "complex"),
 				tLParen,
-				newToken(token.STRING, "**/*.go"),
+				newToken(token.STRING, `"**/*.go"`),
 				tComma,
 				newToken(token.IDENT, "fmt"),
 				tRParen,
 				tOutput,
 				tLParen,
-				newToken(token.STRING, "./bin/main"),
+				newToken(token.STRING, `"./bin/main"`),
 				tComma,
 				newToken(token.IDENT, "SOMETHINGELSE"),
 				tRParen,
@@ -964,7 +964,7 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				tComma,
 				newToken(token.HASH, "#"), // This isn't allowed
 				tRParen,
@@ -982,7 +982,7 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				tRParen,
 				tOutput,
 				newToken(token.HASH, "#"), // This isn't allowed
@@ -1000,7 +1000,7 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				tRParen,
 				tOutput,
 				newToken(token.ERROR, "beep boop"),
@@ -1018,11 +1018,11 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				tRParen,
 				tOutput,
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				tComma,
 				newToken(token.HASH, "#"), // This isn't allowed
 				tRParen,
@@ -1040,11 +1040,11 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				tRParen,
 				tOutput,
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				newToken(token.ERROR, "beep boop"),
 				tRParen,
 				tLBrace,
@@ -1061,11 +1061,11 @@ func TestParseTask(t *testing.T) {
 				tTask,
 				newToken(token.IDENT, "build"),
 				// Should be an LParen here
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				tRParen,
 				tOutput,
 				tLParen,
-				newToken(token.STRING, "file.go"),
+				newToken(token.STRING, `"file.go"`),
 				newToken(token.ERROR, "beep boop"),
 				tRParen,
 				tLBrace,
@@ -1198,7 +1198,7 @@ func TestParserErrorHandling(t *testing.T) {
 		},
 		{
 			name:    "task no curlies",
-			message: "Illegal Token: EOF (Line 0). Expected '{'\n\n0 |\t",
+			message: "Illegal Token: [EOF]  (Line 0). Expected '{'\n\n0 |\t",
 			stream: []token.Token{
 				tTask,
 				newToken(token.IDENT, "test"),
@@ -1259,11 +1259,11 @@ func TestParserErrorHandling(t *testing.T) {
 				// parseAssign will call expect on a ':=' here
 				newToken(token.IDENT, "OOPS"),
 			},
-			message: "Illegal Token: \"OOPS\" (Line 0). Expected ':='\n\n0 |\t",
+			message: "Illegal Token: [IDENT] OOPS (Line 0). Expected ':='\n\n0 |\t",
 		},
 		{
 			name:    "parser unexpected top level token",
-			stream:  []token.Token{newToken(token.STRING, "Unexpected")},
+			stream:  []token.Token{newToken(token.STRING, `"Unexpected"`)},
 			message: "Illegal Token: \"Unexpected\" (Line 0). Expected one of ['#', 'IDENT', 'task']\n\n0 |\t",
 		},
 	}
@@ -1391,7 +1391,7 @@ task moar_things() -> ("output1.go", "output2.go") {
 }
 
 task no_comment() {
-	do more stuff
+	some more stuff
 }
 
 # Generate output from a variable
@@ -1495,7 +1495,7 @@ var fullSpokfileStream = []token.Token{
 	tLParen,
 	tRParen,
 	tLBrace,
-	newToken(token.COMMAND, "do more stuff"),
+	newToken(token.COMMAND, "some more stuff"),
 	tRBrace,
 	tHash,
 	newToken(token.COMMENT, " Generate output from a variable"),
@@ -1544,7 +1544,7 @@ var fullSpokfileAST = ast.Tree{
 				NodeType: ast.NodeIdent,
 			},
 			Value: ast.String{
-				Text:     `"very important stuff here"`,
+				Text:     "very important stuff here",
 				NodeType: ast.NodeString,
 			},
 			NodeType: ast.NodeAssign,
@@ -1557,7 +1557,7 @@ var fullSpokfileAST = ast.Tree{
 				},
 				Arguments: []ast.Node{
 					ast.String{
-						Text:     `"git rev-parse HEAD"`,
+						Text:     "git rev-parse HEAD",
 						NodeType: ast.NodeString,
 					},
 				}, NodeType: ast.NodeFunction,
@@ -1603,7 +1603,7 @@ var fullSpokfileAST = ast.Tree{
 			},
 			Dependencies: []ast.Node{
 				ast.String{
-					Text:     `"**/*.go"`,
+					Text:     "**/*.go",
 					NodeType: ast.NodeString,
 				},
 			},
@@ -1658,13 +1658,13 @@ var fullSpokfileAST = ast.Tree{
 			},
 			Dependencies: []ast.Node{
 				ast.String{
-					Text:     `"**/*.go"`,
+					Text:     "**/*.go",
 					NodeType: ast.NodeString,
 				},
 			},
 			Outputs: []ast.Node{
 				ast.String{
-					Text:     `"./bin/main"`,
+					Text:     "./bin/main",
 					NodeType: ast.NodeString,
 				},
 			},
@@ -1707,11 +1707,11 @@ var fullSpokfileAST = ast.Tree{
 			Dependencies: []ast.Node{},
 			Outputs: []ast.Node{
 				ast.String{
-					Text:     `"output1.go"`,
+					Text:     "output1.go",
 					NodeType: ast.NodeString,
 				},
 				ast.String{
-					Text:     `"output2.go"`,
+					Text:     "output2.go",
 					NodeType: ast.NodeString,
 				},
 			},
@@ -1733,7 +1733,7 @@ var fullSpokfileAST = ast.Tree{
 			Outputs:      []ast.Node{},
 			Commands: []ast.Command{
 				{
-					Command:  "do more stuff",
+					Command:  "some more stuff",
 					NodeType: ast.NodeCommand,
 				},
 			},
@@ -1837,7 +1837,7 @@ func TestParserErrorsIntegration(t *testing.T) {
 		{
 			name:  "task no curlies",
 			input: `task test("file.go")`,
-			err:   "Illegal Token: EOF (Line 1). Expected '{'\n\n1 |\ttask test(\"file.go\")",
+			err:   "Illegal Token: [EOF]  (Line 1). Expected '{'\n\n1 |\ttask test(\"file.go\")",
 		},
 	}
 

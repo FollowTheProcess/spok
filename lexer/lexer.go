@@ -583,7 +583,9 @@ func lexDeclare(l *Lexer) lexFn {
 	}
 }
 
-// lexString scans a quoted string, the opening quote is already known to exist.
+// lexString scans a quoted string, the opening quote is already known to exist,
+// the emitted string token will always contain the quotes i.e. the token value
+// in go-ish syntax will be `"hello"`, not simply "hello".
 func lexString(l *Lexer) lexFn {
 	for {
 		r := l.next()
