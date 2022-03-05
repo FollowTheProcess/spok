@@ -157,11 +157,59 @@ func TestFromTree(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "globals with exec builtin",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Assign{
+						Value: ast.Function{
+							Name: ast.Ident{Name: "exec", NodeType: ast.NodeIdent},
+							Arguments: []ast.Node{
+								ast.String{Text: "echo", NodeType: ast.NodeString},
+								ast.String{Text: "hello", NodeType: ast.NodeString},
+							},
+							NodeType: ast.NodeFunction,
+						},
+						Name:     ast.Ident{Name: "global1", NodeType: ast.NodeIdent},
+						NodeType: ast.NodeAssign,
+					},
+				},
+			},
+			want: File{
+				Path: testdata,
+				Vars: map[string]string{"global1": "hello"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "globals with exec builtin error",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Assign{
+						Value: ast.Function{
+							Name: ast.Ident{Name: "exec", NodeType: ast.NodeIdent},
+							Arguments: []ast.Node{
+								ast.String{Text: "exit", NodeType: ast.NodeString},
+								ast.String{Text: "1", NodeType: ast.NodeString},
+							},
+							NodeType: ast.NodeFunction,
+						},
+						Name:     ast.Ident{Name: "global1", NodeType: ast.NodeIdent},
+						NodeType: ast.NodeAssign,
+					},
+				},
+			},
+			want: File{
+				Path: "",
+				Vars: nil,
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := fromTree(tt.tree, testdata)
+			got, err := fromAST(tt.tree, testdata)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("fromTree() err = %v, wantErr = %v", err, tt.wantErr)
 			}
