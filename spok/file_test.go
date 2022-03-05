@@ -182,6 +182,50 @@ func TestFromTree(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "globals with exec builtin single arg",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Assign{
+						Value: ast.Function{
+							Name: ast.Ident{Name: "exec", NodeType: ast.NodeIdent},
+							Arguments: []ast.Node{
+								ast.String{Text: "echo", NodeType: ast.NodeString},
+							},
+							NodeType: ast.NodeFunction,
+						},
+						Name:     ast.Ident{Name: "global1", NodeType: ast.NodeIdent},
+						NodeType: ast.NodeAssign,
+					},
+				},
+			},
+			want: File{
+				Path: testdata,
+				Vars: map[string]string{"global1": ""},
+			},
+			wantErr: false,
+		},
+		{
+			name: "globals with exec builtin no arg",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Assign{
+						Value: ast.Function{
+							Name:      ast.Ident{Name: "exec", NodeType: ast.NodeIdent},
+							Arguments: []ast.Node{},
+							NodeType:  ast.NodeFunction,
+						},
+						Name:     ast.Ident{Name: "global1", NodeType: ast.NodeIdent},
+						NodeType: ast.NodeAssign,
+					},
+				},
+			},
+			want: File{
+				Path: "",
+				Vars: nil,
+			},
+			wantErr: true,
+		},
+		{
 			name: "globals with exec builtin error",
 			tree: ast.Tree{
 				Nodes: []ast.Node{
@@ -191,6 +235,29 @@ func TestFromTree(t *testing.T) {
 							Arguments: []ast.Node{
 								ast.String{Text: "exit", NodeType: ast.NodeString},
 								ast.String{Text: "1", NodeType: ast.NodeString},
+							},
+							NodeType: ast.NodeFunction,
+						},
+						Name:     ast.Ident{Name: "global1", NodeType: ast.NodeIdent},
+						NodeType: ast.NodeAssign,
+					},
+				},
+			},
+			want: File{
+				Path: "",
+				Vars: nil,
+			},
+			wantErr: true,
+		},
+		{
+			name: "globals with undefined builtin",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Assign{
+						Value: ast.Function{
+							Name: ast.Ident{Name: "undefined", NodeType: ast.NodeIdent},
+							Arguments: []ast.Node{
+								ast.String{Text: "hello", NodeType: ast.NodeString},
 							},
 							NodeType: ast.NodeFunction,
 						},
