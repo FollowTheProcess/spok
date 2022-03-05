@@ -50,7 +50,7 @@ func TestFind(t *testing.T) {
 	})
 }
 
-func TestFromTree(t *testing.T) {
+func TestFromAST(t *testing.T) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("could not get cwd: %v", err)
