@@ -1,5 +1,5 @@
-// Package spok implements the core functionality to do with the spokfile.
-package spok
+// Package file implements the core functionality to do with the spokfile.
+package file
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/FollowTheProcess/spok/ast"
+	"github.com/FollowTheProcess/spok/builtins"
 	"github.com/FollowTheProcess/spok/task"
 )
 
@@ -87,7 +88,7 @@ func fromAST(tree ast.Tree, root string) (File, error) {
 					}
 					args = append(args, a.Text)
 				}
-				fn, ok := builtins[function.Name.Name]
+				fn, ok := builtins.Get(function.Name.Name)
 				if !ok {
 					return File{}, fmt.Errorf("Builtin function undefined: %s", function.Name.Name)
 				}

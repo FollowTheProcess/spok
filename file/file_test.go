@@ -1,4 +1,4 @@
-package spok
+package file
 
 import (
 	"errors"

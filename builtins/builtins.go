@@ -1,4 +1,7 @@
-package spok
+// Package builtins implements the built in functions supported by spok,
+// it also exports functions which other packages may use to retrieve and call a builtin
+// function by name.
+package builtins
 
 import (
 	"bytes"
@@ -11,11 +14,12 @@ import (
 	"github.com/google/shlex"
 )
 
-// builtin is a spok built in function.
-type builtin func(...string) (string, error)
+// Builtin is a spok built in function.
+type Builtin func(...string) (string, error)
 
-// package scoped map mapping the names of the builtins to their underlying function.
-var builtins = map[string]builtin{
+// read-only package scoped map mapping the names of the builtins to their underlying function
+// client packages access this through the Get function below.
+var builtins = map[string]Builtin{
 	"join": join,
 	"exec": execute,
 }
@@ -55,4 +59,15 @@ func execute(command ...string) (string, error) {
 	}
 
 	return strings.TrimSpace(stdout.String()), nil
+}
+
+// Get looks up a builtin function by name, it returns the Builtin and a bool
+// indicating whether or not it was found in the same way that item, ok is used
+// for maps.
+func Get(name string) (Builtin, bool) {
+	fn, ok := builtins[name]
+	if !ok {
+		return nil, false
+	}
+	return fn, true
 }
