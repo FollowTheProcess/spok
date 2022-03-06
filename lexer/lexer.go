@@ -18,7 +18,7 @@
 //
 // In lexing/parsing, the error checking complexity is always kept somewhere. Spok has made the choice that the lexer
 // should do much of the syntax error handling as it has the most direct access to the raw input as well as the positions,
-// characters etc. The approach the stateful "lexFunctions" helps enable this as every lexing function "knows where it is"
+// characters etc. The approach of stateful "lexFunctions" helps enable this as every lexing function "knows where it is"
 // in the language, improving the quality of the error messages. The lexer handling most of the error complexity has helped
 // to keep the parser very simple which I think is a good trade off and the test cases for the parser already far outweigh
 // that of the lexer.
@@ -37,7 +37,7 @@ import (
 // when asked to by it's NextToken method, this includes our actual Lexer
 // defined below but can be readily stubbed out for testing e.g. the parser.
 type Tokeniser interface {
-	NextToken() token.Token
+	NextToken() token.Token // Yield a single Token
 }
 
 // lexFn represents the state of the scanner as a function that returns the next state.

@@ -374,6 +374,35 @@ func BenchmarkExpandGlob(b *testing.B) {
 	}
 }
 
+func BenchmarkNewTask(b *testing.B) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		b.Fatalf("could not get cwd: %v", err)
+	}
+
+	root, err := filepath.Abs(filepath.Join(cwd, "testdata"))
+	if err != nil {
+		b.Fatalf("could not resolve root: %v", err)
+	}
+
+	input := ast.Task{
+		Name:         ast.Ident{Name: "complex", NodeType: ast.NodeIdent},
+		Docstring:    ast.Comment{Text: " Very complex things here", NodeType: ast.NodeComment},
+		Dependencies: []ast.Node{ast.String{Text: "**/*.txt", NodeType: ast.NodeString}},
+		Outputs:      []ast.Node{ast.String{Text: "./bin/main", NodeType: ast.NodeString}},
+		Commands:     []ast.Command{{Command: "go build .", NodeType: ast.NodeCommand}},
+		NodeType:     ast.NodeTask,
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := newTask(input, root)
+		if err != nil {
+			b.Fatalf("newTask returned an error: %v", err)
+		}
+	}
+}
+
 // mustAbs returns the resolved 'path' or panics if it cannot.
 func mustAbs(root, path string) string {
 	abs, err := filepath.Abs(filepath.Join(root, path))

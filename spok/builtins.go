@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/google/shlex"
 )
 
 // builtin is a spok built in function.
@@ -28,13 +30,17 @@ func join(parts ...string) (string, error) {
 // returns a non-zero exit code, this will be reported as an error and the stderr of the
 // underlying command will be included in the error message.
 func execute(command ...string) (string, error) {
-	if len(command) == 0 {
-		return "", errors.New("exec requires at least 1 argument")
+	if len(command) != 1 {
+		return "", errors.New("exec takes the shell command as a single string argument")
+	}
+	com, err := shlex.Split(command[0])
+	if err != nil {
+		return "", fmt.Errorf("could not split command into parts: %w", err)
 	}
 	var cmd *exec.Cmd
-	bin := command[0]
-	if len(command) > 1 {
-		args := command[1:]
+	bin := com[0]
+	if len(com) > 1 {
+		args := com[1:]
 		cmd = exec.Command(bin, args...)
 	} else {
 		cmd = exec.Command(bin)
@@ -45,7 +51,7 @@ func execute(command ...string) (string, error) {
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		return "", fmt.Errorf("command %v exited with a non-zero exit code, stderr: %s", command, stderr.String())
+		return "", fmt.Errorf("command %v exited with a non-zero exit code.\nstdout: %s\nstderr: %s", command, stdout.String(), stderr.String())
 	}
 
 	return strings.TrimSpace(stdout.String()), nil
