@@ -20,6 +20,34 @@ func TestBuiltins(t *testing.T) {
 			args:    []string{"hello", "filepath", "parts"},
 			wantErr: false,
 		},
+		{
+			fn:      execute,
+			name:    "exec",
+			want:    "hello",
+			args:    []string{"echo hello"}, // exec takes a single string
+			wantErr: false,
+		},
+		{
+			fn:      execute,
+			name:    "exec more than 1 arg",
+			want:    "",
+			args:    []string{"echo hello", "uh oh"},
+			wantErr: true,
+		},
+		{
+			fn:      execute,
+			name:    "exec non-zero exit code",
+			want:    "",
+			args:    []string{"exit 1"},
+			wantErr: true,
+		},
+		{
+			fn:      execute,
+			name:    "exec single arg",
+			want:    "",
+			args:    []string{"echo"},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {

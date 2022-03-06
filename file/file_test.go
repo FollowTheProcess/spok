@@ -57,7 +57,7 @@ func TestFromAST(t *testing.T) {
 	tests := []struct {
 		name    string
 		tree    ast.Tree
-		want    File
+		want    SpokFile
 		wantErr bool
 	}{
 		{
@@ -72,7 +72,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: File{
+			want: SpokFile{
 				Path: testdata,
 				Vars: make(map[string]string),
 				Tasks: []task.Task{
@@ -96,7 +96,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: File{
+			want: SpokFile{
 				Path: testdata,
 				Vars: make(map[string]string),
 				Tasks: []task.Task{
@@ -124,7 +124,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: File{
+			want: SpokFile{
 				Path: testdata,
 				Vars: map[string]string{"global1": "hello", "global2": "hello again"},
 			},
@@ -149,7 +149,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: File{
+			want: SpokFile{
 				Path: testdata,
 				Vars: map[string]string{"global1": filepath.Join("path", "parts", "more")},
 			},
@@ -172,7 +172,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: File{
+			want: SpokFile{
 				Path: testdata,
 				Vars: map[string]string{"global1": "hello"},
 			},
@@ -195,7 +195,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: File{
+			want: SpokFile{
 				Path: testdata,
 				Vars: map[string]string{"global1": ""},
 			},
@@ -216,7 +216,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: File{
+			want: SpokFile{
 				Path: "",
 				Vars: nil,
 			},
@@ -239,7 +239,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: File{
+			want: SpokFile{
 				Path: "",
 				Vars: nil,
 			},
@@ -262,7 +262,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: File{
+			want: SpokFile{
 				Path: "",
 				Vars: nil,
 			},
@@ -568,7 +568,7 @@ var fullSpokfileAST = ast.Tree{
 }
 
 // spokFileWant is the expected concrete spok.File object when the above AST is concretised.
-var spokFileWant = File{
+var spokFileWant = SpokFile{
 	Path: getTestdata(),
 	Vars: map[string]string{
 		"GLOBAL":     "very important stuff here",

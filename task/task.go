@@ -49,10 +49,10 @@ type Task struct {
 // glob expansion, typically the path to the spokfile.
 func New(t ast.Task, root string) (Task, error) {
 	var fileDeps []string
-	var nameDeps []string
+	var namedDeps []string
 	var commands []string
 	var fileOutputs []string
-	var nameOutputs []string
+	var namedOutputs []string
 
 	for _, dep := range t.Dependencies {
 		switch {
@@ -75,7 +75,7 @@ func New(t ast.Task, root string) (Task, error) {
 			}
 		case dep.Type() == ast.NodeIdent:
 			// Ident means it depends on another task
-			nameDeps = append(nameDeps, dep.String())
+			namedDeps = append(namedDeps, dep.String())
 		default:
 			return Task{}, fmt.Errorf("unknown dependency: %s", dep)
 		}
@@ -106,7 +106,7 @@ func New(t ast.Task, root string) (Task, error) {
 			}
 		case out.Type() == ast.NodeIdent:
 			// Ident means it outputs something named by global scope
-			nameOutputs = append(nameOutputs, out.String())
+			namedOutputs = append(namedOutputs, out.String())
 		default:
 			return Task{}, fmt.Errorf("unknown dependency: %s", out)
 		}
@@ -115,10 +115,10 @@ func New(t ast.Task, root string) (Task, error) {
 	task := Task{
 		Doc:               strings.TrimSpace(t.Docstring.Text),
 		Name:              t.Name.Name,
-		NamedDependencies: nameDeps,
+		NamedDependencies: namedDeps,
 		FileDependencies:  fileDeps,
 		Commands:          commands,
-		NamedOutputs:      nameOutputs,
+		NamedOutputs:      namedOutputs,
 		FileOutputs:       fileOutputs,
 	}
 	return task, nil
