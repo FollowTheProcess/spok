@@ -298,6 +298,7 @@ func TestFromAST(t *testing.T) {
 // that it's designed to hit the testdata directory so all globs point to .txt files
 // and commands that would otherwise return different things each time e.g. git rev-parse HEAD
 // have been changed to be consistent over time e.g. echo "hello".
+var testdata = getTestdata()
 var fullSpokfileAST = ast.Tree{
 	Nodes: []ast.Node{
 		ast.Comment{
@@ -362,90 +363,90 @@ var fullSpokfileAST = ast.Tree{
 			},
 			NodeType: ast.NodeTask,
 		},
-		// ast.Task{
-		// 	Name: ast.Ident{
-		// 		Name:     "fmt",
-		// 		NodeType: ast.NodeIdent,
-		// 	},
-		// 	Docstring: ast.Comment{
-		// 		Text:     " Format the project source",
-		// 		NodeType: ast.NodeComment,
-		// 	},
-		// 	Dependencies: []ast.Node{
-		// 		ast.String{
-		// 			Text:     "**/*.txt",
-		// 			NodeType: ast.NodeString,
-		// 		},
-		// 	},
-		// 	Outputs: []ast.Node{},
-		// 	Commands: []ast.Command{
-		// 		{
-		// 			Command:  "go fmt ./...",
-		// 			NodeType: ast.NodeCommand,
-		// 		},
-		// 	},
-		// 	NodeType: ast.NodeTask,
-		// },
-		// ast.Task{
-		// 	Name: ast.Ident{
-		// 		Name:     "many",
-		// 		NodeType: ast.NodeIdent,
-		// 	},
-		// 	Docstring: ast.Comment{
-		// 		Text:     " Do many things",
-		// 		NodeType: ast.NodeComment,
-		// 	},
-		// 	Dependencies: []ast.Node{},
-		// 	Outputs:      []ast.Node{},
-		// 	Commands: []ast.Command{
-		// 		{
-		// 			Command:  "line 1",
-		// 			NodeType: ast.NodeCommand,
-		// 		},
-		// 		{
-		// 			Command:  "line 2",
-		// 			NodeType: ast.NodeCommand,
-		// 		},
-		// 		{
-		// 			Command:  "line 3",
-		// 			NodeType: ast.NodeCommand,
-		// 		},
-		// 		{
-		// 			Command:  "line 4",
-		// 			NodeType: ast.NodeCommand,
-		// 		},
-		// 	},
-		// 	NodeType: ast.NodeTask,
-		// },
-		// ast.Task{
-		// 	Name: ast.Ident{
-		// 		Name:     "build",
-		// 		NodeType: ast.NodeIdent,
-		// 	},
-		// 	Docstring: ast.Comment{
-		// 		Text:     " Compile the project",
-		// 		NodeType: ast.NodeComment,
-		// 	},
-		// 	Dependencies: []ast.Node{
-		// 		ast.String{
-		// 			Text:     "**/*.txt",
-		// 			NodeType: ast.NodeString,
-		// 		},
-		// 	},
-		// 	Outputs: []ast.Node{
-		// 		ast.String{
-		// 			Text:     "./bin/main",
-		// 			NodeType: ast.NodeString,
-		// 		},
-		// 	},
-		// 	Commands: []ast.Command{
-		// 		{
-		// 			Command:  `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`,
-		// 			NodeType: ast.NodeCommand,
-		// 		},
-		// 	},
-		// 	NodeType: ast.NodeTask,
-		// },
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "fmt",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Format the project source",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{
+				ast.String{
+					Text:     "**/*.txt",
+					NodeType: ast.NodeString,
+				},
+			},
+			Outputs: []ast.Node{},
+			Commands: []ast.Command{
+				{
+					Command:  "go fmt ./...",
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "many",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Do many things",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{},
+			Outputs:      []ast.Node{},
+			Commands: []ast.Command{
+				{
+					Command:  "line 1",
+					NodeType: ast.NodeCommand,
+				},
+				{
+					Command:  "line 2",
+					NodeType: ast.NodeCommand,
+				},
+				{
+					Command:  "line 3",
+					NodeType: ast.NodeCommand,
+				},
+				{
+					Command:  "line 4",
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "build",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Compile the project",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{
+				ast.String{
+					Text:     "**/*.txt",
+					NodeType: ast.NodeString,
+				},
+			},
+			Outputs: []ast.Node{
+				ast.String{
+					Text:     "./bin/main",
+					NodeType: ast.NodeString,
+				},
+			},
+			Commands: []ast.Command{
+				{
+					Command:  `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`,
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
 		// ast.Task{
 		// 	Name: ast.Ident{
 		// 		Name:     "show",
@@ -580,6 +581,50 @@ var spokFileWant = File{
 			Commands:          []string{"go test -race ./..."},
 			NamedOutputs:      nil,
 			FileOutputs:       nil,
+		},
+		{
+			Doc:               "Format the project source",
+			Name:              "fmt",
+			NamedDependencies: nil,
+			FileDependencies: []string{
+				mustAbs(testdata, "top.txt"),
+				mustAbs(testdata, "sub1/sub2/blah.txt"),
+				mustAbs(testdata, "sub1/sub2/sub3/hello.txt"),
+				mustAbs(testdata, "suba/subb/stuff.txt"),
+				mustAbs(testdata, "suba/subb/subc/something.txt"),
+			},
+			Commands:     []string{"go fmt ./..."},
+			NamedOutputs: nil,
+			FileOutputs:  nil,
+		},
+		{
+			Doc:               "Do many things",
+			Name:              "many",
+			NamedDependencies: nil,
+			FileDependencies:  nil,
+			Commands: []string{
+				"line 1",
+				"line 2",
+				"line 3",
+				"line 4",
+			},
+			NamedOutputs: nil,
+			FileOutputs:  nil,
+		},
+		{
+			Doc:               "Compile the project",
+			Name:              "build",
+			NamedDependencies: nil,
+			FileDependencies: []string{
+				mustAbs(testdata, "top.txt"),
+				mustAbs(testdata, "sub1/sub2/blah.txt"),
+				mustAbs(testdata, "sub1/sub2/sub3/hello.txt"),
+				mustAbs(testdata, "suba/subb/stuff.txt"),
+				mustAbs(testdata, "suba/subb/subc/something.txt"),
+			},
+			Commands:     []string{`go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`},
+			NamedOutputs: nil,
+			FileOutputs:  []string{"./bin/main"},
 		},
 	},
 }
