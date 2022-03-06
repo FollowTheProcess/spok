@@ -228,8 +228,7 @@ func TestFromAST(t *testing.T) {
 						Value: ast.Function{
 							Name: ast.Ident{Name: "exec", NodeType: ast.NodeIdent},
 							Arguments: []ast.Node{
-								ast.String{Text: "exit", NodeType: ast.NodeString},
-								ast.String{Text: "1", NodeType: ast.NodeString},
+								ast.String{Text: "exit 1", NodeType: ast.NodeString},
 							},
 							NodeType: ast.NodeFunction,
 						},
