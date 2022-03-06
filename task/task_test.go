@@ -1,4 +1,4 @@
-package spok
+package task
 
 import (
 	"fmt"
@@ -342,7 +342,7 @@ func TestNewTask(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := newTask(tt.in, testdata) // Initialise root at testdata
+			got, err := New(tt.in, testdata) // Initialise root at testdata
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("newTask() err = %v, wanted %v", err, tt.wantErr)
 			}
@@ -396,7 +396,7 @@ func BenchmarkNewTask(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := newTask(input, root)
+		_, err := New(input, root)
 		if err != nil {
 			b.Fatalf("newTask returned an error: %v", err)
 		}

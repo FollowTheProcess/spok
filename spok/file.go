@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/FollowTheProcess/spok/ast"
+	"github.com/FollowTheProcess/spok/task"
 )
 
 // Canonical spokfile filename.
@@ -20,7 +21,7 @@ var errNoSpokfile = errors.New("No spokfile found")
 type File struct {
 	Path  string            // The absolute path to the spokfile
 	Vars  map[string]string // Global variables in IDENT: value form (functions already evaluated)
-	Tasks []Task            // Defined tasks
+	Tasks []task.Task       // Defined tasks
 }
 
 // find climbs the file tree from 'start' to 'stop' looking for a spokfile,
@@ -107,7 +108,7 @@ func fromAST(tree ast.Tree, root string) (File, error) {
 				return File{}, fmt.Errorf("AST node has ast.NodeTask type but could not be converted to an ast.Task: %s", node)
 			}
 
-			task, err := newTask(taskNode, root)
+			task, err := task.New(taskNode, root)
 			if err != nil {
 				return File{}, err
 			}

@@ -1,4 +1,6 @@
-package spok
+// Package task handles core spok functionality related to the processing of declared
+// tasks e.g. expanding glob patterns, parsing from an ast node etc.
+package task
 
 import (
 	"fmt"
@@ -42,10 +44,10 @@ type Task struct {
 	FileOutputs       []string // Filepaths this task outputs
 }
 
-// newTask parses a task AST node into a concrete task,
+// New parses a task AST node into a concrete task,
 // root is the absolute path of the directory to use as the root for
 // glob expansion, typically the path to the spokfile.
-func newTask(t ast.Task, root string) (Task, error) {
+func New(t ast.Task, root string) (Task, error) {
 	var fileDeps []string
 	var nameDeps []string
 	var commands []string

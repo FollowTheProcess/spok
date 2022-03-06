@@ -2,11 +2,13 @@ package spok
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
+	"github.com/FollowTheProcess/spok/task"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -73,7 +75,7 @@ func TestFromAST(t *testing.T) {
 			want: File{
 				Path: testdata,
 				Vars: make(map[string]string),
-				Tasks: []Task{
+				Tasks: []task.Task{
 					{
 						Doc:      "A simple test task",
 						Name:     "test",
@@ -97,7 +99,7 @@ func TestFromAST(t *testing.T) {
 			want: File{
 				Path: testdata,
 				Vars: make(map[string]string),
-				Tasks: []Task{
+				Tasks: []task.Task{
 					{
 						Name:     "test",
 						Commands: []string{"go test ./..."},
@@ -572,7 +574,7 @@ var spokFileWant = File{
 		"GLOBAL":     "very important stuff here",
 		"GIT_COMMIT": "hello",
 	},
-	Tasks: []Task{
+	Tasks: []task.Task{
 		{
 			Doc:               "Run the project unit tests",
 			Name:              "test",
@@ -653,4 +655,13 @@ func getTestdata() string {
 	}
 	testdata := filepath.Join(cwd, "testdata")
 	return testdata
+}
+
+// mustAbs returns the resolved 'path' or panics if it cannot.
+func mustAbs(root, path string) string {
+	abs, err := filepath.Abs(filepath.Join(root, path))
+	if err != nil {
+		panic(fmt.Sprintf("mustAbs could not resolve '%s'", filepath.Join(root, path)))
+	}
+	return abs
 }
