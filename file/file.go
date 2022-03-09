@@ -78,6 +78,9 @@ func fromAST(tree ast.Tree, root string) (SpokFile, error) {
 				}
 				var args []string
 				for _, arg := range function.Arguments {
+					if arg.Type() != ast.NodeString {
+						return SpokFile{}, fmt.Errorf("Spok builtin functions take only string arguments, got %s", arg.Type())
+					}
 					args = append(args, arg.Literal())
 				}
 				fn, ok := builtins.Get(function.Name.Name)
