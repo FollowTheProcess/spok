@@ -69,11 +69,7 @@ func fromAST(tree ast.Tree, root string) (SpokFile, error) {
 			}
 			switch {
 			case assign.Value.Type() == ast.NodeString:
-				str, ok := assign.Value.(ast.String)
-				if !ok {
-					return SpokFile{}, fmt.Errorf("AST node has ast.NodeString type but could not be converted to an ast.String: %s", assign.Value)
-				}
-				file.Vars[assign.Name.Name] = str.Text
+				file.Vars[assign.Name.Name] = assign.Value.Literal()
 
 			case assign.Value.Type() == ast.NodeFunction:
 				function, ok := assign.Value.(ast.Function)
@@ -82,11 +78,7 @@ func fromAST(tree ast.Tree, root string) (SpokFile, error) {
 				}
 				var args []string
 				for _, arg := range function.Arguments {
-					a, success := arg.(ast.String)
-					if !success {
-						return SpokFile{}, fmt.Errorf("Non string argument: %s", arg)
-					}
-					args = append(args, a.Text)
+					args = append(args, arg.Literal())
 				}
 				fn, ok := builtins.Get(function.Name.Name)
 				if !ok {

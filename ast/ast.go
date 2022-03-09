@@ -59,6 +59,7 @@ func (t *Tree) IsEmpty() bool {
 type Node interface {
 	Type() NodeType           // Return the type of the current node.
 	String() string           // Pretty print the node.
+	Literal() string          // The go literal representation of the node, saves us from using type conversion.
 	Write(s *strings.Builder) // Write the formatted syntax back out to a builder.
 }
 
@@ -75,6 +76,11 @@ func (c Comment) String() string {
 	return ""
 }
 
+// Literal returns the go literal version of the comment e.g. "# This is a comment".
+func (c Comment) Literal() string {
+	return c.String()
+}
+
 func (c Comment) Write(s *strings.Builder) {
 	s.WriteString(c.String())
 }
@@ -85,8 +91,14 @@ type String struct {
 	NodeType
 }
 
+// String returns the pretty representation of a string, used for printing out a spokfile during e.g. --fmt.
 func (s String) String() string {
 	return `"` + s.Text + `"`
+}
+
+// Literal returns the go literal value of the string, usable in source code e.g. "hello".
+func (s String) Literal() string {
+	return s.Text
 }
 
 func (s String) Write(sb *strings.Builder) {
@@ -100,6 +112,11 @@ type Ident struct {
 }
 
 func (i Ident) String() string {
+	return i.Name
+}
+
+// Literal returns the go representation of an Ident e.g. "GLOBAL".
+func (i Ident) Literal() string {
 	return i.Name
 }
 
@@ -118,6 +135,10 @@ func (a Assign) String() string {
 	return a.Name.String() + " := " + a.Value.String() + "\n"
 }
 
+func (a Assign) Literal() string {
+	return a.String()
+}
+
 func (a Assign) Write(s *strings.Builder) {
 	s.WriteString(a.String())
 }
@@ -129,6 +150,10 @@ type Command struct {
 }
 
 func (c Command) String() string {
+	return c.Command
+}
+
+func (c Command) Literal() string {
 	return c.Command
 }
 
@@ -195,6 +220,10 @@ func (t Task) String() string {
 	return s.String()
 }
 
+func (t Task) Literal() string {
+	return t.String()
+}
+
 func (t Task) Write(s *strings.Builder) {
 	s.WriteString(t.String())
 }
@@ -213,6 +242,10 @@ func (f Function) String() string {
 		args = append(args, arg.String())
 	}
 	return f.Name.String() + "(" + strings.Join(args, ", ") + ")" + "\n"
+}
+
+func (f Function) Literal() string {
+	return f.String()
 }
 
 func (f Function) Write(s *strings.Builder) {

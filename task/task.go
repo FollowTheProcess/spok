@@ -57,21 +57,17 @@ func New(t ast.Task, root string) (Task, error) {
 	for _, dep := range t.Dependencies {
 		switch {
 		case dep.Type() == ast.NodeString:
-			// String means file dependency
-			str, ok := dep.(ast.String)
-			if !ok {
-				return Task{}, fmt.Errorf("Task dependency had type ast.NodeString but could not be converted to an ast.String: %s", dep)
-			}
-			if strings.Contains(str.Text, "*") {
+			// String means file dependency, in which case Literal is the go representation of the string
+			if strings.Contains(dep.Literal(), "*") {
 				// We have a glob pattern
-				matches, err := expandGlob(root, str.Text)
+				matches, err := expandGlob(root, dep.Literal())
 				if err != nil {
 					return Task{}, err
 				}
 				fileDeps = append(fileDeps, matches...)
 			} else {
 				// We have something like "file.go"
-				fileDeps = append(fileDeps, str.Text)
+				fileDeps = append(fileDeps, dep.Literal())
 			}
 		case dep.Type() == ast.NodeIdent:
 			// Ident means it depends on another task
@@ -89,20 +85,16 @@ func New(t ast.Task, root string) (Task, error) {
 		switch {
 		case out.Type() == ast.NodeString:
 			// String means file
-			str, ok := out.(ast.String)
-			if !ok {
-				return Task{}, fmt.Errorf("Task output had type ast.NodeString but could not be converted to an ast.String: %s", out)
-			}
-			if strings.Contains(str.Text, "*") {
+			if strings.Contains(out.Literal(), "*") {
 				// We have a glob pattern
-				matches, err := expandGlob(root, str.Text)
+				matches, err := expandGlob(root, out.Literal())
 				if err != nil {
 					return Task{}, err
 				}
 				fileOutputs = append(fileOutputs, matches...)
 			} else {
 				// We have something like "file.go"
-				fileOutputs = append(fileOutputs, str.Text)
+				fileOutputs = append(fileOutputs, out.Literal())
 			}
 		case out.Type() == ast.NodeIdent:
 			// Ident means it outputs something named by global scope
