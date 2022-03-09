@@ -43,7 +43,7 @@ unit *flags: fmt
 
 # Run all project benchmarks
 bench: fmt
-    go test ./... -benchmem -bench .
+    go test ./... -run=None -benchmem -benchtime=5s -bench .
 
 # Generate and view a CPU/Memory profile
 pprof pkg type:
