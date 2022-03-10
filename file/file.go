@@ -104,7 +104,7 @@ func fromAST(tree ast.Tree, root string) (SpokFile, error) {
 				return SpokFile{}, fmt.Errorf("AST node has ast.NodeTask type but could not be converted to an ast.Task: %s", node)
 			}
 
-			task, err := task.New(taskNode, root)
+			task, err := task.New(taskNode, root, file.Vars)
 			if err != nil {
 				return SpokFile{}, err
 			}

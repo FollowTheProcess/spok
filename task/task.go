@@ -47,7 +47,7 @@ type Task struct {
 // New parses a task AST node into a concrete task,
 // root is the absolute path of the directory to use as the root for
 // glob expansion, typically the path to the spokfile.
-func New(t ast.Task, root string) (Task, error) {
+func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 	var fileDeps []string
 	var namedDeps []string
 	var commands []string
@@ -78,7 +78,7 @@ func New(t ast.Task, root string) (Task, error) {
 	}
 
 	for _, cmd := range t.Commands {
-		commands = append(commands, cmd.Command)
+		commands = append(commands, expandVars(cmd.Command, vars))
 	}
 
 	for _, out := range t.Outputs {
