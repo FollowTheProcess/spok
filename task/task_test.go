@@ -37,6 +37,30 @@ func TestExpandGlob(t *testing.T) {
 	}
 }
 
+func TestExpandVars(t *testing.T) {
+	tests := []struct {
+		name    string
+		vars    map[string]string
+		command string
+		want    string
+	}{
+		{
+			name:    "test",
+			vars:    map[string]string{"REPO": "https://github.com/FollowTheProcess/spok.git"},
+			command: "git clone REPO",
+			want:    "git clone https://github.com/FollowTheProcess/spok.git",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := expandVars(tt.command, tt.vars); got != tt.want {
+				t.Errorf("got %q, wanted %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestNewTask(t *testing.T) {
 	cwd, err := os.Getwd()
 	if err != nil {

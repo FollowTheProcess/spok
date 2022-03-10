@@ -115,3 +115,21 @@ func New(t ast.Task, root string) (Task, error) {
 	}
 	return task, nil
 }
+
+func expandVars(command string, vars map[string]string) string {
+	// TODO: There must be a better way than basic find and replace?
+	// this works obviously but seems kinda hacky and probably slower
+	// than it needs to be. It's fine for now but let's look at rethinking
+	// how this whole thing works, we may need to provide a token for variables
+	// and lex/parse them or something like that
+	var expanded []string
+	for _, word := range strings.Split(command, " ") {
+		if got, ok := vars[word]; ok {
+			expanded = append(expanded, got)
+		} else {
+			expanded = append(expanded, word)
+		}
+	}
+
+	return strings.Join(expanded, " ")
+}
