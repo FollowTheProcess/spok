@@ -6,6 +6,7 @@ import (
 )
 
 func TestBuiltins(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		fn      Builtin
 		name    string

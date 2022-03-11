@@ -12,6 +12,7 @@ import (
 )
 
 func TestExpandGlob(t *testing.T) {
+	t.Parallel()
 	cwd, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("could not get cwd: %v", err)
@@ -38,6 +39,7 @@ func TestExpandGlob(t *testing.T) {
 }
 
 func TestExpandVars(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		vars    map[string]string
@@ -62,6 +64,7 @@ func TestExpandVars(t *testing.T) {
 }
 
 func TestNewTask(t *testing.T) {
+	t.Parallel()
 	cwd, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("could not get cwd: %v", err)

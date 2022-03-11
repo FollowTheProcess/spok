@@ -6,6 +6,7 @@ import (
 )
 
 func TestToken_String(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		Value string
 		Type  Type
@@ -59,6 +60,7 @@ func TestToken_String(t *testing.T) {
 }
 
 func TestToken_Is(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		Value string
 		Type  Type
@@ -103,6 +105,7 @@ func TestToken_Is(t *testing.T) {
 }
 
 func TestType_String(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name string
 		want string

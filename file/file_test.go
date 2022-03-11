@@ -13,6 +13,7 @@ import (
 )
 
 func TestFind(t *testing.T) {
+	t.Parallel()
 	cwd, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("could not get cwd: %v", err)
@@ -53,6 +54,7 @@ func TestFind(t *testing.T) {
 }
 
 func TestFromAST(t *testing.T) {
+	t.Parallel()
 	testdata := getTestdata()
 	tests := []struct {
 		name    string
@@ -637,6 +639,7 @@ func TestBuildFullSpokfile(t *testing.T) {
 	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
 		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
 	}
+	t.Parallel()
 
 	got, err := fromAST(fullSpokfileAST, getTestdata())
 	if err != nil {

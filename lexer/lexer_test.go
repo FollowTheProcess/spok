@@ -952,6 +952,7 @@ func equal(t1, t2 []token.Token) bool {
 }
 
 func TestLexer(t *testing.T) {
+	t.Parallel()
 	for _, test := range lexTests {
 		t.Run(test.name, func(t *testing.T) {
 			test := test

@@ -54,6 +54,7 @@ var (
 )
 
 func TestEOF(t *testing.T) {
+	t.Parallel()
 	p := &Parser{
 		lexer:     &testLexer{stream: []token.Token{tEOF}},
 		buffer:    [3]token.Token{},
@@ -71,6 +72,7 @@ func TestEOF(t *testing.T) {
 }
 
 func TestExpect(t *testing.T) {
+	t.Parallel()
 	p := &Parser{
 		lexer:     &testLexer{stream: []token.Token{newToken(token.STRING, `"hello"`), tEOF}},
 		buffer:    [3]token.Token{},
@@ -90,6 +92,7 @@ func TestExpect(t *testing.T) {
 }
 
 func TestParseComment(t *testing.T) {
+	t.Parallel()
 	commentStream := []token.Token{tHash, newToken(token.COMMENT, " A comment"), tEOF}
 	p := &Parser{
 		lexer:  &testLexer{stream: commentStream},
@@ -106,6 +109,7 @@ func TestParseComment(t *testing.T) {
 }
 
 func TestParseIdent(t *testing.T) {
+	t.Parallel()
 	identStream := []token.Token{
 		newToken(token.IDENT, "GLOBAL"),
 		tEOF,
@@ -124,6 +128,7 @@ func TestParseIdent(t *testing.T) {
 }
 
 func TestParseFunction(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		stream  []token.Token
@@ -263,6 +268,7 @@ func TestParseFunction(t *testing.T) {
 }
 
 func TestParseAssign(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		stream  []token.Token
@@ -379,6 +385,7 @@ func TestParseAssign(t *testing.T) {
 }
 
 func TestParseTask(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		stream  []token.Token
@@ -1110,6 +1117,7 @@ func TestParseTask(t *testing.T) {
 }
 
 func TestParserErrorHandling(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		message string
@@ -1290,6 +1298,7 @@ func TestParserErrorHandling(t *testing.T) {
 // TestParseFullSpokfile tests the parser against a stream of tokens
 // indicative of a fully populated, syntactically valid spokfile.
 func TestParseFullSpokfile(t *testing.T) {
+	t.Parallel()
 	p := &Parser{
 		lexer: &testLexer{
 			stream: fullSpokfileStream,
@@ -1801,6 +1810,7 @@ func TestParserIntegration(t *testing.T) {
 	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
 		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
 	}
+	t.Parallel()
 	p := New(fullSpokfile)
 	tree, err := p.Parse()
 	if err != nil {
@@ -1818,6 +1828,7 @@ func TestParserErrorsIntegration(t *testing.T) {
 	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
 		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
 	}
+	t.Parallel()
 
 	tests := []struct {
 		name  string
@@ -1860,6 +1871,7 @@ func TestGetContext(t *testing.T) {
 	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
 		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
 	}
+	t.Parallel()
 
 	tests := []struct {
 		name  string

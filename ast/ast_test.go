@@ -7,6 +7,7 @@ import (
 )
 
 func TestAppend(t *testing.T) {
+	t.Parallel()
 	tree := Tree{
 		Nodes: []Node{
 			Comment{
@@ -37,6 +38,7 @@ func TestAppend(t *testing.T) {
 }
 
 func TestIsEmpty(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name  string
 		tree  Tree
@@ -391,6 +393,7 @@ var fullSpokfileAST = Tree{
 }
 
 func TestWriteWholeTree(t *testing.T) {
+	t.Parallel()
 	if diff := cmp.Diff(fullSpokfile, fullSpokfileAST.String()); diff != "" {
 		t.Errorf("AST mismatch (-want +got):\n%s", diff)
 	}
