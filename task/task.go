@@ -48,11 +48,13 @@ type Task struct {
 // root is the absolute path of the directory to use as the root for
 // glob expansion, typically the path to the spokfile.
 func New(t ast.Task, root string, vars map[string]string) (Task, error) {
-	var fileDeps []string
-	var namedDeps []string
-	var commands []string
-	var fileOutputs []string
-	var namedOutputs []string
+	var (
+		fileDeps     []string
+		namedDeps    []string
+		commands     []string
+		fileOutputs  []string
+		namedOutputs []string
+	)
 
 	for _, dep := range t.Dependencies {
 		switch {
@@ -116,6 +118,8 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 	return task, nil
 }
 
+// expandVars performs a find and replace on any and all declared global
+// variables in the task command.
 func expandVars(command string, vars map[string]string) string {
 	// TODO: There must be a better way than basic find and replace?
 	// this works obviously but seems kinda hacky and probably slower
