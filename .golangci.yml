@@ -3,7 +3,6 @@ linters:
     - gofmt
     - goimports
     - gocyclo
-    - gosec
     - revive
     - misspell
     - gocritic
