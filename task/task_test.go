@@ -2,9 +2,11 @@ package task
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
@@ -401,6 +403,86 @@ func TestNewTask(t *testing.T) {
 				t.Errorf("Task mismatch (-want +got):\n%s", diff)
 			}
 		})
+	}
+}
+
+func TestHashFiles(t *testing.T) {
+	files := []string{"test", "file", "me", "too"}
+	open := func(file string) (io.ReadCloser, error) {
+		return io.NopCloser(strings.NewReader("I'm some content for " + file)), nil
+	}
+	want := "99602d7b885eb92aef160ad5933c12e426534314"
+	got, err := hashFiles(files, open)
+	if err != nil {
+		t.Fatalf("hashFiles returned an error: %v", err)
+	}
+
+	if got != want {
+		t.Errorf("got %q, wanted %q", got, want)
+	}
+}
+
+func TestHashFileDeps(t *testing.T) {
+	dir, err := os.MkdirTemp(os.TempDir(), "TestHashFileDeps")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	if err = os.WriteFile(filepath.Join(dir, "test"), []byte("I'm some content for test"), 0666); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(filepath.Join(dir, "file"), []byte("I'm some content for file"), 0666); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(filepath.Join(dir, "me"), []byte("I'm some content for me"), 0666); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(filepath.Join(dir, "too"), []byte("I'm some content for too"), 0666); err != nil {
+		t.Fatal(err)
+	}
+
+	files := []string{filepath.Join(dir, "test"), filepath.Join(dir, "file"), filepath.Join(dir, "me"), filepath.Join(dir, "too")}
+
+	want := "99602d7b885eb92aef160ad5933c12e426534314"
+	got, err := HashFiles(files)
+	if err != nil {
+		t.Fatalf("hashFiles returned an error: %v", err)
+	}
+
+	if got != want {
+		t.Errorf("got %q, wanted %q", got, want)
+	}
+}
+
+func BenchmarkHashFileDeps(b *testing.B) {
+	dir, err := os.MkdirTemp(os.TempDir(), "BenchmarkHashFileDeps")
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	if err := os.WriteFile(filepath.Join(dir, "test"), []byte("I'm some content for test"), 0666); err != nil {
+		b.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "file"), []byte("I'm some content for file"), 0666); err != nil {
+		b.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "me"), []byte("I'm some content for me"), 0666); err != nil {
+		b.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "too"), []byte("I'm some content for too"), 0666); err != nil {
+		b.Fatal(err)
+	}
+
+	files := []string{filepath.Join(dir, "test"), filepath.Join(dir, "file"), filepath.Join(dir, "me"), filepath.Join(dir, "too")}
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		_, err := HashFiles(files)
+		if err != nil {
+			b.Fatalf("hashFiles returned an error: %v", err)
+		}
 	}
 }
 
