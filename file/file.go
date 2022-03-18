@@ -52,10 +52,10 @@ func find(start, stop string) (string, error) {
 	}
 }
 
-// fromAST converts a parsed spok AST into a concrete File object,
+// New converts a parsed spok AST into a concrete File object,
 // root is the absolute path to the directory to use as root for glob
 // expansion, typically the path to the directory the spokfile sits in.
-func fromAST(tree ast.Tree, root string) (SpokFile, error) {
+func New(tree ast.Tree, root string) (SpokFile, error) {
 	var file SpokFile
 	file.Path = root
 	file.Vars = make(map[string]string)

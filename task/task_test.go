@@ -126,7 +126,7 @@ func TestNewTask(t *testing.T) {
 				Doc:               "A simple test task",
 				Name:              "simple",
 				NamedDependencies: nil,
-				FileDependencies:  []string{"file.go"},
+				FileDependencies:  []string{mustAbs(testdata, "file.go")},
 				Commands:          []string{"go test ./..."},
 			},
 			in: ast.Task{
@@ -164,8 +164,11 @@ func TestNewTask(t *testing.T) {
 				Doc:               "A simple test task",
 				Name:              "simple",
 				NamedDependencies: nil,
-				FileDependencies:  []string{"file1.go", "file2.go"},
-				Commands:          []string{"go test ./..."},
+				FileDependencies: []string{
+					mustAbs(testdata, "file1.go"),
+					mustAbs(testdata, "file2.go"),
+				},
+				Commands: []string{"go test ./..."},
 			},
 			in: ast.Task{
 				Name:      ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -255,7 +258,7 @@ func TestNewTask(t *testing.T) {
 				FileDependencies:  nil,
 				Commands:          []string{"go test ./..."},
 				NamedOutputs:      nil,
-				FileOutputs:       []string{"file.go"},
+				FileOutputs:       []string{mustAbs(testdata, "file.go")},
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -303,7 +306,10 @@ func TestNewTask(t *testing.T) {
 				FileDependencies:  nil,
 				Commands:          []string{"go test ./..."},
 				NamedOutputs:      nil,
-				FileOutputs:       []string{"file1.go", "file2.go"},
+				FileOutputs: []string{
+					mustAbs(testdata, "file1.go"),
+					mustAbs(testdata, "file2.go"),
+				},
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -378,7 +384,7 @@ func TestNewTask(t *testing.T) {
 				},
 				Commands:     []string{"go build ."},
 				NamedOutputs: nil,
-				FileOutputs:  []string{"./bin/main"},
+				FileOutputs:  []string{mustAbs(testdata, "./bin/main")},
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "complex", NodeType: ast.NodeIdent},
