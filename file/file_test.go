@@ -274,7 +274,7 @@ func TestFromAST(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := fromAST(tt.tree, testdata)
+			got, err := New(tt.tree, testdata)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("fromTree() err = %v, wantErr = %v", err, tt.wantErr)
 			}
@@ -451,53 +451,53 @@ var fullSpokfileAST = ast.Tree{
 			},
 			NodeType: ast.NodeTask,
 		},
-		// ast.Task{
-		// 	Name: ast.Ident{
-		// 		Name:     "show",
-		// 		NodeType: ast.NodeIdent,
-		// 	},
-		// 	Docstring: ast.Comment{
-		// 		Text:     " Show the global variables",
-		// 		NodeType: ast.NodeComment,
-		// 	},
-		// 	Dependencies: []ast.Node{},
-		// 	Outputs:      []ast.Node{},
-		// 	Commands: []ast.Command{
-		// 		{
-		// 			Command:  "echo GLOBAL",
-		// 			NodeType: ast.NodeCommand,
-		// 		},
-		// 	},
-		// 	NodeType: ast.NodeTask,
-		// },
-		// ast.Task{
-		// 	Name: ast.Ident{
-		// 		Name:     "moar_things",
-		// 		NodeType: ast.NodeIdent,
-		// 	},
-		// 	Docstring: ast.Comment{
-		// 		Text:     " Generate multiple outputs",
-		// 		NodeType: ast.NodeComment,
-		// 	},
-		// 	Dependencies: []ast.Node{},
-		// 	Outputs: []ast.Node{
-		// 		ast.String{
-		// 			Text:     "output1.go",
-		// 			NodeType: ast.NodeString,
-		// 		},
-		// 		ast.String{
-		// 			Text:     "output2.go",
-		// 			NodeType: ast.NodeString,
-		// 		},
-		// 	},
-		// 	Commands: []ast.Command{
-		// 		{
-		// 			Command:  "do some stuff here",
-		// 			NodeType: ast.NodeCommand,
-		// 		},
-		// 	},
-		// 	NodeType: ast.NodeTask,
-		// },
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "show",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Show the global variables",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{},
+			Outputs:      []ast.Node{},
+			Commands: []ast.Command{
+				{
+					Command:  "echo GLOBAL",
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
+		ast.Task{
+			Name: ast.Ident{
+				Name:     "moar_things",
+				NodeType: ast.NodeIdent,
+			},
+			Docstring: ast.Comment{
+				Text:     " Generate multiple outputs",
+				NodeType: ast.NodeComment,
+			},
+			Dependencies: []ast.Node{},
+			Outputs: []ast.Node{
+				ast.String{
+					Text:     "output1.go",
+					NodeType: ast.NodeString,
+				},
+				ast.String{
+					Text:     "output2.go",
+					NodeType: ast.NodeString,
+				},
+			},
+			Commands: []ast.Command{
+				{
+					Command:  "do some stuff here",
+					NodeType: ast.NodeCommand,
+				},
+			},
+			NodeType: ast.NodeTask,
+		},
 		// ast.Task{
 		// 	Name: ast.Ident{
 		// 		Name:     "no_comment",
@@ -628,7 +628,28 @@ var spokFileWant = SpokFile{
 			},
 			Commands:     []string{`go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`},
 			NamedOutputs: nil,
-			FileOutputs:  []string{"./bin/main"},
+			FileOutputs:  []string{mustAbs(testdata, "./bin/main")},
+		},
+		{
+			Doc:               "Show the global variables",
+			Name:              "show",
+			NamedDependencies: nil,
+			FileDependencies:  nil,
+			Commands:          []string{"echo very important stuff here"},
+			NamedOutputs:      nil,
+			FileOutputs:       nil,
+		},
+		{
+			Doc:               "Generate multiple outputs",
+			Name:              "moar_things",
+			NamedDependencies: nil,
+			FileDependencies:  nil,
+			Commands:          []string{"do some stuff here"},
+			NamedOutputs:      nil,
+			FileOutputs: []string{
+				mustAbs(testdata, "output1.go"),
+				mustAbs(testdata, "output2.go"),
+			},
 		},
 	},
 }
@@ -641,7 +662,7 @@ func TestBuildFullSpokfile(t *testing.T) {
 	}
 	t.Parallel()
 
-	got, err := fromAST(fullSpokfileAST, getTestdata())
+	got, err := New(fullSpokfileAST, getTestdata())
 	if err != nil {
 		t.Fatalf("fromAST returned an error: %v", err)
 	}

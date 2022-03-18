@@ -72,7 +72,7 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 				fileDeps = append(fileDeps, matches...)
 			} else {
 				// We have something like "file.go"
-				fileDeps = append(fileDeps, dep.Literal())
+				fileDeps = append(fileDeps, filepath.Join(root, dep.Literal()))
 			}
 		case dep.Type() == ast.NodeIdent:
 			// Ident means it depends on another task
@@ -99,7 +99,7 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 				fileOutputs = append(fileOutputs, matches...)
 			} else {
 				// We have something like "file.go"
-				fileOutputs = append(fileOutputs, out.Literal())
+				fileOutputs = append(fileOutputs, filepath.Join(root, out.Literal()))
 			}
 		case out.Type() == ast.NodeIdent:
 			// Ident means it outputs something named by global scope
