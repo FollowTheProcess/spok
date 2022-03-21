@@ -1,6 +1,6 @@
 module github.com/FollowTheProcess/spok
 
-go 1.17
+go 1.18
 
 require (
 	github.com/FollowTheProcess/msg v0.2.0
