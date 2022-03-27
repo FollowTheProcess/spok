@@ -60,6 +60,9 @@ func New(tree ast.Tree, root string) (SpokFile, error) {
 	file.Path = root
 	file.Vars = make(map[string]string)
 
+	// Keep track of tasks we've seen already to prevent duplicates.
+	tasksSeen := make(map[string]struct{})
+
 	for _, node := range tree.Nodes {
 		switch {
 		case node.Type() == ast.NodeAssign:
@@ -109,6 +112,12 @@ func New(tree ast.Tree, root string) (SpokFile, error) {
 				return SpokFile{}, err
 			}
 
+			if _, ok := tasksSeen[task.Name]; ok {
+				return SpokFile{}, fmt.Errorf("Duplicate task: spokfile already contains task named %q, duplicate tasks not allowed", taskNode.Name.Name)
+			}
+
+			// Add the task to our "seen" map and append it to the file list of tasks
+			tasksSeen[task.Name] = struct{}{}
 			file.Tasks = append(file.Tasks, task)
 		}
 	}

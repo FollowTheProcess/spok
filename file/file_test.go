@@ -111,6 +111,27 @@ func TestFromAST(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "duplicate tasks",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Task{
+						Name:      ast.Ident{Name: "test", NodeType: ast.NodeIdent},
+						Docstring: ast.Comment{Text: " A simple test task", NodeType: ast.NodeComment},
+						Commands:  []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+						NodeType:  ast.NodeTask,
+					},
+					ast.Task{
+						Name:      ast.Ident{Name: "test", NodeType: ast.NodeIdent},
+						Docstring: ast.Comment{Text: " A duplicate test task", NodeType: ast.NodeComment},
+						Commands:  []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+						NodeType:  ast.NodeTask,
+					},
+				},
+			},
+			want:    SpokFile{},
+			wantErr: true,
+		},
+		{
 			name: "just some globals",
 			tree: ast.Tree{
 				Nodes: []ast.Node{
