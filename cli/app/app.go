@@ -16,13 +16,13 @@ type App struct {
 // Options holds all the flag options for spok, these will be at their zero values
 // if the flags were not set and the value of the flag otherwise.
 type Options struct {
-	Show      string
-	Spokfile  string
-	Variables bool
-	Fmt       bool
-	Init      bool
-	Clean     bool
-	Check     bool
+	Show      string // The --show flag
+	Spokfile  string // The --spokfile flag
+	Variables bool   // The --variables flag
+	Fmt       bool   // The --fmt flag
+	Init      bool   // The --init flag
+	Clean     bool   // The --clean flag
+	Check     bool   // The --check flag
 }
 
 // Run is the entry point to the spok program, the only arguments spok accepts are names
