@@ -1,6 +1,3 @@
-run:
-  go: "1.17" # Spok doesn't use generic code, 1.18 some linters are currently broken
-
 linters:
   enable:
     - gofmt

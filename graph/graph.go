@@ -2,23 +2,36 @@
 // topological sorting needed for spok's task dependency system.
 package graph
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/FollowTheProcess/set"
+)
 
 // Vertex represents a single node in the graph.
 type Vertex struct {
-	parents  map[string]struct{} // The direct parents of this vertex
-	children map[string]struct{} // The direct children of this vertex
-	Name     string              // Uniquely identifiable name
+	parents  *set.Set[string] // The direct parents of this vertex
+	children *set.Set[string] // The direct children of this vertex
+	Name     string           // Uniquely identifiable name
+}
+
+// NewVertex creates and returns a new Vertex.
+func NewVertex(name string) Vertex {
+	return Vertex{
+		parents:  set.New[string](),
+		children: set.New[string](),
+		Name:     name,
+	}
 }
 
 // InDegree returns the number of incoming edges to this vertex.
 func (v Vertex) InDegree() int {
-	return len(v.parents)
+	return v.parents.Length()
 }
 
 // OutDegree returns the number of outgoing edges to this vertex.
 func (v Vertex) OutDegree() int {
-	return len(v.children)
+	return v.children.Length()
 }
 
 // Graph is a DAG designed to hold spok tasks.
@@ -49,8 +62,8 @@ func (g *Graph) AddEdge(parent, child string) error {
 	}
 
 	// Create the connection
-	parentVertex.children[child] = struct{}{}
-	childVertex.parents[parent] = struct{}{}
+	parentVertex.children.Add(child)
+	childVertex.parents.Add(parent)
 
 	return nil
 }

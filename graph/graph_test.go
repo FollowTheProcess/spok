@@ -4,129 +4,9 @@ import (
 	"testing"
 )
 
-func TestVertex_InDegree(t *testing.T) {
-	tests := []struct {
-		name string
-		v    Vertex
-		want int
-	}{
-		{
-			name: "no inbound edges",
-			v: Vertex{
-				parents: make(map[string]struct{}),
-			},
-			want: 0,
-		},
-		{
-			name: "nil map",
-			v: Vertex{
-				parents: nil,
-			},
-			want: 0,
-		},
-		{
-			name: "one inbound edge",
-			v: Vertex{
-				parents: map[string]struct{}{"one": {}},
-			},
-			want: 1,
-		},
-		{
-			name: "two inbound edges",
-			v: Vertex{
-				parents: map[string]struct{}{"one": {}, "two": {}},
-			},
-			want: 2,
-		},
-		{
-			name: "5 inbound edges",
-			v: Vertex{
-				parents: map[string]struct{}{
-					"one":   {},
-					"two":   {},
-					"three": {},
-					"four":  {},
-					"five":  {},
-				},
-			},
-			want: 5,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.v.InDegree(); got != tt.want {
-				t.Errorf("got %d, wanted %d", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestVertex_OutDegree(t *testing.T) {
-	tests := []struct {
-		name string
-		v    Vertex
-		want int
-	}{
-		{
-			name: "no outbound edges",
-			v: Vertex{
-				children: make(map[string]struct{}),
-			},
-			want: 0,
-		},
-		{
-			name: "nil map",
-			v: Vertex{
-				children: nil,
-			},
-			want: 0,
-		},
-		{
-			name: "one outbound edge",
-			v: Vertex{
-				children: map[string]struct{}{"one": {}},
-			},
-			want: 1,
-		},
-		{
-			name: "two outbound edges",
-			v: Vertex{
-				children: map[string]struct{}{"one": {}, "two": {}},
-			},
-			want: 2,
-		},
-		{
-			name: "5 outbound edges",
-			v: Vertex{
-				children: map[string]struct{}{
-					"one":   {},
-					"two":   {},
-					"three": {},
-					"four":  {},
-					"five":  {},
-				},
-			},
-			want: 5,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.v.OutDegree(); got != tt.want {
-				t.Errorf("got %d, wanted %d", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestGraph_AddVertex(t *testing.T) {
 	graph := New()
-	v1 := Vertex{
-		parents:  make(map[string]struct{}),
-		children: make(map[string]struct{}),
-		Name:     "new",
-	}
+	v1 := NewVertex("new")
 
 	if len(graph.vertices) != 0 {
 		t.Errorf("New graph does not have 0 vertices, got %d", len(graph.vertices))
@@ -142,16 +22,8 @@ func TestGraph_AddVertex(t *testing.T) {
 func TestGraph_AddEdge(t *testing.T) {
 	t.Run("happy path", func(t *testing.T) {
 		graph := New()
-		v1 := Vertex{
-			parents:  make(map[string]struct{}),
-			children: make(map[string]struct{}),
-			Name:     "v1",
-		}
-		v2 := Vertex{
-			parents:  make(map[string]struct{}),
-			children: make(map[string]struct{}),
-			Name:     "v2",
-		}
+		v1 := NewVertex("v1")
+		v2 := NewVertex("v2")
 
 		graph.AddVertex(v1)
 		graph.AddVertex(v2)
@@ -171,23 +43,18 @@ func TestGraph_AddEdge(t *testing.T) {
 
 		// If connection was successful, v1 should have v2 as a child and
 		// v2 should have v1 as a parent
-		_, ok = retrievedV1.children["v2"]
-		if !ok {
+		if !retrievedV1.children.Contains("v2") {
 			t.Error("v1 did not have v2 as a child")
 		}
-		_, ok = retrievedV2.parents["v1"]
-		if !ok {
+
+		if !retrievedV2.parents.Contains("v1") {
 			t.Error("v2 did not have v1 as a parent")
 		}
 	})
 
 	t.Run("parent missing", func(t *testing.T) {
 		graph := New()
-		v2 := Vertex{
-			parents:  make(map[string]struct{}),
-			children: make(map[string]struct{}),
-			Name:     "v2",
-		}
+		v2 := NewVertex("v2")
 
 		graph.AddVertex(v2)
 
@@ -198,11 +65,7 @@ func TestGraph_AddEdge(t *testing.T) {
 
 	t.Run("child missing", func(t *testing.T) {
 		graph := New()
-		v1 := Vertex{
-			parents:  make(map[string]struct{}),
-			children: make(map[string]struct{}),
-			Name:     "v1",
-		}
+		v1 := NewVertex("v1")
 
 		graph.AddVertex(v1)
 
