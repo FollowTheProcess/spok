@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/FollowTheProcess/collections/set"
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
 	"github.com/FollowTheProcess/spok/task"
@@ -61,7 +62,7 @@ func New(tree ast.Tree, root string) (SpokFile, error) {
 	file.Vars = make(map[string]string)
 
 	// Keep track of tasks we've seen already to prevent duplicates.
-	tasksSeen := make(map[string]struct{})
+	tasksSeen := set.New[string]()
 
 	for _, node := range tree.Nodes {
 		switch {
@@ -112,12 +113,12 @@ func New(tree ast.Tree, root string) (SpokFile, error) {
 				return SpokFile{}, err
 			}
 
-			if _, ok := tasksSeen[task.Name]; ok {
-				return SpokFile{}, fmt.Errorf("Duplicate task: spokfile already contains task named %q, duplicate tasks not allowed", taskNode.Name.Name)
+			if tasksSeen.Contains(task.Name) {
+				return SpokFile{}, fmt.Errorf("Duplicate task: spokfile already contains task named %q, duplicate tasks not allowed", task.Name)
 			}
 
 			// Add the task to our "seen" map and append it to the file list of tasks
-			tasksSeen[task.Name] = struct{}{}
+			tasksSeen.Add(task.Name)
 			file.Tasks = append(file.Tasks, task)
 		}
 	}
