@@ -5,7 +5,7 @@ package graph
 import (
 	"fmt"
 
-	"github.com/FollowTheProcess/set"
+	"github.com/FollowTheProcess/collections/set"
 )
 
 // Vertex represents a single node in the graph.

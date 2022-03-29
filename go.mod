@@ -3,8 +3,8 @@ module github.com/FollowTheProcess/spok
 go 1.18
 
 require (
+	github.com/FollowTheProcess/collections v0.1.0
 	github.com/FollowTheProcess/msg v0.2.0
-	github.com/FollowTheProcess/set v0.1.0
 	github.com/MakeNowJust/heredoc/v2 v2.0.1
 	github.com/bmatcuk/doublestar/v4 v4.0.2
 	github.com/fatih/color v1.13.0
