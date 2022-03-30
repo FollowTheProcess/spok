@@ -10,16 +10,16 @@ import (
 
 // Vertex represents a single node in the graph.
 type Vertex struct {
-	parents  *set.Set[string] // The direct parents of this vertex
-	children *set.Set[string] // The direct children of this vertex
+	parents  *set.Set[Vertex] // The direct parents of this vertex
+	children *set.Set[Vertex] // The direct children of this vertex
 	Name     string           // Uniquely identifiable name
 }
 
 // NewVertex creates and returns a new Vertex.
 func NewVertex(name string) Vertex {
 	return Vertex{
-		parents:  set.New[string](),
-		children: set.New[string](),
+		parents:  set.New[Vertex](),
+		children: set.New[Vertex](),
 		Name:     name,
 	}
 }
@@ -51,14 +51,14 @@ func (g *Graph) AddVertex(v Vertex) {
 }
 
 // AddEdge creates an edge connection from parent to child vertices.
-func (g *Graph) AddEdge(parent, child string) error {
-	parentVertex, ok := g.vertices[parent]
+func (g *Graph) AddEdge(parent, child Vertex) error {
+	parentVertex, ok := g.vertices[parent.Name]
 	if !ok {
-		return fmt.Errorf("parent vertex %q not in graph", parent)
+		return fmt.Errorf("parent vertex %q not in graph", parent.Name)
 	}
-	childVertex, ok := g.vertices[child]
+	childVertex, ok := g.vertices[child.Name]
 	if !ok {
-		return fmt.Errorf("child vertex %q not in graph", child)
+		return fmt.Errorf("child vertex %q not in graph", child.Name)
 	}
 
 	// Create the connection

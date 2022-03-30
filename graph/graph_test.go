@@ -28,7 +28,7 @@ func TestGraph_AddEdge(t *testing.T) {
 		graph.AddVertex(v1)
 		graph.AddVertex(v2)
 
-		if err := graph.AddEdge(v1.Name, v2.Name); err != nil {
+		if err := graph.AddEdge(v1, v2); err != nil {
 			t.Fatalf("AddEdge returned an error: %v", err)
 		}
 
@@ -43,11 +43,11 @@ func TestGraph_AddEdge(t *testing.T) {
 
 		// If connection was successful, v1 should have v2 as a child and
 		// v2 should have v1 as a parent
-		if !retrievedV1.children.Contains("v2") {
+		if !retrievedV1.children.Contains(v2) {
 			t.Error("v1 did not have v2 as a child")
 		}
 
-		if !retrievedV2.parents.Contains("v1") {
+		if !retrievedV2.parents.Contains(v1) {
 			t.Error("v2 did not have v1 as a parent")
 		}
 	})
@@ -58,7 +58,7 @@ func TestGraph_AddEdge(t *testing.T) {
 
 		graph.AddVertex(v2)
 
-		if err := graph.AddEdge("parent", v2.Name); err == nil {
+		if err := graph.AddEdge(NewVertex("v1"), v2); err == nil {
 			t.Error("expected an error, got nil")
 		}
 	})
@@ -69,7 +69,7 @@ func TestGraph_AddEdge(t *testing.T) {
 
 		graph.AddVertex(v1)
 
-		if err := graph.AddEdge(v1.Name, "child"); err == nil {
+		if err := graph.AddEdge(v1, NewVertex("v2")); err == nil {
 			t.Error("expected an error, got nil")
 		}
 	})
