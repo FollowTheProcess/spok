@@ -23,7 +23,7 @@ func expandGlob(root, pattern string) ([]string, error) {
 		return nil, fmt.Errorf("could not expand glob pattern '%s': %w", filepath.Join(root, pattern), err)
 	}
 
-	var absMatches []string
+	absMatches := make([]string, 0, len(matches))
 	for _, match := range matches {
 		joined := filepath.Join(root, match)
 		abs, err := filepath.Abs(joined)

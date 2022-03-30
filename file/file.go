@@ -80,7 +80,7 @@ func New(tree ast.Tree, root string) (SpokFile, error) {
 				if !ok {
 					return SpokFile{}, fmt.Errorf("AST node has ast.NodeFunction type but could not be converted to an ast.Function: %s", assign.Value)
 				}
-				var args []string
+				args := make([]string, 0, len(function.Arguments))
 				for _, arg := range function.Arguments {
 					if arg.Type() != ast.NodeString {
 						return SpokFile{}, fmt.Errorf("Spok builtin functions take only string arguments, got %s", arg.Type())

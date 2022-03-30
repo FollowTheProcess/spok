@@ -174,8 +174,9 @@ type Task struct {
 func (t Task) String() string {
 	s := strings.Builder{}
 	s.Grow(250) // An average spok task has about 250 characters
-	var deps []string
-	var commands []string
+
+	deps := make([]string, 0, len(t.Dependencies))
+	commands := make([]string, 0, len(t.Commands))
 
 	if len(t.Dependencies) != 0 {
 		for _, dep := range t.Dependencies {
@@ -203,7 +204,7 @@ func (t Task) String() string {
 			s.WriteString(t.Outputs[0].String())
 		default:
 			s.WriteString("(")
-			outs := []string{}
+			outs := make([]string, 0, len(t.Outputs))
 			for _, output := range t.Outputs {
 				outs = append(outs, output.String())
 			}
@@ -236,7 +237,7 @@ type Function struct {
 }
 
 func (f Function) String() string {
-	var args []string
+	args := make([]string, 0, len(f.Arguments))
 
 	for _, arg := range f.Arguments {
 		args = append(args, arg.String())
