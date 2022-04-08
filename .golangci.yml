@@ -15,7 +15,7 @@ linters-settings:
     min-complexity: 15
 
   staticcheck:
-    go: "1.17"
+    go: "1.18"
     checks: ["all"]
 
   govet:
