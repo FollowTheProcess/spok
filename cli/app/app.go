@@ -5,6 +5,11 @@ package app
 import (
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
+
+	"github.com/FollowTheProcess/spok/file"
+	"github.com/FollowTheProcess/spok/parser"
 )
 
 // App represents the spok program.
@@ -28,6 +33,21 @@ type Options struct {
 // Run is the entry point to the spok program, the only arguments spok accepts are names
 // of tasks, all other logic is handled via flags.
 func (a *App) Run(tasks []string) error {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+
+	spokfilePath, err := file.Find(cwd, home)
+	if err != nil {
+		return err
+	}
+
 	switch {
 	case a.Options.Fmt:
 		fmt.Fprintln(a.Out, "Format spokfile")
@@ -42,7 +62,32 @@ func (a *App) Run(tasks []string) error {
 	case a.Options.Check:
 		fmt.Fprintln(a.Out, "Check spokfile for syntax errors")
 	default:
-		fmt.Fprintf(a.Out, "Running tasks: %v\n", tasks)
+		switch len(tasks) {
+		case 0:
+			// No tasks provided, show defined tasks and exit
+			fmt.Fprintln(a.Out, "No tasks specified, show defined tasks")
+			contents, err := os.ReadFile(spokfilePath)
+			if err != nil {
+				return err
+			}
+
+			tree, err := parser.New(string(contents)).Parse()
+			if err != nil {
+				return err
+			}
+
+			spokfile, err := file.New(tree, filepath.Dir(spokfilePath))
+			if err != nil {
+				return err
+			}
+
+			for _, task := range spokfile.Tasks {
+				fmt.Fprintln(a.Out, task.Name)
+			}
+
+		default:
+			fmt.Fprintf(a.Out, "Running tasks: %v\n", tasks)
+		}
 	}
 
 	return nil

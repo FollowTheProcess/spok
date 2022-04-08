@@ -26,11 +26,11 @@ type SpokFile struct {
 	Tasks []task.Task       // Defined tasks
 }
 
-// find climbs the file tree from 'start' to 'stop' looking for a spokfile,
+// Find climbs the file tree from 'start' to 'stop' looking for a spokfile,
 // if it hits 'stop' before finding one, an errNoSpokfile will be returned
 // If a spokfile is found, it's absolute path will be returned
 // typical usage will make start = $CWD and stop = $HOME.
-func find(start, stop string) (string, error) {
+func Find(start, stop string) (string, error) {
 	for {
 		entries, err := os.ReadDir(start)
 		if err != nil {

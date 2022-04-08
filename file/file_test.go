@@ -28,7 +28,7 @@ func TestFind(t *testing.T) {
 			t.Fatal("could not resolve want")
 		}
 
-		path, err := find(start, stop)
+		path, err := Find(start, stop)
 		if err != nil {
 			t.Fatalf("find returned an error: %v", err)
 		}
@@ -42,7 +42,7 @@ func TestFind(t *testing.T) {
 		start := filepath.Join(cwd, "testdata", "sub1", "sub2", "sub3")
 		stop := filepath.Join(cwd, "testdata")
 
-		_, err := find(start, stop)
+		_, err := Find(start, stop)
 		if err == nil {
 			t.Fatal("expected ErrNoSpokfile, got nil")
 		}
