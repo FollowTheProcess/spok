@@ -15,27 +15,6 @@ import (
 	"github.com/bmatcuk/doublestar/v4"
 )
 
-// expandGlob expands out the glob pattern from root and returns all the matches,
-// the matches are made absolute before returning, root should be absolute.
-func expandGlob(root, pattern string) ([]string, error) {
-	matches, err := doublestar.Glob(os.DirFS(root), pattern)
-	if err != nil {
-		return nil, fmt.Errorf("could not expand glob pattern '%s': %w", filepath.Join(root, pattern), err)
-	}
-
-	absMatches := make([]string, 0, len(matches))
-	for _, match := range matches {
-		joined := filepath.Join(root, match)
-		abs, err := filepath.Abs(joined)
-		if err != nil {
-			return nil, fmt.Errorf("could not resolve path '%s' to absolute: %w", joined, err)
-		}
-		absMatches = append(absMatches, abs)
-	}
-
-	return absMatches, nil
-}
-
 // Task represents a spok Task.
 type Task struct {
 	Doc               string   // The task docstring
@@ -175,4 +154,25 @@ func hashFiles(files []string, open func(string) (io.ReadCloser, error)) (string
 	}
 
 	return hex.EncodeToString(hash.Sum(nil)), nil
+}
+
+// expandGlob expands out the glob pattern from root and returns all the matches,
+// the matches are made absolute before returning, root should be absolute.
+func expandGlob(root, pattern string) ([]string, error) {
+	matches, err := doublestar.Glob(os.DirFS(root), pattern)
+	if err != nil {
+		return nil, fmt.Errorf("could not expand glob pattern '%s': %w", filepath.Join(root, pattern), err)
+	}
+
+	absMatches := make([]string, 0, len(matches))
+	for _, match := range matches {
+		joined := filepath.Join(root, match)
+		abs, err := filepath.Abs(joined)
+		if err != nil {
+			return nil, fmt.Errorf("could not resolve path '%s' to absolute: %w", joined, err)
+		}
+		absMatches = append(absMatches, abs)
+	}
+
+	return absMatches, nil
 }
