@@ -7,9 +7,13 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/FollowTheProcess/spok/file"
 	"github.com/FollowTheProcess/spok/parser"
+	"github.com/FollowTheProcess/spok/task"
+	"github.com/fatih/color"
+	"github.com/juju/ansiterm/tabwriter"
 )
 
 // App represents the spok program.
@@ -48,6 +52,21 @@ func (a *App) Run(tasks []string) error {
 		return err
 	}
 
+	contents, err := os.ReadFile(spokfilePath)
+	if err != nil {
+		return err
+	}
+
+	tree, err := parser.New(string(contents)).Parse()
+	if err != nil {
+		return err
+	}
+
+	spokfile, err := file.New(tree, filepath.Dir(spokfilePath))
+	if err != nil {
+		return err
+	}
+
 	switch {
 	case a.Options.Fmt:
 		fmt.Fprintln(a.Out, "Format spokfile")
@@ -65,30 +84,30 @@ func (a *App) Run(tasks []string) error {
 		switch len(tasks) {
 		case 0:
 			// No tasks provided, show defined tasks and exit
-			fmt.Fprintln(a.Out, "No tasks specified, show defined tasks")
-			contents, err := os.ReadFile(spokfilePath)
-			if err != nil {
-				return err
-			}
-
-			tree, err := parser.New(string(contents)).Parse()
-			if err != nil {
-				return err
-			}
-
-			spokfile, err := file.New(tree, filepath.Dir(spokfilePath))
-			if err != nil {
-				return err
-			}
-
-			for _, task := range spokfile.Tasks {
-				fmt.Fprintln(a.Out, task.Name)
-			}
-
+			return a.showTasks(spokfile)
 		default:
 			fmt.Fprintf(a.Out, "Running tasks: %v\n", tasks)
 		}
 	}
 
 	return nil
+}
+
+// show Tasks shows a pretty representation of the defined tasks and their
+// docstrings in alphabetical order.
+func (a *App) showTasks(spokfile file.SpokFile) error {
+	writer := tabwriter.NewWriter(a.Out, 0, 8, 1, '\t', tabwriter.AlignRight)
+
+	titleStyle := color.New(color.FgHiWhite, color.Bold)
+	taskStyle := color.New(color.FgHiCyan, color.Bold)
+	descStyle := color.New(color.FgHiBlack, color.Italic)
+
+	sort.Sort(task.ByName(spokfile.Tasks))
+	fmt.Fprintf(a.Out, "Tasks defined in %s:\n", spokfile.Path)
+	titleStyle.Fprintln(writer, "Name\tDescription")
+
+	for _, task := range spokfile.Tasks {
+		fmt.Fprintln(writer, fmt.Sprintf("%s\t%s", taskStyle.Sprint(task.Name), descStyle.Sprint(task.Doc)))
+	}
+	return writer.Flush()
 }
