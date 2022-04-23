@@ -75,7 +75,7 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: testdata,
+				Path: filepath.Join(testdata, "spokfile"),
 				Vars: make(map[string]string),
 				Tasks: []task.Task{
 					{
@@ -99,7 +99,7 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: testdata,
+				Path: filepath.Join(testdata, "spokfile"),
 				Vars: make(map[string]string),
 				Tasks: []task.Task{
 					{
@@ -148,7 +148,7 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: testdata,
+				Path: filepath.Join(testdata, "spokfile"),
 				Vars: map[string]string{"global1": "hello", "global2": "hello again"},
 			},
 			wantErr: false,
@@ -173,7 +173,7 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: testdata,
+				Path: filepath.Join(testdata, "spokfile"),
 				Vars: map[string]string{"global1": filepath.Join("path", "parts", "more")},
 			},
 			wantErr: false,
@@ -196,7 +196,7 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: testdata,
+				Path: filepath.Join(testdata, "spokfile"),
 				Vars: map[string]string{"global1": "hello"},
 			},
 			wantErr: false,
@@ -219,7 +219,7 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: testdata,
+				Path: filepath.Join(testdata, "spokfile"),
 				Vars: map[string]string{"global1": ""},
 			},
 			wantErr: false,
@@ -592,7 +592,7 @@ var fullSpokfileAST = ast.Tree{
 
 // spokFileWant is the expected concrete spok.File object when the above AST is concretised.
 var spokFileWant = SpokFile{
-	Path: getTestdata(),
+	Path: filepath.Join(getTestdata(), "spokfile"),
 	Vars: map[string]string{
 		"GLOBAL":     "very important stuff here",
 		"GIT_COMMIT": "hello",

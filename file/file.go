@@ -58,7 +58,7 @@ func Find(start, stop string) (string, error) {
 // expansion, typically the path to the directory the spokfile sits in.
 func New(tree ast.Tree, root string) (SpokFile, error) {
 	var file SpokFile
-	file.Path = root
+	file.Path = filepath.Join(root, spokfile)
 	file.Vars = make(map[string]string)
 
 	// Keep track of tasks we've seen already to prevent duplicates.
