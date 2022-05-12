@@ -107,7 +107,8 @@ func (a *App) showTasks(spokfile file.SpokFile) error {
 	titleStyle.Fprintln(writer, "Name\tDescription")
 
 	for _, task := range spokfile.Tasks {
-		fmt.Fprintln(writer, fmt.Sprintf("%s\t%s", taskStyle.Sprint(task.Name), descStyle.Sprint(task.Doc)))
+		line := fmt.Sprintf("%s\t%s\n", taskStyle.Sprint(task.Name), descStyle.Sprint(task.Doc))
+		fmt.Fprint(writer, line)
 	}
 	return writer.Flush()
 }
