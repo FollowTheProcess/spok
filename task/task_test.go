@@ -50,16 +50,20 @@ func TestExpandVars(t *testing.T) {
 		want    string
 	}{
 		{
-			name:    "test",
+			name:    "simple",
 			vars:    map[string]string{"REPO": "https://github.com/FollowTheProcess/spok.git"},
-			command: "git clone REPO",
+			command: "git clone {{.REPO}}",
 			want:    "git clone https://github.com/FollowTheProcess/spok.git",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := expandVars(tt.command, tt.vars); got != tt.want {
+			got, err := expandVars(tt.command, tt.vars)
+			if err != nil {
+				t.Errorf("expandVars returned an error: %v", err)
+			}
+			if got != tt.want {
 				t.Errorf("got %q, wanted %q", got, tt.want)
 			}
 		})
@@ -113,7 +117,7 @@ func TestNewTask(t *testing.T) {
 				Docstring:    ast.Comment{Text: " A simple test task with global variables", NodeType: ast.NodeComment},
 				Dependencies: []ast.Node{},
 				Outputs:      []ast.Node{},
-				Commands:     []ast.Command{{Command: "go test GLOBAL", NodeType: ast.NodeCommand}},
+				Commands:     []ast.Command{{Command: "go test {{.GLOBAL}}", NodeType: ast.NodeCommand}},
 				NodeType:     ast.NodeTask,
 			},
 			vars: map[string]string{

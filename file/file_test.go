@@ -485,7 +485,7 @@ var fullSpokfileAST = ast.Tree{
 			Outputs:      []ast.Node{},
 			Commands: []ast.Command{
 				{
-					Command:  "echo GLOBAL",
+					Command:  "echo {{.GLOBAL}}",
 					NodeType: ast.NodeCommand,
 				},
 			},
