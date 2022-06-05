@@ -603,7 +603,7 @@ var lexTests = []lexTest{
 	},
 	{
 		name:  "task with interpolation",
-		input: `task test("file.go") { echo GLOBAL_VARIABLE }`,
+		input: `task test("file.go") { echo {{GLOBAL_VARIABLE}} }`,
 		tokens: []token.Token{
 			tTask,
 			newToken(token.IDENT, "test"),
@@ -611,7 +611,26 @@ var lexTests = []lexTest{
 			newToken(token.STRING, `"file.go"`),
 			tRParen,
 			tLBrace,
-			newToken(token.COMMAND, "echo GLOBAL_VARIABLE"),
+			newToken(token.COMMAND, "echo {{GLOBAL_VARIABLE}}"),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
+		name: "task with interpolation multiple lines",
+		input: `task test("file.go") {
+			echo {{GLOBAL_VARIABLE}}
+			echo {{ANOTHER_ONE}}
+		}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"file.go"`),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, "echo {{GLOBAL_VARIABLE}}"),
+			newToken(token.COMMAND, "echo {{ANOTHER_ONE}}"),
 			tRBrace,
 			tEOF,
 		},
@@ -1010,7 +1029,7 @@ task build("**/*.go") -> "./bin/main" {
 
 # Show the global variables
 task show() {
-	echo GLOBAL
+	echo {{.GLOBAL}}
 }
 
 # Generate multiple outputs
@@ -1098,7 +1117,7 @@ var fullSpokfileStream = []token.Token{
 	tLParen,
 	tRParen,
 	tLBrace,
-	newToken(token.COMMAND, "echo GLOBAL"),
+	newToken(token.COMMAND, "echo {{.GLOBAL}}"),
 	tRBrace,
 	tHash,
 	newToken(token.COMMENT, " Generate multiple outputs"),

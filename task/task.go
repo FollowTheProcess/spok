@@ -3,6 +3,7 @@
 package task
 
 import (
+	"bytes"
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/bmatcuk/doublestar/v4"
@@ -62,7 +64,11 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 	}
 
 	for _, cmd := range t.Commands {
-		commands = append(commands, expandVars(cmd.Command, vars))
+		expanded, err := expandVars(cmd.Command, vars)
+		if err != nil {
+			return Task{}, err
+		}
+		commands = append(commands, expanded)
 	}
 
 	for _, out := range t.Outputs {
@@ -100,24 +106,20 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 	return task, nil
 }
 
-// expandVars performs a find and replace on any and all declared global
-// variables in the task command.
-func expandVars(command string, vars map[string]string) string {
-	// TODO: There must be a better way than basic find and replace?
-	// this works obviously but seems kinda hacky and probably slower
-	// than it needs to be. It's fine for now but let's look at rethinking
-	// how this whole thing works, we may need to provide a token for variables
-	// and lex/parse them or something like that
-	var expanded []string
-	for _, word := range strings.Split(command, " ") {
-		if got, ok := vars[word]; ok {
-			expanded = append(expanded, got)
-		} else {
-			expanded = append(expanded, word)
-		}
+// expandVars performs a find and replace on any templated variables in
+// a command, using the provided variables map.
+func expandVars(command string, vars map[string]string) (string, error) {
+	tmp := template.New("tmp")
+	parsed, err := tmp.Parse(command)
+	if err != nil {
+		return "", err
+	}
+	out := &bytes.Buffer{}
+	if err := parsed.Execute(out, vars); err != nil {
+		return "", err
 	}
 
-	return strings.Join(expanded, " ")
+	return out.String(), nil
 }
 
 // HashFiles takes a list of absolute filepaths e.g. a task's file dependencies,

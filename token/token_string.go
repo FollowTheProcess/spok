@@ -24,11 +24,14 @@ func _() {
 	_ = x[OUTPUT-13]
 	_ = x[IDENT-14]
 	_ = x[DECLARE-15]
+	_ = x[LINTERP-16]
+	_ = x[RINTERP-17]
+	_ = x[INTERPBLOCK-18]
 }
 
-const _Type_name = "EOFERRORCOMMENT#(){}\",taskSTRINGCOMMAND->IDENT:="
+const _Type_name = "EOFERRORCOMMENT#(){}\",taskSTRINGCOMMAND->IDENT:={{}}INTERPBLOCK"
 
-var _Type_index = [...]uint8{0, 3, 8, 15, 16, 17, 18, 19, 20, 21, 22, 26, 32, 39, 41, 46, 48}
+var _Type_index = [...]uint8{0, 3, 8, 15, 16, 17, 18, 19, 20, 21, 22, 26, 32, 39, 41, 46, 48, 50, 52, 63}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

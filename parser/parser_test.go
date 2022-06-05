@@ -1391,7 +1391,7 @@ task build("**/*.go") -> "./bin/main" {
 
 # Show the global variables
 task show() {
-	echo GLOBAL
+	echo {{.GLOBAL}}
 }
 
 # Generate multiple outputs
@@ -1482,7 +1482,7 @@ var fullSpokfileStream = []token.Token{
 	tLParen,
 	tRParen,
 	tLBrace,
-	newToken(token.COMMAND, "echo GLOBAL"),
+	newToken(token.COMMAND, "echo {{.GLOBAL}}"),
 	tRBrace,
 	tHash,
 	newToken(token.COMMENT, " Generate multiple outputs"),
@@ -1698,7 +1698,7 @@ var fullSpokfileAST = ast.Tree{
 			Outputs:      []ast.Node{},
 			Commands: []ast.Command{
 				{
-					Command:  "echo GLOBAL",
+					Command:  "echo {{.GLOBAL}}",
 					NodeType: ast.NodeCommand,
 				},
 			},

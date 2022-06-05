@@ -102,7 +102,7 @@ task build("**/*.go") -> "./bin/main" {
 
 # Show the global variables
 task show() {
-    echo GLOBAL
+    echo {{.GLOBAL}}
 }
 
 # Generate multiple outputs
@@ -287,7 +287,7 @@ var fullSpokfileAST = Tree{
 			Outputs:      []Node{},
 			Commands: []Command{
 				{
-					Command:  "echo GLOBAL",
+					Command:  "echo {{.GLOBAL}}",
 					NodeType: NodeCommand,
 				},
 			},

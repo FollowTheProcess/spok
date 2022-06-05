@@ -92,7 +92,7 @@ GIT_COMMIT := exec("git rev-parse HEAD")
 
 # Use a global variable like this
 task hello() {
-    echo GLOBAL_VARIABLE
+    echo {{.GLOBAL_VARIABLE}}
 }
 
 # Run the go tests (depends on all go source files)

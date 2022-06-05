@@ -392,6 +392,14 @@ func lexTaskCommands(l *Lexer) lexFn {
 			l.backup()
 			l.emit(token.COMMAND)
 			l.skipWhitespace()
+		case strings.HasPrefix(l.rest(), token.LINTERP.String()):
+			// We've hit an opening interpolation, ignore this here it just becomes
+			// part of the command text
+			l.absorb(token.LINTERP)
+		case strings.HasPrefix(l.rest(), token.RINTERP.String()):
+			// We've hit a closing interpolation, ignore this here it just becomes
+			// part of the command text
+			l.absorb(token.RINTERP)
 		case r == '}':
 			l.backup()
 			// The command may end in a space which we should clean up
