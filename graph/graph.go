@@ -7,6 +7,7 @@ import (
 
 	"github.com/FollowTheProcess/collections/queue"
 	"github.com/FollowTheProcess/collections/set"
+	"github.com/FollowTheProcess/spok/task"
 )
 
 // Vertex represents a single node in the graph.
@@ -14,15 +15,17 @@ type Vertex struct {
 	parents  *set.Set[*Vertex] // The direct parents of this vertex
 	children *set.Set[*Vertex] // The direct children of this vertex
 	Name     string            // Uniquely identifiable name
+	Task     task.Task         // The actual underlying task represented by this vertex
 	InDegree int               // Number of incoming edges
 }
 
 // NewVertex creates and returns a new Vertex.
-func NewVertex(name string) *Vertex {
+func NewVertex(task task.Task) *Vertex {
 	return &Vertex{
 		parents:  set.New[*Vertex](),
 		children: set.New[*Vertex](),
-		Name:     name,
+		Task:     task,
+		Name:     task.Name,
 		InDegree: 0,
 	}
 }

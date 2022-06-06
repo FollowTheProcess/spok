@@ -2,11 +2,13 @@ package graph
 
 import (
 	"testing"
+
+	"github.com/FollowTheProcess/spok/task"
 )
 
 func TestGraph_AddVertex(t *testing.T) {
 	graph := New()
-	v1 := NewVertex("new")
+	v1 := NewVertex(task.Task{Name: "v1"})
 
 	if len(graph.vertices) != 0 {
 		t.Errorf("New graph does not have 0 vertices, got %d", len(graph.vertices))
@@ -22,8 +24,8 @@ func TestGraph_AddVertex(t *testing.T) {
 func TestGraph_AddEdge(t *testing.T) {
 	t.Run("happy path", func(t *testing.T) {
 		graph := New()
-		v1 := NewVertex("v1")
-		v2 := NewVertex("v2")
+		v1 := NewVertex(task.Task{Name: "v1"})
+		v2 := NewVertex(task.Task{Name: "v2"})
 
 		graph.AddVertex(v1)
 		graph.AddVertex(v2)
@@ -54,22 +56,22 @@ func TestGraph_AddEdge(t *testing.T) {
 
 	t.Run("parent missing", func(t *testing.T) {
 		graph := New()
-		v2 := NewVertex("v2")
+		v2 := NewVertex(task.Task{Name: "v2"})
 
 		graph.AddVertex(v2)
 
-		if err := graph.AddEdge(NewVertex("v1"), v2); err == nil {
+		if err := graph.AddEdge(NewVertex(task.Task{Name: "v1"}), v2); err == nil {
 			t.Error("expected an error, got nil")
 		}
 	})
 
 	t.Run("child missing", func(t *testing.T) {
 		graph := New()
-		v1 := NewVertex("v1")
+		v1 := NewVertex(task.Task{Name: "v1"})
 
 		graph.AddVertex(v1)
 
-		if err := graph.AddEdge(v1, NewVertex("v2")); err == nil {
+		if err := graph.AddEdge(v1, NewVertex(task.Task{Name: "v2"})); err == nil {
 			t.Error("expected an error, got nil")
 		}
 	})
@@ -78,11 +80,11 @@ func TestGraph_AddEdge(t *testing.T) {
 func TestSort(t *testing.T) {
 	graph := New()
 
-	v1 := NewVertex("v1")
-	v2 := NewVertex("v2")
-	v3 := NewVertex("v3")
-	v4 := NewVertex("v4")
-	v5 := NewVertex("v5")
+	v1 := NewVertex(task.Task{Name: "v1"})
+	v2 := NewVertex(task.Task{Name: "v2"})
+	v3 := NewVertex(task.Task{Name: "v3"})
+	v4 := NewVertex(task.Task{Name: "v4"})
+	v5 := NewVertex(task.Task{Name: "v5"})
 
 	graph.AddVertex(v1)
 	graph.AddVertex(v2)
@@ -125,11 +127,11 @@ func TestSort(t *testing.T) {
 func TestSortNotADAG(t *testing.T) {
 	graph := New()
 
-	v1 := NewVertex("v1")
-	v2 := NewVertex("v2")
-	v3 := NewVertex("v3")
-	v4 := NewVertex("v4")
-	v5 := NewVertex("v5")
+	v1 := NewVertex(task.Task{Name: "v1"})
+	v2 := NewVertex(task.Task{Name: "v2"})
+	v3 := NewVertex(task.Task{Name: "v3"})
+	v4 := NewVertex(task.Task{Name: "v4"})
+	v5 := NewVertex(task.Task{Name: "v5"})
 
 	graph.AddVertex(v1)
 	graph.AddVertex(v2)
@@ -204,11 +206,11 @@ func equal[T comparable](a, b []T) bool {
 func makeGraph() *Graph {
 	graph := New()
 
-	v1 := NewVertex("v1")
-	v2 := NewVertex("v2")
-	v3 := NewVertex("v3")
-	v4 := NewVertex("v4")
-	v5 := NewVertex("v5")
+	v1 := NewVertex(task.Task{Name: "v1"})
+	v2 := NewVertex(task.Task{Name: "v2"})
+	v3 := NewVertex(task.Task{Name: "v3"})
+	v4 := NewVertex(task.Task{Name: "v4"})
+	v5 := NewVertex(task.Task{Name: "v5"})
 
 	graph.AddVertex(v1)
 	graph.AddVertex(v2)
