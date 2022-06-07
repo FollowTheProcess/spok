@@ -26,6 +26,7 @@ type Task struct {
 	Commands          []string // Shell commands to run
 	NamedOutputs      []string // Other outputs by ident
 	FileOutputs       []string // Filepaths this task outputs
+	Parallelisable    bool     // Whether or not the task can be run in parallel with others
 }
 
 // New parses a task AST node into a concrete task,
@@ -178,10 +179,3 @@ func expandGlob(root, pattern string) ([]string, error) {
 
 	return absMatches, nil
 }
-
-// ByName allows a slice of Task to be sorted alphabetically by name.
-type ByName []Task
-
-func (a ByName) Len() int           { return len(a) }
-func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }

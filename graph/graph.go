@@ -16,7 +16,7 @@ type Vertex struct {
 	children *set.Set[*Vertex] // The direct children of this vertex
 	Name     string            // Uniquely identifiable name
 	Task     task.Task         // The actual underlying task represented by this vertex
-	InDegree int               // Number of incoming edges
+	inDegree int               // Number of incoming edges
 }
 
 // NewVertex creates and returns a new Vertex.
@@ -26,7 +26,7 @@ func NewVertex(task task.Task) *Vertex {
 		children: set.New[*Vertex](),
 		Task:     task,
 		Name:     task.Name,
-		InDegree: 0,
+		inDegree: 0,
 	}
 }
 
@@ -70,10 +70,10 @@ func (g *Graph) Sort() ([]*Vertex, error) {
 	result := make([]*Vertex, 0, len(g.vertices))
 
 	for _, vertex := range g.vertices {
-		vertex.InDegree = vertex.parents.Length() // Compute in degree for each vertex
+		vertex.inDegree = vertex.parents.Length() // Compute in degree for each vertex
 
 		// Put all vertices with 0 in-degree into the queue
-		if vertex.InDegree == 0 {
+		if vertex.inDegree == 0 {
 			zeroInDegreeQueue.Push(vertex)
 		}
 	}
@@ -96,10 +96,10 @@ func (g *Graph) Sort() ([]*Vertex, error) {
 
 		// For each child, reduce in-degree by 1
 		for _, child := range vertex.children.Items() {
-			child.InDegree--
+			child.inDegree--
 
 			// If any are now 0, add to the queue
-			if child.InDegree == 0 {
+			if child.inDegree == 0 {
 				zeroInDegreeQueue.Push(child)
 			}
 		}
