@@ -11,7 +11,6 @@ import (
 
 	"github.com/FollowTheProcess/spok/file"
 	"github.com/FollowTheProcess/spok/parser"
-	"github.com/FollowTheProcess/spok/task"
 	"github.com/fatih/color"
 	"github.com/juju/ansiterm/tabwriter"
 )
@@ -102,13 +101,20 @@ func (a *App) showTasks(spokfile file.SpokFile) error {
 	taskStyle := color.New(color.FgHiCyan, color.Bold)
 	descStyle := color.New(color.FgHiBlack, color.Italic)
 
-	sort.Sort(task.ByName(spokfile.Tasks))
+	// sort.Sort(task.ByName(spokfile.Tasks))
 	fmt.Fprintf(a.Out, "Tasks defined in %s:\n", spokfile.Path)
 	titleStyle.Fprintln(writer, "Name\tDescription")
 
-	for _, task := range spokfile.Tasks {
-		line := fmt.Sprintf("%s\t%s\n", taskStyle.Sprint(task.Name), descStyle.Sprint(task.Doc))
+	names := make([]string, 0, len(spokfile.Tasks))
+	for n := range spokfile.Tasks {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+
+	for _, name := range names {
+		line := fmt.Sprintf("%s\t%s\n", taskStyle.Sprint(name), descStyle.Sprint(spokfile.Tasks[name].Doc))
 		fmt.Fprint(writer, line)
 	}
+
 	return writer.Flush()
 }

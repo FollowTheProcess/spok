@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FollowTheProcess/collections/set"
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
 	"github.com/FollowTheProcess/spok/task"
@@ -21,9 +20,15 @@ var errNoSpokfile = errors.New("No spokfile found")
 
 // SpokFile represents a concrete spokfile.
 type SpokFile struct {
-	Path  string            // The absolute path to the spokfile
-	Vars  map[string]string // Global variables in IDENT: value form (functions already evaluated)
-	Tasks []task.Task       // Defined tasks
+	Vars  map[string]string    // Global variables in IDENT: value form (functions already evaluated)
+	Tasks map[string]task.Task // Map of task name to the task itself
+	Path  string               // The absolute path to the spokfile
+}
+
+// hasTask returns whether or not the SpokFile has a task with the given name.
+func (s SpokFile) hasTask(name string) bool {
+	_, ok := s.Tasks[name]
+	return ok
 }
 
 // Find climbs the file tree from 'start' to 'stop' looking for a spokfile,
@@ -60,9 +65,7 @@ func New(tree ast.Tree, root string) (SpokFile, error) {
 	var file SpokFile
 	file.Path = filepath.Join(root, spokfile)
 	file.Vars = make(map[string]string)
-
-	// Keep track of tasks we've seen already to prevent duplicates.
-	tasksSeen := set.New[string]()
+	file.Tasks = make(map[string]task.Task)
 
 	for _, node := range tree.Nodes {
 		switch {
@@ -113,13 +116,12 @@ func New(tree ast.Tree, root string) (SpokFile, error) {
 				return SpokFile{}, err
 			}
 
-			if tasksSeen.Contains(task.Name) {
+			if file.hasTask(task.Name) {
 				return SpokFile{}, fmt.Errorf("Duplicate task: spokfile already contains task named %q, duplicate tasks not allowed", task.Name)
 			}
 
-			// Add the task to our "seen" map and append it to the file list of tasks
-			tasksSeen.Add(task.Name)
-			file.Tasks = append(file.Tasks, task)
+			// Add the task to the file
+			file.Tasks[task.Name] = task
 		}
 	}
 	return file, nil

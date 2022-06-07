@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"sort"
 	"strings"
 	"testing"
 
@@ -463,51 +462,6 @@ func TestHashFileDeps(t *testing.T) {
 
 	if got != want {
 		t.Errorf("got %q, wanted %q", got, want)
-	}
-}
-
-func TestTaskSort(t *testing.T) {
-	tasks := []Task{
-		{Name: "h"},
-		{Name: "s"},
-		{Name: "l"},
-		{Name: "a"},
-		{Name: "p"},
-		{Name: "z"},
-		{Name: "b"},
-	}
-
-	want := []Task{
-		{Name: "a"},
-		{Name: "b"},
-		{Name: "h"},
-		{Name: "l"},
-		{Name: "p"},
-		{Name: "s"},
-		{Name: "z"},
-	}
-
-	sort.Sort(ByName(tasks))
-
-	if !reflect.DeepEqual(tasks, want) {
-		t.Errorf("Did not sort correctly: got %#v, wanted %#v", tasks, want)
-	}
-}
-
-func BenchmarkTaskSort(b *testing.B) {
-	tasks := []Task{
-		{Name: "h"},
-		{Name: "s"},
-		{Name: "l"},
-		{Name: "a"},
-		{Name: "p"},
-		{Name: "z"},
-		{Name: "b"},
-	}
-
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		sort.Sort(ByName(tasks))
 	}
 }
 

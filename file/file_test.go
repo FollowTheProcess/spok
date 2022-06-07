@@ -57,9 +57,9 @@ func TestFromAST(t *testing.T) {
 	t.Parallel()
 	testdata := getTestdata()
 	tests := []struct {
+		want    SpokFile
 		name    string
 		tree    ast.Tree
-		want    SpokFile
 		wantErr bool
 	}{
 		{
@@ -77,8 +77,8 @@ func TestFromAST(t *testing.T) {
 			want: SpokFile{
 				Path: filepath.Join(testdata, "spokfile"),
 				Vars: make(map[string]string),
-				Tasks: []task.Task{
-					{
+				Tasks: map[string]task.Task{
+					"test": {
 						Doc:      "A simple test task",
 						Name:     "test",
 						Commands: []string{"go test ./..."},
@@ -101,8 +101,8 @@ func TestFromAST(t *testing.T) {
 			want: SpokFile{
 				Path: filepath.Join(testdata, "spokfile"),
 				Vars: make(map[string]string),
-				Tasks: []task.Task{
-					{
+				Tasks: map[string]task.Task{
+					"test": {
 						Name:     "test",
 						Commands: []string{"go test ./..."},
 					},
@@ -148,8 +148,9 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: filepath.Join(testdata, "spokfile"),
-				Vars: map[string]string{"global1": "hello", "global2": "hello again"},
+				Path:  filepath.Join(testdata, "spokfile"),
+				Vars:  map[string]string{"global1": "hello", "global2": "hello again"},
+				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
 		},
@@ -173,8 +174,9 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: filepath.Join(testdata, "spokfile"),
-				Vars: map[string]string{"global1": filepath.Join("path", "parts", "more")},
+				Path:  filepath.Join(testdata, "spokfile"),
+				Vars:  map[string]string{"global1": filepath.Join("path", "parts", "more")},
+				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
 		},
@@ -196,8 +198,9 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: filepath.Join(testdata, "spokfile"),
-				Vars: map[string]string{"global1": "hello"},
+				Path:  filepath.Join(testdata, "spokfile"),
+				Vars:  map[string]string{"global1": "hello"},
+				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
 		},
@@ -219,8 +222,9 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: filepath.Join(testdata, "spokfile"),
-				Vars: map[string]string{"global1": ""},
+				Path:  filepath.Join(testdata, "spokfile"),
+				Vars:  map[string]string{"global1": ""},
+				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
 		},
@@ -529,8 +533,8 @@ var spokFileWant = SpokFile{
 		"GLOBAL":     "very important stuff here",
 		"GIT_COMMIT": "hello",
 	},
-	Tasks: []task.Task{
-		{
+	Tasks: map[string]task.Task{
+		"test": {
 			Doc:               "Run the project unit tests",
 			Name:              "test",
 			NamedDependencies: []string{"fmt"},
@@ -539,7 +543,7 @@ var spokFileWant = SpokFile{
 			NamedOutputs:      nil,
 			FileOutputs:       nil,
 		},
-		{
+		"fmt": {
 			Doc:               "Format the project source",
 			Name:              "fmt",
 			NamedDependencies: nil,
@@ -554,7 +558,7 @@ var spokFileWant = SpokFile{
 			NamedOutputs: nil,
 			FileOutputs:  nil,
 		},
-		{
+		"many": {
 			Doc:               "Do many things",
 			Name:              "many",
 			NamedDependencies: nil,
@@ -568,7 +572,7 @@ var spokFileWant = SpokFile{
 			NamedOutputs: nil,
 			FileOutputs:  nil,
 		},
-		{
+		"build": {
 			Doc:               "Compile the project",
 			Name:              "build",
 			NamedDependencies: nil,
@@ -583,7 +587,7 @@ var spokFileWant = SpokFile{
 			NamedOutputs: nil,
 			FileOutputs:  []string{mustAbs(testdata, "./bin/main")},
 		},
-		{
+		"show": {
 			Doc:               "Show the global variables",
 			Name:              "show",
 			NamedDependencies: nil,
@@ -592,7 +596,7 @@ var spokFileWant = SpokFile{
 			NamedOutputs:      nil,
 			FileOutputs:       nil,
 		},
-		{
+		"moar_things": {
 			Doc:               "Generate multiple outputs",
 			Name:              "moar_things",
 			NamedDependencies: nil,
