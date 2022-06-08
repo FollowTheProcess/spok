@@ -19,14 +19,14 @@ import (
 
 // Task represents a spok Task.
 type Task struct {
-	Doc               string   // The task docstring
-	Name              string   // Task name
-	NamedDependencies []string // Other tasks or idents this task depends on (by name)
-	FileDependencies  []string // Filepaths this task depends on (globs expanded and made absolute)
-	Commands          []string // Shell commands to run
-	NamedOutputs      []string // Other outputs by ident
-	FileOutputs       []string // Filepaths this task outputs
-	Parallelisable    bool     // Whether or not the task can be run in parallel with others
+	Doc              string   // The task docstring
+	Name             string   // Task name
+	TaskDependencies []string // Other tasks or idents this task depends on (by name)
+	FileDependencies []string // Filepaths this task depends on (globs expanded and made absolute)
+	Commands         []string // Shell commands to run
+	NamedOutputs     []string // Other outputs by ident
+	FileOutputs      []string // Filepaths this task outputs
+	Parallelisable   bool     // Whether or not the task can be run in parallel with others
 }
 
 // New parses a task AST node into a concrete task,
@@ -96,13 +96,13 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 	}
 
 	task := Task{
-		Doc:               strings.TrimSpace(t.Docstring.Text),
-		Name:              t.Name.Name,
-		NamedDependencies: namedDeps,
-		FileDependencies:  fileDeps,
-		Commands:          commands,
-		NamedOutputs:      namedOutputs,
-		FileOutputs:       fileOutputs,
+		Doc:              strings.TrimSpace(t.Docstring.Text),
+		Name:             t.Name.Name,
+		TaskDependencies: namedDeps,
+		FileDependencies: fileDeps,
+		Commands:         commands,
+		NamedOutputs:     namedOutputs,
+		FileOutputs:      fileOutputs,
 	}
 	return task, nil
 }

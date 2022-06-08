@@ -86,11 +86,11 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "simple",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: nil,
-				FileDependencies:  nil,
-				Commands:          []string{"go test ./..."},
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
+				FileDependencies: nil,
+				Commands:         []string{"go test ./..."},
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -105,11 +105,11 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "simple with vars",
 			want: Task{
-				Doc:               "A simple test task with global variables",
-				Name:              "simple",
-				NamedDependencies: nil,
-				FileDependencies:  nil,
-				Commands:          []string{"go test hello"},
+				Doc:              "A simple test task with global variables",
+				Name:             "simple",
+				TaskDependencies: nil,
+				FileDependencies: nil,
+				Commands:         []string{"go test hello"},
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -127,11 +127,11 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with a file dependency",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: nil,
-				FileDependencies:  []string{mustAbs(testdata, "file.go")},
-				Commands:          []string{"go test ./..."},
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
+				FileDependencies: []string{mustAbs(testdata, "file.go")},
+				Commands:         []string{"go test ./..."},
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -146,11 +146,11 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with a named dependency",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: []string{"fmt"},
-				FileDependencies:  nil,
-				Commands:          []string{"go test ./..."},
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: []string{"fmt"},
+				FileDependencies: nil,
+				Commands:         []string{"go test ./..."},
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -165,9 +165,9 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with multi file dependency",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: nil,
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
 				FileDependencies: []string{
 					mustAbs(testdata, "file1.go"),
 					mustAbs(testdata, "file2.go"),
@@ -190,11 +190,11 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with multi task dependency",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: []string{"fmt", "lint"},
-				FileDependencies:  nil,
-				Commands:          []string{"go test ./..."},
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: []string{"fmt", "lint"},
+				FileDependencies: nil,
+				Commands:         []string{"go test ./..."},
 			},
 			in: ast.Task{
 				Name:      ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -212,9 +212,9 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with double glob dependency",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: nil,
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
 				FileDependencies: []string{
 					mustAbs(testdata, "top.txt"),
 					mustAbs(testdata, "sub1/sub2/blah.txt"),
@@ -237,11 +237,11 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with single glob dependency",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: nil,
-				FileDependencies:  []string{mustAbs(testdata, "top.txt")},
-				Commands:          []string{"go test ./..."},
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
+				FileDependencies: []string{mustAbs(testdata, "top.txt")},
+				Commands:         []string{"go test ./..."},
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -256,13 +256,13 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with single file output",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: nil,
-				FileDependencies:  nil,
-				Commands:          []string{"go test ./..."},
-				NamedOutputs:      nil,
-				FileOutputs:       []string{mustAbs(testdata, "file.go")},
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
+				FileDependencies: nil,
+				Commands:         []string{"go test ./..."},
+				NamedOutputs:     nil,
+				FileOutputs:      []string{mustAbs(testdata, "file.go")},
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -277,12 +277,12 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with glob output",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: nil,
-				FileDependencies:  nil,
-				Commands:          []string{"go test ./..."},
-				NamedOutputs:      nil,
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
+				FileDependencies: nil,
+				Commands:         []string{"go test ./..."},
+				NamedOutputs:     nil,
 				FileOutputs: []string{
 					mustAbs(testdata, "top.txt"),
 					mustAbs(testdata, "sub1/sub2/blah.txt"),
@@ -304,12 +304,12 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with multi file output",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: nil,
-				FileDependencies:  nil,
-				Commands:          []string{"go test ./..."},
-				NamedOutputs:      nil,
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
+				FileDependencies: nil,
+				Commands:         []string{"go test ./..."},
+				NamedOutputs:     nil,
 				FileOutputs: []string{
 					mustAbs(testdata, "file1.go"),
 					mustAbs(testdata, "file2.go"),
@@ -331,13 +331,13 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with single named output",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: nil,
-				FileDependencies:  nil,
-				Commands:          []string{"go test ./..."},
-				NamedOutputs:      []string{"OUT"},
-				FileOutputs:       nil,
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
+				FileDependencies: nil,
+				Commands:         []string{"go test ./..."},
+				NamedOutputs:     []string{"OUT"},
+				FileOutputs:      nil,
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -352,13 +352,13 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "task with multi named output",
 			want: Task{
-				Doc:               "A simple test task",
-				Name:              "simple",
-				NamedDependencies: nil,
-				FileDependencies:  nil,
-				Commands:          []string{"go test ./..."},
-				NamedOutputs:      []string{"OUT", "OTHER"},
-				FileOutputs:       nil,
+				Doc:              "A simple test task",
+				Name:             "simple",
+				TaskDependencies: nil,
+				FileDependencies: nil,
+				Commands:         []string{"go test ./..."},
+				NamedOutputs:     []string{"OUT", "OTHER"},
+				FileOutputs:      nil,
 			},
 			in: ast.Task{
 				Name:         ast.Ident{Name: "simple", NodeType: ast.NodeIdent},
@@ -376,9 +376,9 @@ func TestNewTask(t *testing.T) {
 		{
 			name: "complex task with everything",
 			want: Task{
-				Doc:               "Very complex things here",
-				Name:              "complex",
-				NamedDependencies: nil,
+				Doc:              "Very complex things here",
+				Name:             "complex",
+				TaskDependencies: nil,
 				FileDependencies: []string{
 					mustAbs(testdata, "top.txt"),
 					mustAbs(testdata, "sub1/sub2/blah.txt"),
