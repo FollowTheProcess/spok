@@ -1,51 +1,61 @@
-# This is a top level comment
-# This variable is presumably important later
-GLOBAL := "very important stuff here"
-GIT_COMMIT := exec("git rev-parse HEAD")
+# This is a spokfile designed to be equivalent to the current
+# justfile in the repo root, meant as a realistic example for
+# a live project
 
-# Run the project unit tests
-task test(fmt) {
-    go test -race ./...
+PROJECT_NAME := "spok"
+PROJECT_PATH := "github.com/FollowTheProcess/spok"
+PROJECT_BIN := "./bin"
+PROJECT_ENTRY_POINT := "./cmd/spok"
+COVERAGE_DATA := "coverage.out"
+COVERAGE_HTML := "coverage.html"
+GORELEASER_DIST := "dist"
+COMMIT_SHA := exec("git rev-parse HEAD")
+VERSION_LDFLAG := "github.com/FollowTheProcess/spok/cli/cmd.version"
+COMMIT_LDFLAG := "github.com/FollowTheProcess/spok/cli/cmd.commit"
+
+# Tidy up dependencies in go.mod and go.sum
+task tidy("**/*.go") {
+    go mod tidy
 }
 
-# Format the project source
+# Run go generate on all packages
+task generate("**/*.go") {
+    go generate ./...
+}
+
+# Compile the project binary
+task build("**/*.go", tidy, generate, fmt) -> "./bin/spok" {
+    go build -ldflags="-X {{.VERSION_LDFLAG}}=dev -X {{.COMMIT_LDFLAG}}={{.COMMIT_SHA}}" -o {{.PROJECT_BIN}}/{{.PROJECT_NAME}} {{.PROJECT_ENTRY_POINT}}
+}
+
+# Run go fmt on all project files
 task fmt("**/*.go") {
     go fmt ./...
 }
 
-# Do many things
-task many() {
-    line 1
-    line 2
-    line 3
-    line 4
+# Run all project tests
+task test("**/*.go") {
+    SPOK_INTEGRATION_TEST=true gotest -race ./...
 }
 
-# Compile the project
-task build("**/*.go") -> "./bin/main" {
-    go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"
+# Run all project benchmarks
+task bench(fmt) {
+    go test ./... -run=None -benchmem -bench .
 }
 
-# Show the global variables
-task show() {
-    echo {{.GLOBAL}}
+# Lint the project and auto-fix errors if possible
+task lint(fmt) {
+    golangci-lint run --fix
 }
 
-# Generate multiple outputs
-task moar_things() -> ("output1.go", "output2.go") {
-    do some stuff here
+# Calculate test coverage and render the html
+task cover("**/*.go") -> (COVERAGE_DATA, COVERAGE_HTML) {
+    SPOK_INTEGRATION_TEST=true go test -race -cover -covermode=atomic -coverprofile={{.COVERAGE_DATA}} ./...
+    go tool cover -html={{.COVERAGE_DATA}} -o {{.COVERAGE_HTML}}
+    open {{.COVERAGE_HTML}}
 }
 
-task no_comment() {
-    more stuff here
-}
-
-# Generate output from a variable
-task makedocs() -> DOCS {
-    echo "making docs"
-}
-
-# Generate multiple outputs in variables
-task makestuff() -> (DOCS, BUILD) {
-    echo "doing things"
+# Print lines of code (for fun)
+task sloc() {
+    find . -name "*.go" | xargs wc -l | sort -nr
 }
