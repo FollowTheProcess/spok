@@ -278,8 +278,9 @@ func lexRightParen(l *Lexer) lexFn {
 	case strings.HasPrefix(l.rest(), token.OUTPUT.String()):
 		// Task output declaration
 		return lexOutputOperator
-	case l.atEOL() || l.atEOF():
-		// Just lexed a global variable function call
+	case l.atEOL(), l.atEOF(), isValidIdent(r):
+		// Just lexed a global variable function call and we're either
+		// at EOL, EOF, or there's another row of global variable declarations below
 		return lexStart
 	case r == '#':
 		// If a global function call precedes a commented task

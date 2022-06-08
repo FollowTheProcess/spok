@@ -161,6 +161,23 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name: "global variable function RHS followed by another line",
+		input: `TEST := exec("git rev-parse HEAD")
+		SOMETHING_ELSE := "hello"`,
+		tokens: []token.Token{
+			newToken(token.IDENT, "TEST"),
+			tDeclare,
+			newToken(token.IDENT, "exec"),
+			tLParen,
+			newToken(token.STRING, `"git rev-parse HEAD"`),
+			tRParen,
+			newToken(token.IDENT, "SOMETHING_ELSE"),
+			tDeclare,
+			newToken(token.STRING, `"hello"`),
+			tEOF,
+		},
+	},
+	{
 		name:  "global variable join RHS",
 		input: `TEST := join(ROOT, "docs", "build")`,
 		tokens: []token.Token{
