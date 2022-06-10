@@ -33,6 +33,12 @@ type Task struct {
 // root is the absolute path of the directory to use as the root for
 // glob expansion, typically the path to the spokfile.
 func New(t ast.Task, root string, vars map[string]string) (Task, error) {
+	// TODO (performance): This currently globs everything on parse
+	// change it so all the heavy lifting is only done when a task is actually run
+	// and only glob the things it needs. When last profiled this spent 70% of time
+	// in syscall.syscall which means we're opening and reading lots of things that we
+	// don't necessarily need until task runtime, because the spokfile is parsed on CLI
+	// startup, this slows it down by ~80ms
 	var (
 		fileDeps     []string
 		namedDeps    []string
