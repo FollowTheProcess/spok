@@ -83,6 +83,11 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Fetch Existing Tags
+        run: git fetch --force --tags
 
       - name: Set up Go
         uses: actions/setup-go@v3
