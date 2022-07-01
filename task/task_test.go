@@ -15,17 +15,9 @@ import (
 
 func TestExpandGlob(t *testing.T) {
 	t.Parallel()
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("could not get cwd: %v", err)
-	}
+	testdata := mustGetTestData()
 
-	root, err := filepath.Abs(filepath.Join(cwd, "testdata"))
-	if err != nil {
-		t.Fatalf("could not resolve root: %v", err)
-	}
-
-	got, err := expandGlob(root, "**/*.txt")
+	got, err := expandGlob(testdata, "**/*.txt")
 	if err != nil {
 		t.Fatalf("expandGlob returned an error: %v", err)
 	}
@@ -33,7 +25,7 @@ func TestExpandGlob(t *testing.T) {
 	want := []string{"top.txt", "sub1/sub2/blah.txt", "sub1/sub2/sub3/hello.txt", "suba/subb/stuff.txt", "suba/subb/subc/something.txt"}
 	var wantAbs []string
 	for _, w := range want {
-		wantAbs = append(wantAbs, mustAbs(root, w))
+		wantAbs = append(wantAbs, mustAbs(testdata, w))
 	}
 	if !reflect.DeepEqual(got, wantAbs) {
 		t.Errorf("got %#v, wanted %#v", got, wantAbs)
@@ -71,11 +63,7 @@ func TestExpandVars(t *testing.T) {
 
 func TestNewTask(t *testing.T) {
 	t.Parallel()
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("could not get cwd: %v", err)
-	}
-	testdata := filepath.Join(cwd, "testdata")
+	testdata := mustGetTestData()
 	tests := []struct {
 		name    string
 		want    Task
@@ -497,19 +485,11 @@ func BenchmarkHashFileDeps(b *testing.B) {
 }
 
 func BenchmarkExpandGlob(b *testing.B) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		b.Fatalf("could not get cwd: %v", err)
-	}
-
-	root, err := filepath.Abs(filepath.Join(cwd, "testdata"))
-	if err != nil {
-		b.Fatalf("could not resolve root: %v", err)
-	}
+	testdata := mustGetTestData()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err = expandGlob(root, "**/*.txt")
+		_, err := expandGlob(testdata, "**/*.txt")
 		if err != nil {
 			b.Fatalf("expandGlob returned an error: %v", err)
 		}
@@ -517,15 +497,7 @@ func BenchmarkExpandGlob(b *testing.B) {
 }
 
 func BenchmarkNewTask(b *testing.B) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		b.Fatalf("could not get cwd: %v", err)
-	}
-
-	root, err := filepath.Abs(filepath.Join(cwd, "testdata"))
-	if err != nil {
-		b.Fatalf("could not resolve root: %v", err)
-	}
+	testdata := mustGetTestData()
 
 	input := ast.Task{
 		Name:         ast.Ident{Name: "complex", NodeType: ast.NodeIdent},
@@ -538,7 +510,7 @@ func BenchmarkNewTask(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := New(input, root, make(map[string]string))
+		_, err := New(input, testdata, make(map[string]string))
 		if err != nil {
 			b.Fatalf("newTask returned an error: %v", err)
 		}
@@ -552,4 +524,19 @@ func mustAbs(root, path string) string {
 		panic(fmt.Sprintf("mustAbs could not resolve '%s'", filepath.Join(root, path)))
 	}
 	return abs
+}
+
+// mustGetTestData returns the absolute path to this packages testdata folder
+// and panics if it cannot.
+func mustGetTestData() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	path, err := filepath.Abs(filepath.Join(cwd, "testdata"))
+	if err != nil {
+		panic(err)
+	}
+
+	return path
 }

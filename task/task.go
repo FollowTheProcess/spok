@@ -41,7 +41,7 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 	// startup, this slows it down by ~80ms
 	var (
 		fileDeps     []string
-		namedDeps    []string
+		taskDeps     []string
 		commands     []string
 		fileOutputs  []string
 		namedOutputs []string
@@ -64,7 +64,7 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 			}
 		case dep.Type() == ast.NodeIdent:
 			// Ident means it depends on another task
-			namedDeps = append(namedDeps, dep.Literal())
+			taskDeps = append(taskDeps, dep.Literal())
 		default:
 			return Task{}, fmt.Errorf("unknown dependency: %s", dep)
 		}
@@ -104,7 +104,7 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 	task := Task{
 		Doc:              strings.TrimSpace(t.Docstring.Text),
 		Name:             t.Name.Name,
-		TaskDependencies: namedDeps,
+		TaskDependencies: taskDeps,
 		FileDependencies: fileDeps,
 		Commands:         commands,
 		NamedOutputs:     namedOutputs,
