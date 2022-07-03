@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/FollowTheProcess/msg"
 	"github.com/FollowTheProcess/spok/file"
 	"github.com/FollowTheProcess/spok/parser"
 	"github.com/fatih/color"
@@ -77,6 +78,7 @@ func (a *App) Run(tasks []string) error {
 		fmt.Fprintf(a.Out, "Using spokfile at: %s\n", a.Options.Spokfile)
 	case a.Options.Clean:
 		fmt.Fprintln(a.Out, "Clean built artifacts")
+		return a.cleanOutputs(spokfile)
 	case a.Options.Check:
 		fmt.Fprintln(a.Out, "Check spokfile for syntax errors")
 	default:
@@ -117,4 +119,39 @@ func (a *App) showTasks(spokfile file.SpokFile) error {
 	}
 
 	return writer.Flush()
+}
+
+// cleanOutputs removes all declared outputs in the spokfile.
+func (a *App) cleanOutputs(spokfile file.SpokFile) error {
+	for _, task := range spokfile.Tasks {
+		for _, fileOutput := range task.FileOutputs {
+			resolved, err := filepath.Abs(fileOutput)
+			if err != nil {
+				return err
+			}
+			err = os.RemoveAll(resolved)
+			if err != nil {
+				return fmt.Errorf("Could not remove %s: %v", resolved, err)
+			}
+			msg.Goodf("Removed %s", resolved)
+		}
+
+		for _, namedOutput := range task.NamedOutputs {
+			// NamedOutputs are just idents that point to filepaths
+			actual, ok := spokfile.Vars[namedOutput]
+			if !ok {
+				return fmt.Errorf("Named output %s is not defined", namedOutput)
+			}
+			resolved, err := filepath.Abs(actual)
+			if err != nil {
+				return err
+			}
+			err = os.RemoveAll(resolved)
+			if err != nil {
+				return fmt.Errorf("Could not remove %s: %v", resolved, err)
+			}
+			msg.Goodf("Removed %s", resolved)
+		}
+	}
+	return nil
 }
