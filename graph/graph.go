@@ -3,6 +3,7 @@
 package graph
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/FollowTheProcess/collections/queue"
@@ -81,7 +82,7 @@ func (g *Graph) Sort() ([]*Vertex, error) {
 	// Bailout point: if there is not at least 1 vertex with 0 in-degree
 	// it's not a DAG and cannot be sorted
 	if zeroInDegreeQueue.IsEmpty() {
-		return nil, fmt.Errorf("not a DAG")
+		return nil, errors.New("Not a DAG")
 	}
 
 	// While queue is not empty
