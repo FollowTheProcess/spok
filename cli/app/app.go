@@ -18,8 +18,9 @@ import (
 
 // App represents the spok program.
 type App struct {
-	Out     io.Writer
-	Options *Options
+	Out     io.Writer    // Where to write to
+	Options *Options     // All the CLI options
+	printer *msg.Printer // Spok's printer
 }
 
 // Options holds all the flag options for spok, these will be at their zero values
@@ -32,6 +33,18 @@ type Options struct {
 	Init      bool   // The --init flag
 	Clean     bool   // The --clean flag
 	Check     bool   // The --check flag
+}
+
+// New creates and returns a new App.
+func New(out io.Writer) *App {
+	options := &Options{}
+	printer := msg.Default()
+	spok := &App{
+		Out:     out,
+		Options: options,
+		printer: printer,
+	}
+	return spok
 }
 
 // Run is the entry point to the spok program, the only arguments spok accepts are names

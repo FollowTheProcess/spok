@@ -19,12 +19,7 @@ var (
 
 // BuildRootCmd builds and returns the root spok CLI command.
 func BuildRootCmd() *cobra.Command {
-	// Note: options must be a pointer so flags are propegated to the App struct
-	options := &app.Options{}
-	spok := &app.App{
-		Out:     os.Stdout,
-		Options: options,
-	}
+	spok := app.New(os.Stdout)
 
 	rootCmd := &cobra.Command{
 		Use:           "spok [tasks]...",
@@ -71,13 +66,13 @@ func BuildRootCmd() *cobra.Command {
 
 	// Attach the flags
 	flags := rootCmd.Flags()
-	flags.BoolVar(&options.Variables, "variables", false, "Show all defined variables in spokfile.")
-	flags.StringVar(&options.Show, "show", "", "Show the source code for a task.")
-	flags.BoolVar(&options.Fmt, "fmt", false, "Format the spokfile.")
-	flags.StringVar(&options.Spokfile, "spokfile", "", "The path to the spokfile (defaults to '$CWD/spokfile').")
-	flags.BoolVar(&options.Init, "init", false, "Initialise a new spokfile in $CWD.")
-	flags.BoolVar(&options.Clean, "clean", false, "Remove all build artifacts.")
-	flags.BoolVar(&options.Check, "check", false, "Check the spokfile for syntax errors.")
+	flags.BoolVar(&spok.Options.Variables, "variables", false, "Show all defined variables in spokfile.")
+	flags.StringVar(&spok.Options.Show, "show", "", "Show the source code for a task.")
+	flags.BoolVar(&spok.Options.Fmt, "fmt", false, "Format the spokfile.")
+	flags.StringVar(&spok.Options.Spokfile, "spokfile", "", "The path to the spokfile (defaults to '$CWD/spokfile').")
+	flags.BoolVar(&spok.Options.Init, "init", false, "Initialise a new spokfile in $CWD.")
+	flags.BoolVar(&spok.Options.Clean, "clean", false, "Remove all build artifacts.")
+	flags.BoolVar(&spok.Options.Check, "check", false, "Check the spokfile for syntax errors.")
 
 	// Set our custom version and usage templates
 	rootCmd.SetUsageTemplate(usageTemplate)
