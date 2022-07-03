@@ -84,13 +84,12 @@ func (a *App) Run(tasks []string) error {
 	case a.Options.Fmt:
 		fmt.Fprintln(a.Out, "Format spokfile")
 	case a.Options.Variables:
-		fmt.Fprintln(a.Out, "Show defined variables")
+		return a.showVariables(spokfile)
 	case a.Options.Show != "":
 		fmt.Fprintf(a.Out, "Show source code for task: %s\n", a.Options.Show)
 	case a.Options.Spokfile != "":
 		fmt.Fprintf(a.Out, "Using spokfile at: %s\n", a.Options.Spokfile)
 	case a.Options.Clean:
-		fmt.Fprintln(a.Out, "Clean built artifacts")
 		return a.cleanOutputs(spokfile)
 	case a.Options.Check:
 		fmt.Fprintln(a.Out, "Check spokfile for syntax errors")
@@ -131,6 +130,28 @@ func (a *App) showTasks(spokfile file.SpokFile) error {
 		fmt.Fprint(writer, line)
 	}
 
+	return writer.Flush()
+}
+
+// showVariables shows all the defined spokfile variables and their set values.
+func (a *App) showVariables(spokfile file.SpokFile) error {
+	writer := tabwriter.NewWriter(a.Out, 0, 8, 1, '\t', tabwriter.AlignRight)
+
+	titleStyle := color.New(color.FgHiWhite, color.Bold)
+
+	fmt.Fprintf(a.Out, "Variables defined in %s:\n", spokfile.Path)
+	titleStyle.Fprintln(writer, "Name\tValue")
+
+	names := make([]string, 0, len(spokfile.Vars))
+	for n := range spokfile.Vars {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+
+	for _, name := range names {
+		line := fmt.Sprintf("%s\t%s\n", name, spokfile.Vars[name])
+		fmt.Fprint(writer, line)
+	}
 	return writer.Flush()
 }
 
