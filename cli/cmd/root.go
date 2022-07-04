@@ -72,7 +72,6 @@ func BuildRootCmd() *cobra.Command {
 	flags.StringVar(&spok.Options.Spokfile, "spokfile", "", "The path to the spokfile (defaults to '$CWD/spokfile').")
 	flags.BoolVar(&spok.Options.Init, "init", false, "Initialise a new spokfile in $CWD.")
 	flags.BoolVar(&spok.Options.Clean, "clean", false, "Remove all build artifacts.")
-	flags.BoolVar(&spok.Options.Check, "check", false, "Check the spokfile for syntax errors.")
 	flags.BoolVar(&spok.Options.Force, "force", false, "Bypass file hash checks and force running.")
 	flags.BoolVar(&spok.Options.Sync, "sync", false, "Force synchronous execution.")
 

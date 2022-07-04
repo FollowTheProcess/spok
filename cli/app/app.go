@@ -18,7 +18,7 @@ import (
 
 // App represents the spok program.
 type App struct {
-	Out     io.Writer    // Where to write to
+	out     io.Writer    // Where to write to
 	Options *Options     // All the CLI options
 	printer *msg.Printer // Spok's printer
 }
@@ -32,7 +32,6 @@ type Options struct {
 	Fmt       bool   // The --fmt flag
 	Init      bool   // The --init flag
 	Clean     bool   // The --clean flag
-	Check     bool   // The --check flag
 	Force     bool   // The --force flag
 	Sync      bool   // The --sync flag
 }
@@ -42,7 +41,7 @@ func New(out io.Writer) *App {
 	options := &Options{}
 	printer := msg.Default()
 	spok := &App{
-		Out:     out,
+		out:     out,
 		Options: options,
 		printer: printer,
 	}
@@ -63,22 +62,28 @@ func (a *App) Run(tasks []string) error {
 
 	switch {
 	case a.Options.Fmt:
-		fmt.Fprintln(a.Out, "Format spokfile")
+		fmt.Fprintln(a.out, "Format spokfile")
 	case a.Options.Variables:
 		return a.showVariables(spokfile)
 	case a.Options.Show != "":
-		fmt.Fprintf(a.Out, "Show source code for task: %s\n", a.Options.Show)
+		fmt.Fprintf(a.out, "Show source code for task: %s\n", a.Options.Show)
 	case a.Options.Clean:
 		return a.cleanOutputs(spokfile)
-	case a.Options.Check:
-		fmt.Fprintln(a.Out, "Check spokfile for syntax errors")
+	case a.Options.Init:
+		fmt.Fprintf(a.out, "Create a new spokfile at %s\n", a.Options.Spokfile)
 	default:
 		switch len(tasks) {
 		case 0:
 			// No tasks provided, show defined tasks and exit
 			return a.showTasks(spokfile)
 		default:
-			fmt.Fprintf(a.Out, "Running tasks: %v\n", tasks)
+			fmt.Fprintf(a.out, "Running tasks: %v\n", tasks)
+			if a.Options.Force {
+				fmt.Fprintln(a.out, "--force was true, tasks will be re-run even if not changed")
+			}
+			if a.Options.Sync {
+				fmt.Fprintln(a.out, "--sync was true, tasks will not be run in parallel")
+			}
 		}
 	}
 
@@ -146,14 +151,14 @@ func (a *App) setup() error {
 // show Tasks shows a pretty representation of the defined tasks and their
 // docstrings in alphabetical order.
 func (a *App) showTasks(spokfile file.SpokFile) error {
-	writer := tabwriter.NewWriter(a.Out, 0, 8, 1, '\t', tabwriter.AlignRight)
+	writer := tabwriter.NewWriter(a.out, 0, 8, 1, '\t', tabwriter.AlignRight)
 
 	titleStyle := color.New(color.FgHiWhite, color.Bold)
 	taskStyle := color.New(color.FgHiCyan, color.Bold)
 	descStyle := color.New(color.FgHiBlack, color.Italic)
 
 	// sort.Sort(task.ByName(spokfile.Tasks))
-	fmt.Fprintf(a.Out, "Tasks defined in %s:\n", spokfile.Path)
+	fmt.Fprintf(a.out, "Tasks defined in %s:\n", spokfile.Path)
 	titleStyle.Fprintln(writer, "Name\tDescription")
 
 	names := make([]string, 0, len(spokfile.Tasks))
@@ -172,11 +177,11 @@ func (a *App) showTasks(spokfile file.SpokFile) error {
 
 // showVariables shows all the defined spokfile variables and their set values.
 func (a *App) showVariables(spokfile file.SpokFile) error {
-	writer := tabwriter.NewWriter(a.Out, 0, 8, 1, '\t', tabwriter.AlignRight)
+	writer := tabwriter.NewWriter(a.out, 0, 8, 1, '\t', tabwriter.AlignRight)
 
 	titleStyle := color.New(color.FgHiWhite, color.Bold)
 
-	fmt.Fprintf(a.Out, "Variables defined in %s:\n", spokfile.Path)
+	fmt.Fprintf(a.out, "Variables defined in %s:\n", spokfile.Path)
 	titleStyle.Fprintln(writer, "Name\tValue")
 
 	names := make([]string, 0, len(spokfile.Vars))
