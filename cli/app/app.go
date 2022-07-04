@@ -56,17 +56,7 @@ func (a *App) Run(tasks []string) error {
 		return err
 	}
 
-	contents, err := os.ReadFile(a.Options.Spokfile)
-	if err != nil {
-		return err
-	}
-
-	tree, err := parser.New(string(contents)).Parse()
-	if err != nil {
-		return err
-	}
-
-	spokfile, err := file.New(tree, filepath.Dir(a.Options.Spokfile))
+	spokfile, err := a.parse(a.Options.Spokfile)
 	if err != nil {
 		return err
 	}
@@ -93,6 +83,27 @@ func (a *App) Run(tasks []string) error {
 	}
 
 	return nil
+}
+
+// parse fully parses a spokfile located at path and returns the
+// concrete Spokfile object along with any errors.
+func (a *App) parse(path string) (file.SpokFile, error) {
+	contents, err := os.ReadFile(a.Options.Spokfile)
+	if err != nil {
+		return file.SpokFile{}, err
+	}
+
+	tree, err := parser.New(string(contents)).Parse()
+	if err != nil {
+		return file.SpokFile{}, err
+	}
+
+	spokfile, err := file.New(tree, filepath.Dir(a.Options.Spokfile))
+	if err != nil {
+		return spokfile, err
+	}
+
+	return spokfile, nil
 }
 
 // setup performs one time initialise actions like finding the cwd and $HOME
