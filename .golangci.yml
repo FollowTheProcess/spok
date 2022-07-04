@@ -1,13 +1,23 @@
 linters:
+  disable-all: true
   enable:
+    - deadcode
+    - errcheck
+    - exhaustive
+    - gocritic
+    - gocyclo
+    - godot
     - gofmt
     - goimports
-    - gocyclo
-    - revive
-    - misspell
-    - gocritic
+    - gosimple
     - govet
-    - godot
+    - ineffassign
+    - misspell
+    - revive
+    - staticcheck
+    - unconvert
+    - unused
+    - varcheck
     - whitespace
 
 linters-settings:
