@@ -27,7 +27,7 @@ type App struct {
 // if the flags were not set and the value of the flag otherwise.
 type Options struct {
 	Show      string // The --show flag
-	Spokfile  string // The --spokfile flag
+	Spokfile  string // The path to the spokfile (defaults to find, overridden by --spokfile)
 	Variables bool   // The --variables flag
 	Fmt       bool   // The --fmt flag
 	Init      bool   // The --init flag
@@ -52,22 +52,11 @@ func New(out io.Writer) *App {
 // Run is the entry point to the spok program, the only arguments spok accepts are names
 // of tasks, all other logic is handled via flags.
 func (a *App) Run(tasks []string) error {
-	cwd, err := os.Getwd()
-	if err != nil {
+	if err := a.setup(); err != nil {
 		return err
 	}
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-
-	spokfilePath, err := file.Find(cwd, home)
-	if err != nil {
-		return err
-	}
-
-	contents, err := os.ReadFile(spokfilePath)
+	contents, err := os.ReadFile(a.Options.Spokfile)
 	if err != nil {
 		return err
 	}
@@ -77,7 +66,7 @@ func (a *App) Run(tasks []string) error {
 		return err
 	}
 
-	spokfile, err := file.New(tree, filepath.Dir(spokfilePath))
+	spokfile, err := file.New(tree, filepath.Dir(a.Options.Spokfile))
 	if err != nil {
 		return err
 	}
@@ -89,8 +78,6 @@ func (a *App) Run(tasks []string) error {
 		return a.showVariables(spokfile)
 	case a.Options.Show != "":
 		fmt.Fprintf(a.Out, "Show source code for task: %s\n", a.Options.Show)
-	case a.Options.Spokfile != "":
-		fmt.Fprintf(a.Out, "Using spokfile at: %s\n", a.Options.Spokfile)
 	case a.Options.Clean:
 		return a.cleanOutputs(spokfile)
 	case a.Options.Check:
@@ -103,6 +90,43 @@ func (a *App) Run(tasks []string) error {
 		default:
 			fmt.Fprintf(a.Out, "Running tasks: %v\n", tasks)
 		}
+	}
+
+	return nil
+}
+
+// setup performs one time initialise actions like finding the cwd and $HOME
+// and setting the path to the spokfile.
+func (a *App) setup() error {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+
+	if a.Options.Spokfile == "" {
+		// The --spokfile flag has not been set, find the default
+		// findErr to avoid shadowing Getwd err
+		spokfilePath, findErr := file.Find(cwd, home)
+		if findErr != nil {
+			return findErr
+		}
+		a.Options.Spokfile = spokfilePath
+	}
+
+	// Ensure we make the spokfile path absolute incase the user
+	// provided --spokfile with a relative path
+	a.Options.Spokfile, err = filepath.Abs(a.Options.Spokfile)
+	if err != nil {
+		return err
+	}
+
+	if filepath.Base(a.Options.Spokfile) != file.Name {
+		return fmt.Errorf("Invalid spokfile file name. Got %s, Expected %s", filepath.Base(a.Options.Spokfile), file.Name)
 	}
 
 	return nil

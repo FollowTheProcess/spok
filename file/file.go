@@ -12,8 +12,8 @@ import (
 	"github.com/FollowTheProcess/spok/task"
 )
 
-// Canonical spokfile filename.
-const spokfile = "spokfile"
+// Name is the canonical spok file name.
+const Name = "spokfile"
 
 // errNoSpokfile is what happens when spok can't find a spokfile.
 var errNoSpokfile = errors.New("No spokfile found")
@@ -43,7 +43,7 @@ func Find(start, stop string) (string, error) {
 		}
 
 		for _, e := range entries {
-			if !e.IsDir() && e.Name() == spokfile {
+			if !e.IsDir() && e.Name() == Name {
 				// We've found it
 				abs, err := filepath.Abs(filepath.Join(start, e.Name()))
 				if err != nil {
@@ -63,7 +63,7 @@ func Find(start, stop string) (string, error) {
 // expansion, typically the path to the directory the spokfile sits in.
 func New(tree ast.Tree, root string) (SpokFile, error) {
 	var file SpokFile
-	file.Path = filepath.Join(root, spokfile)
+	file.Path = filepath.Join(root, Name)
 	file.Vars = make(map[string]string)
 	file.Tasks = make(map[string]task.Task)
 
