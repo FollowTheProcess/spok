@@ -33,6 +33,8 @@ type Options struct {
 	Init      bool   // The --init flag
 	Clean     bool   // The --clean flag
 	Check     bool   // The --check flag
+	Force     bool   // The --force flag
+	Sync      bool   // The --sync flag
 }
 
 // New creates and returns a new App.
