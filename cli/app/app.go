@@ -158,7 +158,10 @@ func (a *App) setup() error {
 		level = zap.DebugLevel
 	}
 	// TODO: Configure a proper logger closer to release time but this will do for now
-	logger, err := zap.NewDevelopment(zap.IncreaseLevel(level))
+	cfg := zap.NewDevelopmentConfig()
+	cfg.DisableCaller = true
+	cfg.EncoderConfig.TimeKey = ""
+	logger, err := cfg.Build(zap.IncreaseLevel(level))
 	if err != nil {
 		return err
 	}
