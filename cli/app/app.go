@@ -14,6 +14,7 @@ import (
 	"github.com/FollowTheProcess/spok/parser"
 	"github.com/fatih/color"
 	"github.com/juju/ansiterm/tabwriter"
+	"go.uber.org/zap"
 )
 
 // App represents the spok program.
@@ -21,6 +22,7 @@ type App struct {
 	out     io.Writer    // Where to write to
 	Options *Options     // All the CLI options
 	printer *msg.Printer // Spok's printer
+	logger  *zap.Logger  // The spok logger
 }
 
 // Options holds all the flag options for spok, these will be at their zero values
@@ -56,7 +58,10 @@ func (a *App) Run(tasks []string) error {
 	if err := a.setup(); err != nil {
 		return err
 	}
+	// Flush the logger
+	defer a.logger.Sync() // nolint: errcheck
 
+	a.logger.Sugar().Debugf("Parsing spokfile at %s", a.Options.Spokfile)
 	spokfile, err := a.parse(a.Options.Spokfile)
 	if err != nil {
 		return err
@@ -146,6 +151,18 @@ func (a *App) setup() error {
 	if filepath.Base(a.Options.Spokfile) != file.Name {
 		return fmt.Errorf("Invalid spokfile file name. Got %s, Expected %s", filepath.Base(a.Options.Spokfile), file.Name)
 	}
+
+	// Set up the logger
+	level := zap.InfoLevel
+	if a.Options.Verbose {
+		level = zap.DebugLevel
+	}
+	// TODO: Configure a proper logger closer to release time but this will do for now
+	logger, err := zap.NewDevelopment(zap.IncreaseLevel(level))
+	if err != nil {
+		return err
+	}
+	a.logger = logger
 
 	return nil
 }
