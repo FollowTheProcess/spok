@@ -34,6 +34,8 @@ type Options struct {
 	Clean     bool   // The --clean flag
 	Force     bool   // The --force flag
 	Sync      bool   // The --sync flag
+	Verbose   bool   // The --verbose flag
+	Quiet     bool   // The --quiet flag
 }
 
 // New creates and returns a new App.
