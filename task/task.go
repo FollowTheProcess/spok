@@ -22,10 +22,12 @@ type Task struct {
 	Doc              string   // The task docstring
 	Name             string   // Task name
 	TaskDependencies []string // Other tasks or idents this task depends on (by name)
-	FileDependencies []string // Filepaths this task depends on (globs expanded and made absolute)
+	FileDependencies []string // Filepaths this task depends on
+	GlobDependencies []string // Filepath dependencies that are specified as glob patterns
 	Commands         []string // Shell commands to run
 	NamedOutputs     []string // Other outputs by ident
 	FileOutputs      []string // Filepaths this task outputs
+	GlobOutputs      []string // Filepaths this task outputs that are specified as glob patterns
 	Parallelisable   bool     // Whether or not the task can be run in parallel with others
 }
 
@@ -33,17 +35,13 @@ type Task struct {
 // root is the absolute path of the directory to use as the root for
 // glob expansion, typically the path to the spokfile.
 func New(t ast.Task, root string, vars map[string]string) (Task, error) {
-	// TODO (performance): This currently globs everything on parse
-	// change it so all the heavy lifting is only done when a task is actually run
-	// and only glob the things it needs. When last profiled this spent 70% of time
-	// in syscall.syscall which means we're opening and reading lots of things that we
-	// don't necessarily need until task runtime, because the spokfile is parsed on CLI
-	// startup, this slows it down by ~80ms
 	var (
 		fileDeps     []string
+		globDeps     []string
 		taskDeps     []string
 		commands     []string
 		fileOutputs  []string
+		globOutputs  []string
 		namedOutputs []string
 	)
 
@@ -53,11 +51,7 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 			// String means file dependency, in which case Literal is the go representation of the string
 			if strings.Contains(dep.Literal(), "*") {
 				// We have a glob pattern
-				matches, err := expandGlob(root, dep.Literal())
-				if err != nil {
-					return Task{}, err
-				}
-				fileDeps = append(fileDeps, matches...)
+				globDeps = append(globDeps, dep.Literal())
 			} else {
 				// We have something like "file.go"
 				fileDeps = append(fileDeps, filepath.Join(root, dep.Literal()))
@@ -84,11 +78,7 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 			// String means file
 			if strings.Contains(out.Literal(), "*") {
 				// We have a glob pattern
-				matches, err := expandGlob(root, out.Literal())
-				if err != nil {
-					return Task{}, err
-				}
-				fileOutputs = append(fileOutputs, matches...)
+				globOutputs = append(globOutputs, out.Literal())
 			} else {
 				// We have something like "file.go"
 				fileOutputs = append(fileOutputs, filepath.Join(root, out.Literal()))
@@ -106,9 +96,11 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 		Name:             t.Name.Name,
 		TaskDependencies: taskDeps,
 		FileDependencies: fileDeps,
+		GlobDependencies: globDeps,
 		Commands:         commands,
 		NamedOutputs:     namedOutputs,
 		FileOutputs:      fileOutputs,
+		GlobOutputs:      globOutputs,
 	}
 	return task, nil
 }

@@ -75,8 +75,9 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: filepath.Join(testdata, "spokfile"),
-				Vars: make(map[string]string),
+				Path:  filepath.Join(testdata, "spokfile"),
+				Vars:  make(map[string]string),
+				Globs: make(map[string][]string),
 				Tasks: map[string]task.Task{
 					"test": {
 						Doc:      "A simple test task",
@@ -99,8 +100,9 @@ func TestFromAST(t *testing.T) {
 				},
 			},
 			want: SpokFile{
-				Path: filepath.Join(testdata, "spokfile"),
-				Vars: make(map[string]string),
+				Path:  filepath.Join(testdata, "spokfile"),
+				Vars:  make(map[string]string),
+				Globs: make(map[string][]string),
 				Tasks: map[string]task.Task{
 					"test": {
 						Name:     "test",
@@ -150,6 +152,7 @@ func TestFromAST(t *testing.T) {
 			want: SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": "hello", "global2": "hello again"},
+				Globs: make(map[string][]string),
 				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
@@ -176,6 +179,7 @@ func TestFromAST(t *testing.T) {
 			want: SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": filepath.Join("path", "parts", "more")},
+				Globs: make(map[string][]string),
 				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
@@ -200,6 +204,7 @@ func TestFromAST(t *testing.T) {
 			want: SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": "hello"},
+				Globs: make(map[string][]string),
 				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
@@ -224,6 +229,7 @@ func TestFromAST(t *testing.T) {
 			want: SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": ""},
+				Globs: make(map[string][]string),
 				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
@@ -243,10 +249,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
-				Path: "",
-				Vars: nil,
-			},
+			want:    SpokFile{},
 			wantErr: true,
 		},
 		{
@@ -266,10 +269,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
-				Path: "",
-				Vars: nil,
-			},
+			want:    SpokFile{},
 			wantErr: true,
 		},
 		{
@@ -289,10 +289,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
-				Path: "",
-				Vars: nil,
-			},
+			want:    SpokFile{},
 			wantErr: true,
 		},
 	}
@@ -533,6 +530,9 @@ var spokFileWant = SpokFile{
 		"GLOBAL":     "very important stuff here",
 		"GIT_COMMIT": "hello",
 	},
+	Globs: map[string][]string{
+		"**/*.txt": nil,
+	},
 	Tasks: map[string]task.Task{
 		"test": {
 			Doc:              "Run the project unit tests",
@@ -547,16 +547,11 @@ var spokFileWant = SpokFile{
 			Doc:              "Format the project source",
 			Name:             "fmt",
 			TaskDependencies: nil,
-			FileDependencies: []string{
-				mustAbs(testdata, "top.txt"),
-				mustAbs(testdata, "sub1/sub2/blah.txt"),
-				mustAbs(testdata, "sub1/sub2/sub3/hello.txt"),
-				mustAbs(testdata, "suba/subb/stuff.txt"),
-				mustAbs(testdata, "suba/subb/subc/something.txt"),
-			},
-			Commands:     []string{"go fmt ./..."},
-			NamedOutputs: nil,
-			FileOutputs:  nil,
+			FileDependencies: nil,
+			GlobDependencies: []string{"**/*.txt"},
+			Commands:         []string{"go fmt ./..."},
+			NamedOutputs:     nil,
+			FileOutputs:      nil,
 		},
 		"many": {
 			Doc:              "Do many things",
@@ -576,16 +571,11 @@ var spokFileWant = SpokFile{
 			Doc:              "Compile the project",
 			Name:             "build",
 			TaskDependencies: nil,
-			FileDependencies: []string{
-				mustAbs(testdata, "top.txt"),
-				mustAbs(testdata, "sub1/sub2/blah.txt"),
-				mustAbs(testdata, "sub1/sub2/sub3/hello.txt"),
-				mustAbs(testdata, "suba/subb/stuff.txt"),
-				mustAbs(testdata, "suba/subb/subc/something.txt"),
-			},
-			Commands:     []string{`go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`},
-			NamedOutputs: nil,
-			FileOutputs:  []string{mustAbs(testdata, "./bin/main")},
+			FileDependencies: nil,
+			GlobDependencies: []string{"**/*.txt"},
+			Commands:         []string{`go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`},
+			NamedOutputs:     nil,
+			FileOutputs:      []string{mustAbs(testdata, "./bin/main")},
 		},
 		"show": {
 			Doc:              "Show the global variables",

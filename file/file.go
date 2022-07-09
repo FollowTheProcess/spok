@@ -22,6 +22,7 @@ var errNoSpokfile = errors.New("No spokfile found")
 type SpokFile struct {
 	Vars  map[string]string    // Global variables in IDENT: value form (functions already evaluated)
 	Tasks map[string]task.Task // Map of task name to the task itself
+	Globs map[string][]string  // Map of glob pattern to their concrete filepaths (avoids recalculating)
 	Path  string               // The absolute path to the spokfile
 }
 
@@ -66,6 +67,7 @@ func New(tree ast.Tree, root string) (SpokFile, error) {
 	file.Path = filepath.Join(root, Name)
 	file.Vars = make(map[string]string)
 	file.Tasks = make(map[string]task.Task)
+	file.Globs = make(map[string][]string)
 
 	for _, node := range tree.Nodes {
 		switch {
@@ -118,6 +120,19 @@ func New(tree ast.Tree, root string) (SpokFile, error) {
 
 			if file.hasTask(task.Name) {
 				return SpokFile{}, fmt.Errorf("Duplicate task: spokfile already contains task named %q, duplicate tasks not allowed", task.Name)
+			}
+
+			// Add the glob patterns from the tasks to the files' map of globs
+			// this enables us to only calculate the glob expansion once if multiple
+			// tasks share the same pattern, since glob expansion does a lot of ReadDir
+			// it is relatively expensive
+			for _, pattern := range task.GlobDependencies {
+				var emptySlice []string
+				file.Globs[pattern] = emptySlice
+			}
+			for _, pattern := range task.GlobOutputs {
+				var emptySlice []string
+				file.Globs[pattern] = emptySlice
 			}
 
 			// Add the task to the file
