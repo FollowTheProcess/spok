@@ -89,6 +89,62 @@ func TestFromAST(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "task with glob dependencies",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Task{
+						Name:         ast.Ident{Name: "test", NodeType: ast.NodeIdent},
+						Docstring:    ast.Comment{Text: " A simple test task", NodeType: ast.NodeComment},
+						Commands:     []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+						NodeType:     ast.NodeTask,
+						Dependencies: []ast.Node{ast.String{Text: "**/*.go", NodeType: ast.NodeString}},
+					},
+				},
+			},
+			want: SpokFile{
+				Path:  filepath.Join(testdata, "spokfile"),
+				Vars:  make(map[string]string),
+				Globs: map[string][]string{"**/*.go": nil},
+				Tasks: map[string]task.Task{
+					"test": {
+						Doc:              "A simple test task",
+						Name:             "test",
+						Commands:         []string{"go test ./..."},
+						GlobDependencies: []string{"**/*.go"},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "task with glob output",
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Task{
+						Name:      ast.Ident{Name: "test", NodeType: ast.NodeIdent},
+						Docstring: ast.Comment{Text: " A simple test task", NodeType: ast.NodeComment},
+						Commands:  []ast.Command{{Command: "go test ./...", NodeType: ast.NodeCommand}},
+						NodeType:  ast.NodeTask,
+						Outputs:   []ast.Node{ast.String{Text: "**/*.go", NodeType: ast.NodeString}},
+					},
+				},
+			},
+			want: SpokFile{
+				Path:  filepath.Join(testdata, "spokfile"),
+				Vars:  make(map[string]string),
+				Globs: map[string][]string{"**/*.go": nil},
+				Tasks: map[string]task.Task{
+					"test": {
+						Doc:         "A simple test task",
+						Name:        "test",
+						Commands:    []string{"go test ./..."},
+						GlobOutputs: []string{"**/*.go"},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
 			name: "just a task no docstring",
 			tree: ast.Tree{
 				Nodes: []ast.Node{
