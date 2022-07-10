@@ -395,7 +395,7 @@ func TestHashFiles(t *testing.T) {
 	open := func(file string) (io.ReadCloser, error) {
 		return io.NopCloser(strings.NewReader("I'm some content for " + file)), nil
 	}
-	want := "99602d7b885eb92aef160ad5933c12e426534314"
+	want := "80ccd66dcd17b89b7850bc26b6c976b6c18ae923"
 	got, err := hashFiles(files, open)
 	if err != nil {
 		t.Fatalf("hashFiles returned an error: %v", err)
@@ -428,7 +428,7 @@ func TestHashFileDeps(t *testing.T) {
 
 	files := []string{filepath.Join(dir, "test"), filepath.Join(dir, "file"), filepath.Join(dir, "me"), filepath.Join(dir, "too")}
 
-	want := "99602d7b885eb92aef160ad5933c12e426534314"
+	want := "80ccd66dcd17b89b7850bc26b6c976b6c18ae923"
 	got, err := HashFiles(files)
 	if err != nil {
 		t.Fatalf("hashFiles returned an error: %v", err)
