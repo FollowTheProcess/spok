@@ -413,20 +413,12 @@ func TestHashFileDeps(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 
-	if err = os.WriteFile(filepath.Join(dir, "test"), []byte("I'm some content for test"), 0666); err != nil {
-		t.Fatal(err)
-	}
-	if err = os.WriteFile(filepath.Join(dir, "file"), []byte("I'm some content for file"), 0666); err != nil {
-		t.Fatal(err)
-	}
-	if err = os.WriteFile(filepath.Join(dir, "me"), []byte("I'm some content for me"), 0666); err != nil {
-		t.Fatal(err)
-	}
-	if err = os.WriteFile(filepath.Join(dir, "too"), []byte("I'm some content for too"), 0666); err != nil {
-		t.Fatal(err)
-	}
-
 	files := []string{filepath.Join(dir, "test"), filepath.Join(dir, "file"), filepath.Join(dir, "me"), filepath.Join(dir, "too")}
+	for _, file := range files {
+		if err = os.WriteFile(file, []byte("I'm some content for "+filepath.Base(file)), 0666); err != nil {
+			t.Fatal(err)
+		}
+	}
 
 	want := "80ccd66dcd17b89b7850bc26b6c976b6c18ae923"
 	got, err := HashFiles(files)
@@ -440,26 +432,18 @@ func TestHashFileDeps(t *testing.T) {
 }
 
 func BenchmarkHashFileDeps(b *testing.B) {
-	dir, err := os.MkdirTemp(os.TempDir(), "BenchmarkHashFileDeps")
+	dir, err := os.MkdirTemp(os.TempDir(), "TestHashFileDeps")
 	if err != nil {
 		b.Fatal(err)
 	}
 	defer os.RemoveAll(dir)
 
-	if err := os.WriteFile(filepath.Join(dir, "test"), []byte("I'm some content for test"), 0666); err != nil {
-		b.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "file"), []byte("I'm some content for file"), 0666); err != nil {
-		b.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "me"), []byte("I'm some content for me"), 0666); err != nil {
-		b.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "too"), []byte("I'm some content for too"), 0666); err != nil {
-		b.Fatal(err)
-	}
-
 	files := []string{filepath.Join(dir, "test"), filepath.Join(dir, "file"), filepath.Join(dir, "me"), filepath.Join(dir, "too")}
+	for _, file := range files {
+		if err = os.WriteFile(file, []byte("I'm some content for "+filepath.Base(file)), 0666); err != nil {
+			b.Fatal(err)
+		}
+	}
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {

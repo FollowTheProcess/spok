@@ -140,12 +140,9 @@ func hashFiles(files []string, open func(string) (io.ReadCloser, error)) (string
 	hash := sha1.New()
 
 	// So the file order is deterministic
+	files = append([]string(nil), files...)
 	sort.Strings(files)
 
-	// TODO: (performance) We might want to look at parallelising this, current benchmarks
-	// are around 20ms per file, so in a very large project of e.g. 1000 files
-	// this would take 20 seconds, not ideal. A worker pool of goroutines could do this
-	// nicely
 	for _, file := range files {
 		readCloser, err := open(file)
 		if err != nil {
