@@ -1,4 +1,4 @@
-// Package filehash implements a concurrent file hasher used by spok
+// Package hash implements a concurrent file hasher used by spok
 // to detect when task dependencies have changed.
 //
 // The hasher opens, reads, hashes contents and filepath, and closes each file with a sha256
@@ -7,7 +7,7 @@
 //
 // The fully qualified filepath is included in each files hash so if any part of this
 // changes this will count as a change as well as any change to file contents.
-package filehash
+package hash
 
 import (
 	"bytes"
@@ -35,18 +35,18 @@ type result struct {
 	hash []byte // The hash of the contents and filepath
 }
 
-// ConcurrentHasher is primary file hasher used by spok.
-type ConcurrentHasher struct{}
+// Concurrent is primary file hasher used by spok.
+type Concurrent struct{}
 
 // New creates and returns a new file hasher.
-func New() ConcurrentHasher {
-	return ConcurrentHasher{}
+func New() Concurrent {
+	return Concurrent{}
 }
 
 // Hash takes a list of absolute filepaths to hash contents and paths for,
 // these are then hashed and combined into an SHA256 digest which is returned
 // as a hex encoded string along with any errors encountered.
-func (c ConcurrentHasher) Hash(files []string) (string, error) {
+func (c Concurrent) Hash(files []string) (string, error) {
 	jobs := make(chan string)
 	results := make(chan result)
 
