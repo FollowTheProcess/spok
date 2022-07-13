@@ -142,11 +142,5 @@ task clean() {
 }
 ```
 
-### Credits
-
-This package was created with [cookiecutter] and the [FollowTheProcess/go_cookie] project template.
-
-[cookiecutter]: https://github.com/cookiecutter/cookiecutter
-[FollowTheProcess/go_cookie]: https://github.com/FollowTheProcess/go_cookie
 [make]: https://www.gnu.org/software/make/
 [just]: https://github.com/casey/just
