@@ -5,7 +5,6 @@ package task
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -121,17 +120,15 @@ func expandVars(command string, vars map[string]string) (string, error) {
 // expandGlob expands out the glob pattern from root and returns all the matches,
 // the matches are made absolute before returning, root should be absolute.
 func expandGlob(root, pattern string) ([]string, error) {
-	matches, err := doublestar.Glob(os.DirFS(root), pattern)
+	matches, err := doublestar.FilepathGlob(filepath.Join(root, pattern))
 	if err != nil {
 		return nil, fmt.Errorf("could not expand glob pattern '%s': %w", filepath.Join(root, pattern), err)
 	}
-
 	absMatches := make([]string, 0, len(matches))
 	for _, match := range matches {
-		joined := filepath.Join(root, match)
-		abs, err := filepath.Abs(joined)
+		abs, err := filepath.Abs(match)
 		if err != nil {
-			return nil, fmt.Errorf("could not resolve path '%s' to absolute: %w", joined, err)
+			return nil, fmt.Errorf("could not resolve path '%s' to absolute: %w", match, err)
 		}
 		absMatches = append(absMatches, abs)
 	}
