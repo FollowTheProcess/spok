@@ -30,6 +30,9 @@ func TestHashFilesIsDeterministic(t *testing.T) {
 
 	// Ensure that we don't get any drift across runs
 	first := digests[0]
+	if first == "" {
+		t.Fatal("First generated digest was empty")
+	}
 
 	for i, digest := range digests {
 		if digest != first {
