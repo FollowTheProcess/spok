@@ -74,7 +74,7 @@ check: test lint
 
 # Print lines of code (for fun)
 sloc:
-    find . -name "*.go" | xargs wc -l | sort -nr
+    find . -name "*.go" | xargs wc -l | sort -nr | head
 
 # Install the project on your machine
 install: uninstall build
