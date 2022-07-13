@@ -65,3 +65,15 @@ func TestBuiltins(t *testing.T) {
 		})
 	}
 }
+
+func TestGet(t *testing.T) {
+	_, ok := Get("exec")
+	if !ok {
+		t.Fatal("Get failed to retrieve 'exec' which is known to exist")
+	}
+
+	_, ok = Get("dingle")
+	if ok {
+		t.Fatal("Get returned true for getting 'dingle' which doesn't exist")
+	}
+}
