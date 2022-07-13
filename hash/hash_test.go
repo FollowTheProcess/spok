@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/hash"
@@ -27,7 +28,20 @@ func TestHashFilesIsDeterministic(t *testing.T) {
 		digests = append(digests, digest)
 	}
 
-	want := "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
+	// Because the filepath is used in the hash, and the /tmp dir is different on different
+	// platforms, the hashes will be different for each, but repeatable on each
+	var want string
+	switch runtime.GOOS {
+	case "darwin":
+		want = "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
+	case "linux":
+		want = "a2a890074f4edea78c7f6cb0dd2d129410e4cf9bf9897e475cbecdf6be72936c"
+	case "windows":
+		want = "replace me"
+	default:
+		t.Skipf("Unsupported platform: %s", runtime.GOOS)
+	}
+
 	for i, digest := range digests {
 		if digest != want {
 			t.Errorf("Digest at index %d not correct. Got %q, wanted %q", i, digest, want)
@@ -47,8 +61,19 @@ func TestHashDifferentContents(t *testing.T) {
 		t.Fatalf("Hash returned an error: %v", err)
 	}
 
-	// The hash of the output of makeFiles
-	original := "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
+	// Because the filepath is used in the hash, and the /tmp dir is different on different
+	// platforms, the hashes will be different for each, but repeatable on each
+	var original string
+	switch runtime.GOOS {
+	case "darwin":
+		original = "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
+	case "linux":
+		original = "a2a890074f4edea78c7f6cb0dd2d129410e4cf9bf9897e475cbecdf6be72936c"
+	case "windows":
+		original = "replace me"
+	default:
+		t.Skipf("Unsupported platform: %s", runtime.GOOS)
+	}
 
 	if digest == original {
 		t.Error("Digest did not respond to different file contents")
@@ -67,8 +92,19 @@ func TestHashDifferentName(t *testing.T) {
 		t.Fatalf("Hash returned an error: %v", err)
 	}
 
-	// The hash of the output of makeFiles
-	original := "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
+	// Because the filepath is used in the hash, and the /tmp dir is different on different
+	// platforms, the hashes will be different for each, but repeatable on each
+	var original string
+	switch runtime.GOOS {
+	case "darwin":
+		original = "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
+	case "linux":
+		original = "a2a890074f4edea78c7f6cb0dd2d129410e4cf9bf9897e475cbecdf6be72936c"
+	case "windows":
+		original = "replace me"
+	default:
+		t.Skipf("Unsupported platform: %s", runtime.GOOS)
+	}
 
 	if digest == original {
 		t.Error("Digest did not respond to different file names")
