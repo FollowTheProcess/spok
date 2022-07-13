@@ -4,13 +4,9 @@ package task
 
 import (
 	"bytes"
-	"crypto/sha1"
-	"encoding/hex"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"text/template"
 
@@ -120,46 +116,6 @@ func expandVars(command string, vars map[string]string) (string, error) {
 	}
 
 	return out.String(), nil
-}
-
-// HashFiles takes a list of absolute filepaths e.g. a task's file dependencies,
-// calculates the SHA1 hash of the contents of each one, sums them up and returns the sum.
-func HashFiles(files []string) (string, error) {
-	open := func(file string) (io.ReadCloser, error) {
-		return os.Open(file)
-	}
-	return hashFiles(files, open)
-}
-
-// hashFiles takes a list of absolute filepaths e.g. a task's file dependencies as well as a
-// function that opens the content of each file, it opens, reads, hashes and closes each
-// file and returns the overall hash sum.
-func hashFiles(files []string, open func(string) (io.ReadCloser, error)) (string, error) {
-	// We aren't actually after a cryptographically secure hash
-	// we just need to see if files have changed and in testing benchmarks SHA1 was fastest
-	hash := sha1.New()
-
-	// So the file order is deterministic
-	files = append([]string(nil), files...)
-	sort.Strings(files)
-
-	for _, file := range files {
-		readCloser, err := open(file)
-		if err != nil {
-			return "", err
-		}
-
-		h := sha1.New()
-		_, err = io.Copy(h, readCloser)
-		readCloser.Close()
-		if err != nil {
-			return "", err
-		}
-
-		hash.Write(h.Sum(nil))
-	}
-
-	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
 // expandGlob expands out the glob pattern from root and returns all the matches,

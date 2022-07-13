@@ -2,11 +2,9 @@ package task
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
@@ -387,70 +385,6 @@ func TestNewTask(t *testing.T) {
 				t.Errorf("Task mismatch (-want +got):\n%s", diff)
 			}
 		})
-	}
-}
-
-func TestHashFiles(t *testing.T) {
-	files := []string{"test", "file", "me", "too"}
-	open := func(file string) (io.ReadCloser, error) {
-		return io.NopCloser(strings.NewReader("I'm some content for " + file)), nil
-	}
-	want := "80ccd66dcd17b89b7850bc26b6c976b6c18ae923"
-	got, err := hashFiles(files, open)
-	if err != nil {
-		t.Fatalf("hashFiles returned an error: %v", err)
-	}
-
-	if got != want {
-		t.Errorf("got %q, wanted %q", got, want)
-	}
-}
-
-func TestHashFileDeps(t *testing.T) {
-	dir, err := os.MkdirTemp(os.TempDir(), "TestHashFileDeps")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
-
-	files := []string{filepath.Join(dir, "test"), filepath.Join(dir, "file"), filepath.Join(dir, "me"), filepath.Join(dir, "too")}
-	for _, file := range files {
-		if err = os.WriteFile(file, []byte("I'm some content for "+filepath.Base(file)), 0666); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	want := "80ccd66dcd17b89b7850bc26b6c976b6c18ae923"
-	got, err := HashFiles(files)
-	if err != nil {
-		t.Fatalf("hashFiles returned an error: %v", err)
-	}
-
-	if got != want {
-		t.Errorf("got %q, wanted %q", got, want)
-	}
-}
-
-func BenchmarkHashFileDeps(b *testing.B) {
-	dir, err := os.MkdirTemp(os.TempDir(), "TestHashFileDeps")
-	if err != nil {
-		b.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
-
-	files := []string{filepath.Join(dir, "test"), filepath.Join(dir, "file"), filepath.Join(dir, "me"), filepath.Join(dir, "too")}
-	for _, file := range files {
-		if err = os.WriteFile(file, []byte("I'm some content for "+filepath.Base(file)), 0666); err != nil {
-			b.Fatal(err)
-		}
-	}
-
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		_, err := HashFiles(files)
-		if err != nil {
-			b.Fatalf("hashFiles returned an error: %v", err)
-		}
 	}
 }
 
