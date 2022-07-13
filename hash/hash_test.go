@@ -28,23 +28,12 @@ func TestHashFilesIsDeterministic(t *testing.T) {
 		digests = append(digests, digest)
 	}
 
-	// Because the filepath is used in the hash, and the /tmp dir is different on different
-	// platforms, the hashes will be different for each, but repeatable on each
-	var want string
-	switch runtime.GOOS {
-	case "darwin":
-		want = "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
-	case "linux":
-		want = "a2a890074f4edea78c7f6cb0dd2d129410e4cf9bf9897e475cbecdf6be72936c"
-	case "windows":
-		want = "replace me"
-	default:
-		t.Skipf("Unsupported platform: %s", runtime.GOOS)
-	}
+	// Ensure that we don't get any drift across runs
+	first := digests[0]
 
 	for i, digest := range digests {
-		if digest != want {
-			t.Errorf("Digest at index %d not correct. Got %q, wanted %q", i, digest, want)
+		if digest != first {
+			t.Errorf("Digest at index %d not correct. Got %q, wanted %q", i, digest, first)
 		}
 	}
 }
