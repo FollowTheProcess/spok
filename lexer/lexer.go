@@ -634,18 +634,8 @@ func isASCII(r rune) bool {
 
 // unexpectedToken emits an error token with details about the offending input from the lexer.
 func unexpectedToken(l *Lexer) lexFn {
-	var message string
-	char := l.current()
-
-	switch {
-	case unicode.IsGraphic(char):
-		message = fmt.Sprintf("Unexpected token '%s'", string(char))
-	default:
-		message = fmt.Sprintf("Unexpected token '%U'", char)
-	}
-
 	return l.error(syntaxError{
-		message: message,
+		message: fmt.Sprintf("Unexpected token '%s'", string(l.current())),
 		context: l.getLine(),
 		line:    l.line,
 		pos:     l.pos,

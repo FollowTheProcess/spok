@@ -6,6 +6,89 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestLiteral(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		node Node
+		want string
+	}{
+		{
+			name: "comment",
+			node: Comment{Text: "I'm a comment"},
+			want: "# I'm a comment\n",
+		},
+		{
+			name: "ident",
+			node: Ident{Name: "ident"},
+			want: "ident",
+		},
+		{
+			name: "assign string",
+			node: Assign{
+				Value: String{Text: "Hello"},
+				Name:  Ident{Name: "VALUE"},
+			},
+			want: "VALUE := \"Hello\"\n",
+		},
+		{
+			name: "assign builtin",
+			node: Assign{
+				Value: Function{
+					Name:      Ident{Name: "exec"},
+					Arguments: []Node{String{Text: "true"}},
+				},
+				Name: Ident{Name: "VALUE"},
+			},
+			want: "VALUE := exec(\"true\")\n\n",
+		},
+		{
+			name: "string",
+			node: String{Text: "hello"},
+			want: "hello",
+		},
+		{
+			name: "function",
+			node: Function{
+				Name:      Ident{Name: "join"},
+				Arguments: []Node{String{Text: "dir"}, String{Text: "another"}},
+			},
+			want: "join(\"dir\", \"another\")\n",
+		},
+		{
+			name: "task",
+			node: Task{
+				Name:         Ident{Name: "test"},
+				Docstring:    Comment{Text: "I'm a test task"},
+				Dependencies: []Node{String{Text: "**/*.go"}},
+				Outputs:      []Node{String{Text: "./bin/main"}},
+				Commands: []Command{
+					{Command: "go test ./..."},
+				},
+			},
+			want: `# I'm a test task
+task test("**/*.go") -> "./bin/main" {
+    go test ./...
+}
+
+`,
+		},
+		{
+			name: "command",
+			node: Command{Command: "git commit"},
+			want: "git commit",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.node.Literal(); got != tt.want {
+				t.Errorf("%s wrong Literal()\nGot %q\nWanted %q", tt.node.Type(), got, tt.want)
+			}
+		})
+	}
+}
+
 func TestAppend(t *testing.T) {
 	t.Parallel()
 	tree := Tree{
