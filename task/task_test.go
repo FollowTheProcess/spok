@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
+	"github.com/FollowTheProcess/spok/shell"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -383,6 +384,99 @@ func TestNewTask(t *testing.T) {
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("Task mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestTaskRun(t *testing.T) {
+	tests := []struct {
+		name    string
+		task    Task
+		want    []shell.Result
+		wantErr bool
+	}{
+		{
+			name:    "empty",
+			task:    Task{Name: "empty"},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "simple",
+			task: Task{Name: "simple", Commands: []string{
+				"echo hello",
+			}},
+			want: []shell.Result{{
+				Stdout: "hello\n",
+				Stderr: "",
+				Status: 0,
+			}},
+			wantErr: false,
+		},
+		{
+			name: "stderr",
+			task: Task{Name: "stderr", Commands: []string{
+				"echo hello stderr >&2",
+			}},
+			want: []shell.Result{{
+				Stdout: "",
+				Stderr: "hello stderr\n",
+				Status: 0,
+			}},
+			wantErr: false,
+		},
+		{
+			name: "multiple",
+			task: Task{Name: "multiple", Commands: []string{
+				"echo hello",
+				"echo hello stderr >&2",
+				"true",
+				"false",
+			}},
+			want: []shell.Result{
+				{Stdout: "hello\n", Stderr: "", Status: 0},
+				{Stdout: "", Stderr: "hello stderr\n", Status: 0},
+				{Stdout: "", Stderr: "", Status: 0},
+				{Stdout: "", Stderr: "", Status: 1},
+			},
+			wantErr: false,
+		},
+		{
+			name: "error in the middle",
+			task: Task{Name: "multiple", Commands: []string{
+				"echo hello",
+				"false",                 // 1 status code here
+				"echo hello stderr >&2", // Should still see these
+				"true",
+			}},
+			want: []shell.Result{
+				{Stdout: "hello\n", Stderr: "", Status: 0},
+				{Stdout: "", Stderr: "", Status: 1},
+				{Stdout: "", Stderr: "hello stderr\n", Status: 0},
+				{Stdout: "", Stderr: "", Status: 0},
+			},
+			wantErr: false,
+		},
+		{
+			name: "bad syntax",
+			task: Task{Name: "bad", Commands: []string{
+				"(*^$$",
+			}},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.task.Run()
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
+			}
+
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("Result mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

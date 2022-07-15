@@ -30,6 +30,11 @@ type Result struct {
 	Status int    // The exit status of the command
 }
 
+// Ok returns whether the result was successful or not.
+func (r Result) Ok() bool {
+	return r.Status == 0
+}
+
 // Run runs the shell command cmd belonging to task with
 // environment variables set, if env is empty or nil, os.Environ is used.
 func Run(cmd, task string, env []string) (Result, error) {

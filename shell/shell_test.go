@@ -7,6 +7,33 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestOk(t *testing.T) {
+	tests := []struct {
+		name   string
+		result shell.Result
+		want   bool
+	}{
+		{
+			name:   "yes",
+			result: shell.Result{Status: 0},
+			want:   true,
+		},
+		{
+			name:   "no",
+			result: shell.Result{Status: 1},
+			want:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.result.Ok(); got != tt.want {
+				t.Errorf("got %v, wanted %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestRun(t *testing.T) {
 	tests := []struct {
 		name    string
