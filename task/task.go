@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/FollowTheProcess/spok/ast"
+	"github.com/FollowTheProcess/spok/shell"
 	"github.com/bmatcuk/doublestar/v4"
 )
 
@@ -24,7 +25,23 @@ type Task struct {
 	NamedOutputs     []string // Other outputs by ident
 	FileOutputs      []string // Filepaths this task outputs
 	GlobOutputs      []string // Filepaths this task outputs that are specified as glob patterns
-	Parallelisable   bool     // Whether or not the task can be run in parallel with others
+}
+
+// Run runs a task commands in order, returning the list of results containing
+// the exit status, stdout and stderr of each command.
+func (t Task) Run() ([]shell.Result, error) {
+	if len(t.Commands) == 0 {
+		return nil, fmt.Errorf("Task %q has no commands", t.Name)
+	}
+	var results []shell.Result
+	for _, cmd := range t.Commands {
+		result, err := shell.Run(cmd, t.Name, nil)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, result)
+	}
+	return results, nil
 }
 
 // New parses a task AST node into a concrete task,
