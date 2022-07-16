@@ -53,11 +53,69 @@ func TestFind(t *testing.T) {
 	})
 }
 
+func TestExpandGlobs(t *testing.T) {
+	t.Parallel()
+	testdata := getTestdata()
+	tests := []struct {
+		file *SpokFile
+		want *SpokFile
+		name string
+	}{
+		{
+			name: "txt",
+			file: &SpokFile{
+				Path:  filepath.Join(testdata, "spokfile"),
+				Vars:  make(map[string]string),
+				Globs: make(map[string][]string),
+				Tasks: map[string]task.Task{
+					"test": {
+						Doc:              "A simple test task",
+						Name:             "test",
+						GlobDependencies: []string{"**/*.txt"},
+					},
+				},
+			},
+			want: &SpokFile{
+				Path: filepath.Join(testdata, "spokfile"),
+				Vars: make(map[string]string),
+				Globs: map[string][]string{
+					"**/*.txt": {
+						mustAbs(testdata, "top.txt"),
+						mustAbs(testdata, "sub1/sub2/blah.txt"),
+						mustAbs(testdata, "sub1/sub2/sub3/hello.txt"),
+						mustAbs(testdata, "suba/subb/stuff.txt"),
+						mustAbs(testdata, "suba/subb/subc/something.txt"),
+					},
+				},
+				Tasks: map[string]task.Task{
+					"test": {
+						Doc:              "A simple test task",
+						Name:             "test",
+						GlobDependencies: []string{"**/*.txt"},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.file.ExpandGlobs(); err != nil {
+				t.Fatalf("ExpandGlobs returned an error: %v", err)
+			}
+
+			if diff := cmp.Diff(tt.want, tt.file); diff != "" {
+				t.Errorf("File mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestFromAST(t *testing.T) {
 	t.Parallel()
 	testdata := getTestdata()
 	tests := []struct {
-		want    SpokFile
+		want    *SpokFile
 		name    string
 		tree    ast.Tree
 		wantErr bool
@@ -74,11 +132,11 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
+			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  make(map[string]string),
 				Globs: make(map[string][]string),
-				Tasks: map[string]*task.Task{
+				Tasks: map[string]task.Task{
 					"test": {
 						Doc:      "A simple test task",
 						Name:     "test",
@@ -101,11 +159,11 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
+			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  make(map[string]string),
 				Globs: map[string][]string{"**/*.go": nil},
-				Tasks: map[string]*task.Task{
+				Tasks: map[string]task.Task{
 					"test": {
 						Doc:              "A simple test task",
 						Name:             "test",
@@ -129,11 +187,11 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
+			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  make(map[string]string),
 				Globs: map[string][]string{"**/*.go": nil},
-				Tasks: map[string]*task.Task{
+				Tasks: map[string]task.Task{
 					"test": {
 						Doc:         "A simple test task",
 						Name:        "test",
@@ -155,11 +213,11 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
+			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  make(map[string]string),
 				Globs: make(map[string][]string),
-				Tasks: map[string]*task.Task{
+				Tasks: map[string]task.Task{
 					"test": {
 						Name:     "test",
 						Commands: []string{"go test ./..."},
@@ -186,7 +244,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want:    SpokFile{},
+			want:    nil,
 			wantErr: true,
 		},
 		{
@@ -205,11 +263,11 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
+			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": "hello", "global2": "hello again"},
 				Globs: make(map[string][]string),
-				Tasks: make(map[string]*task.Task),
+				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
 		},
@@ -232,11 +290,11 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
+			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": filepath.Join("path", "parts", "more")},
 				Globs: make(map[string][]string),
-				Tasks: make(map[string]*task.Task),
+				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
 		},
@@ -257,11 +315,11 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
+			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": "hello"},
 				Globs: make(map[string][]string),
-				Tasks: make(map[string]*task.Task),
+				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
 		},
@@ -282,11 +340,11 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want: SpokFile{
+			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": ""},
 				Globs: make(map[string][]string),
-				Tasks: make(map[string]*task.Task),
+				Tasks: make(map[string]task.Task),
 			},
 			wantErr: false,
 		},
@@ -305,7 +363,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want:    SpokFile{},
+			want:    nil,
 			wantErr: true,
 		},
 		{
@@ -325,7 +383,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want:    SpokFile{},
+			want:    nil,
 			wantErr: true,
 		},
 		{
@@ -345,7 +403,7 @@ func TestFromAST(t *testing.T) {
 					},
 				},
 			},
-			want:    SpokFile{},
+			want:    nil,
 			wantErr: true,
 		},
 	}
@@ -580,7 +638,7 @@ var fullSpokfileAST = ast.Tree{
 }
 
 // spokFileWant is the expected concrete spok.File object when the above AST is concretised.
-var spokFileWant = SpokFile{
+var spokFileWant = &SpokFile{
 	Path: filepath.Join(getTestdata(), "spokfile"),
 	Vars: map[string]string{
 		"GLOBAL":     "very important stuff here",
@@ -589,7 +647,7 @@ var spokFileWant = SpokFile{
 	Globs: map[string][]string{
 		"**/*.txt": nil,
 	},
-	Tasks: map[string]*task.Task{
+	Tasks: map[string]task.Task{
 		"test": {
 			Doc:              "Run the project unit tests",
 			Name:             "test",

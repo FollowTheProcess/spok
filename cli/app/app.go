@@ -99,15 +99,15 @@ func (a *App) Run(tasks []string) error {
 
 // parse fully parses a spokfile located at path and returns the
 // concrete Spokfile object along with any errors.
-func (a *App) parse(path string) (file.SpokFile, error) {
+func (a *App) parse(path string) (*file.SpokFile, error) {
 	contents, err := os.ReadFile(a.Options.Spokfile)
 	if err != nil {
-		return file.SpokFile{}, err
+		return nil, err
 	}
 
 	tree, err := parser.New(string(contents)).Parse()
 	if err != nil {
-		return file.SpokFile{}, err
+		return nil, err
 	}
 
 	spokfile, err := file.New(tree, filepath.Dir(a.Options.Spokfile))
@@ -172,7 +172,7 @@ func (a *App) setup() error {
 
 // show Tasks shows a pretty representation of the defined tasks and their
 // docstrings in alphabetical order.
-func (a *App) showTasks(spokfile file.SpokFile) error {
+func (a *App) showTasks(spokfile *file.SpokFile) error {
 	writer := tabwriter.NewWriter(a.out, 0, 8, 1, '\t', tabwriter.AlignRight)
 
 	titleStyle := color.New(color.FgHiWhite, color.Bold)
@@ -198,7 +198,7 @@ func (a *App) showTasks(spokfile file.SpokFile) error {
 }
 
 // showVariables shows all the defined spokfile variables and their set values.
-func (a *App) showVariables(spokfile file.SpokFile) error {
+func (a *App) showVariables(spokfile *file.SpokFile) error {
 	writer := tabwriter.NewWriter(a.out, 0, 8, 1, '\t', tabwriter.AlignRight)
 
 	titleStyle := color.New(color.FgHiWhite, color.Bold)
@@ -220,7 +220,7 @@ func (a *App) showVariables(spokfile file.SpokFile) error {
 }
 
 // cleanOutputs removes all declared outputs in the spokfile.
-func (a *App) cleanOutputs(spokfile file.SpokFile) error {
+func (a *App) cleanOutputs(spokfile *file.SpokFile) error {
 	for _, task := range spokfile.Tasks {
 		for _, fileOutput := range task.FileOutputs {
 			resolved, err := filepath.Abs(fileOutput)
