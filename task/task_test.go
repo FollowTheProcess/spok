@@ -65,14 +65,14 @@ func TestNewTask(t *testing.T) {
 	testdata := mustGetTestData()
 	tests := []struct {
 		name    string
-		want    Task
+		want    *Task
 		vars    map[string]string
 		in      ast.Task
 		wantErr bool
 	}{
 		{
 			name: "simple",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -91,7 +91,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "simple with vars",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task with global variables",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -113,7 +113,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with a file dependency",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -132,7 +132,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with a named dependency",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: []string{"fmt"},
@@ -151,7 +151,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi file dependency",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -176,7 +176,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi task dependency",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: []string{"fmt", "lint"},
@@ -198,7 +198,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with double glob dependency",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -218,7 +218,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with single glob dependency",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -238,7 +238,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with single file output",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -259,7 +259,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with glob output",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -281,7 +281,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi file output",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -308,7 +308,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with single named output",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -329,7 +329,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi named output",
-			want: Task{
+			want: &Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -353,7 +353,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "complex task with everything",
-			want: Task{
+			want: &Task{
 				Doc:              "Very complex things here",
 				Name:             "complex",
 				TaskDependencies: nil,

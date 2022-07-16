@@ -29,7 +29,7 @@ type Task struct {
 
 // Run runs a task commands in order, returning the list of results containing
 // the exit status, stdout and stderr of each command.
-func (t Task) Run() ([]shell.Result, error) {
+func (t *Task) Run() ([]shell.Result, error) {
 	if len(t.Commands) == 0 {
 		return nil, fmt.Errorf("Task %q has no commands", t.Name)
 	}
@@ -47,7 +47,7 @@ func (t Task) Run() ([]shell.Result, error) {
 // New parses a task AST node into a concrete task,
 // root is the absolute path of the directory to use as the root for
 // glob expansion, typically the path to the spokfile.
-func New(t ast.Task, root string, vars map[string]string) (Task, error) {
+func New(t ast.Task, root string, vars map[string]string) (*Task, error) {
 	var (
 		fileDeps     []string
 		globDeps     []string
@@ -73,14 +73,14 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 			// Ident means it depends on another task
 			taskDeps = append(taskDeps, dep.Literal())
 		default:
-			return Task{}, fmt.Errorf("unknown dependency: %s", dep)
+			return nil, fmt.Errorf("unknown dependency: %s", dep)
 		}
 	}
 
 	for _, cmd := range t.Commands {
 		expanded, err := expandVars(cmd.Command, vars)
 		if err != nil {
-			return Task{}, err
+			return nil, err
 		}
 		commands = append(commands, expanded)
 	}
@@ -100,11 +100,11 @@ func New(t ast.Task, root string, vars map[string]string) (Task, error) {
 			// Ident means it outputs something named by global scope
 			namedOutputs = append(namedOutputs, out.Literal())
 		default:
-			return Task{}, fmt.Errorf("unknown dependency: %s", out)
+			return nil, fmt.Errorf("unknown dependency: %s", out)
 		}
 	}
 
-	task := Task{
+	task := &Task{
 		Doc:              strings.TrimSpace(t.Docstring.Text),
 		Name:             t.Name.Name,
 		TaskDependencies: taskDeps,

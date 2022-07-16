@@ -78,7 +78,7 @@ func TestFromAST(t *testing.T) {
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  make(map[string]string),
 				Globs: make(map[string][]string),
-				Tasks: map[string]task.Task{
+				Tasks: map[string]*task.Task{
 					"test": {
 						Doc:      "A simple test task",
 						Name:     "test",
@@ -105,7 +105,7 @@ func TestFromAST(t *testing.T) {
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  make(map[string]string),
 				Globs: map[string][]string{"**/*.go": nil},
-				Tasks: map[string]task.Task{
+				Tasks: map[string]*task.Task{
 					"test": {
 						Doc:              "A simple test task",
 						Name:             "test",
@@ -133,7 +133,7 @@ func TestFromAST(t *testing.T) {
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  make(map[string]string),
 				Globs: map[string][]string{"**/*.go": nil},
-				Tasks: map[string]task.Task{
+				Tasks: map[string]*task.Task{
 					"test": {
 						Doc:         "A simple test task",
 						Name:        "test",
@@ -159,7 +159,7 @@ func TestFromAST(t *testing.T) {
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  make(map[string]string),
 				Globs: make(map[string][]string),
-				Tasks: map[string]task.Task{
+				Tasks: map[string]*task.Task{
 					"test": {
 						Name:     "test",
 						Commands: []string{"go test ./..."},
@@ -209,7 +209,7 @@ func TestFromAST(t *testing.T) {
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": "hello", "global2": "hello again"},
 				Globs: make(map[string][]string),
-				Tasks: make(map[string]task.Task),
+				Tasks: make(map[string]*task.Task),
 			},
 			wantErr: false,
 		},
@@ -236,7 +236,7 @@ func TestFromAST(t *testing.T) {
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": filepath.Join("path", "parts", "more")},
 				Globs: make(map[string][]string),
-				Tasks: make(map[string]task.Task),
+				Tasks: make(map[string]*task.Task),
 			},
 			wantErr: false,
 		},
@@ -261,7 +261,7 @@ func TestFromAST(t *testing.T) {
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": "hello"},
 				Globs: make(map[string][]string),
-				Tasks: make(map[string]task.Task),
+				Tasks: make(map[string]*task.Task),
 			},
 			wantErr: false,
 		},
@@ -286,7 +286,7 @@ func TestFromAST(t *testing.T) {
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  map[string]string{"global1": ""},
 				Globs: make(map[string][]string),
-				Tasks: make(map[string]task.Task),
+				Tasks: make(map[string]*task.Task),
 			},
 			wantErr: false,
 		},
@@ -589,7 +589,7 @@ var spokFileWant = SpokFile{
 	Globs: map[string][]string{
 		"**/*.txt": nil,
 	},
-	Tasks: map[string]task.Task{
+	Tasks: map[string]*task.Task{
 		"test": {
 			Doc:              "Run the project unit tests",
 			Name:             "test",
