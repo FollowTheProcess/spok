@@ -16,15 +16,17 @@ import (
 
 // Task represents a spok Task.
 type Task struct {
-	Doc              string   // The task docstring
-	Name             string   // Task name
-	TaskDependencies []string // Other tasks or idents this task depends on (by name)
-	FileDependencies []string // Filepaths this task depends on
-	GlobDependencies []string // Filepath dependencies that are specified as glob patterns
-	Commands         []string // Shell commands to run
-	NamedOutputs     []string // Other outputs by ident
-	FileOutputs      []string // Filepaths this task outputs
-	GlobOutputs      []string // Filepaths this task outputs that are specified as glob patterns
+	Doc                  string   // The task docstring
+	Name                 string   // Task name
+	Root                 string   // The root dir (typically the spokfile dir)
+	TaskDependencies     []string // Other tasks or idents this task depends on (by name)
+	FileDependencies     []string // Filepaths this task depends on
+	GlobDependencies     []string // Filepath dependencies that are specified as glob patterns
+	Commands             []string // Shell commands to run
+	NamedOutputs         []string // Other outputs by ident
+	FileOutputs          []string // Filepaths this task outputs
+	GlobOutputs          []string // Filepaths this task outputs that are specified as glob patterns
+	ExpandedDependencies []string // Combination of FileDependencies and the expansion of every GlobDependency, only populated on run
 }
 
 // Run runs a task commands in order, returning the list of results containing
@@ -33,6 +35,15 @@ func (t *Task) Run() ([]shell.Result, error) {
 	if len(t.Commands) == 0 {
 		return nil, fmt.Errorf("Task %q has no commands", t.Name)
 	}
+
+	// Expand glob patterns on the task
+	if err := t.expandGlobs(); err != nil {
+		return nil, err
+	}
+
+	// TODO: Hash everything in expandedDependencies and compare against
+	// cached hash sum to see whether or not we should run
+
 	var results []shell.Result
 	for _, cmd := range t.Commands {
 		result, err := shell.Run(cmd, t.Name, nil)
@@ -42,6 +53,26 @@ func (t *Task) Run() ([]shell.Result, error) {
 		results = append(results, result)
 	}
 	return results, nil
+}
+
+// expandGlobs looks at all the glob patterns defined as dependencies on the task,
+// expands them all and populates the expandedDependencies field on the struct.
+func (t *Task) expandGlobs() error {
+	// If the expandedDependencies is already populated, do nothing
+	if len(t.ExpandedDependencies) != 0 {
+		return nil
+	}
+	for _, pattern := range t.GlobDependencies {
+		matches, err := expandGlob(t.Root, pattern)
+		if err != nil {
+			return err
+		}
+		t.ExpandedDependencies = append(t.ExpandedDependencies, matches...)
+	}
+
+	// Add in the normal file dependencies too
+	t.ExpandedDependencies = append(t.ExpandedDependencies, t.FileDependencies...)
+	return nil
 }
 
 // New parses a task AST node into a concrete task,
