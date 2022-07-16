@@ -21,10 +21,26 @@ import (
 	"sync"
 )
 
+// Always is a constant string that is different to the string returned from
+// the AlwaysHasher, to be used as the cache comparison value so that a task
+// is always re-run regardless of it's dependencies.
+const Always = "DIFFERENT"
+
 // Hasher is the interface representing something capable of hashing
 // a number of files into a final digest.
 type Hasher interface {
+	// Hash takes a list of filepaths and returns a hash digest.
 	Hash(files []string) (string, error)
+}
+
+// AlwaysRun is a Hasher that always returns a constant value for the final digest: "DIFFERENT",
+// it is used primarily when forcing tasks to re-run regardless of the state
+// of their dependencies e.g. (spok <tasks...> --force).
+type AlwaysRun struct{}
+
+// Hash implements Hasher for AlwaysRun and returns the constant string "ALWAYS".
+func (a AlwaysRun) Hash(files []string) (string, error) {
+	return "ALWAYS", nil
 }
 
 // result encodes the result of a concurrent hashing operation on
