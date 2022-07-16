@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
@@ -27,62 +26,6 @@ type errorHasher struct{}
 
 func (e errorHasher) Hash(files []string) (string, error) {
 	return "", errors.New("Uh oh")
-}
-
-func TestExpandGlob(t *testing.T) {
-	t.Parallel()
-	testdata := mustGetTestData()
-
-	t.Run("first run", func(t *testing.T) {
-		task := &Task{
-			Doc:              "",
-			Name:             "test",
-			Root:             testdata,
-			GlobDependencies: []string{"**/*.txt"},
-		}
-
-		if err := task.expandGlobs(); err != nil {
-			t.Fatalf("expandGlob returned an error: %v", err)
-		}
-
-		want := []string{"top.txt", "sub1/sub2/blah.txt", "sub1/sub2/sub3/hello.txt", "suba/subb/stuff.txt", "suba/subb/subc/something.txt"}
-		var wantAbs []string
-		for _, w := range want {
-			wantAbs = append(wantAbs, mustAbs(testdata, w))
-		}
-		if !reflect.DeepEqual(task.ExpandedDependencies, wantAbs) {
-			t.Errorf("got %#v, wanted %#v", task.ExpandedDependencies, wantAbs)
-		}
-	})
-
-	t.Run("already populated", func(t *testing.T) {
-		task := &Task{
-			Doc:              "",
-			Name:             "test",
-			Root:             testdata,
-			GlobDependencies: []string{"**/*.txt"},
-			ExpandedDependencies: []string{
-				mustAbs(testdata, "top.txt"),
-				mustAbs(testdata, "sub1/sub2/blah.txt"),
-				mustAbs(testdata, "sub1/sub2/sub3/hello.txt"),
-				mustAbs(testdata, "suba/subb/stuff.txt"),
-				mustAbs(testdata, "suba/subb/subc/something.txt"),
-			},
-		}
-
-		if err := task.expandGlobs(); err != nil {
-			t.Fatalf("expandGlob returned an error: %v", err)
-		}
-
-		want := []string{"top.txt", "sub1/sub2/blah.txt", "sub1/sub2/sub3/hello.txt", "suba/subb/stuff.txt", "suba/subb/subc/something.txt"}
-		var wantAbs []string
-		for _, w := range want {
-			wantAbs = append(wantAbs, mustAbs(testdata, w))
-		}
-		if !reflect.DeepEqual(task.ExpandedDependencies, wantAbs) {
-			t.Errorf("got %#v, wanted %#v", task.ExpandedDependencies, wantAbs)
-		}
-	})
 }
 
 func TestExpandVars(t *testing.T) {
@@ -119,14 +62,14 @@ func TestNewTask(t *testing.T) {
 	testdata := mustGetTestData()
 	tests := []struct {
 		name    string
-		want    *Task
+		want    Task
 		vars    map[string]string
 		in      ast.Task
 		wantErr bool
 	}{
 		{
 			name: "simple",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -145,7 +88,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "simple with vars",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task with global variables",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -167,7 +110,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with a file dependency",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -186,7 +129,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with a named dependency",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: []string{"fmt"},
@@ -205,7 +148,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi file dependency",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -230,7 +173,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi task dependency",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: []string{"fmt", "lint"},
@@ -252,7 +195,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with double glob dependency",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -272,7 +215,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with single glob dependency",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -292,7 +235,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with single file output",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -313,7 +256,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with glob output",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -335,7 +278,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi file output",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -362,7 +305,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with single named output",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -383,7 +326,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi named output",
-			want: &Task{
+			want: Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -407,7 +350,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "complex task with everything",
-			want: &Task{
+			want: Task{
 				Doc:              "Very complex things here",
 				Name:             "complex",
 				TaskDependencies: nil,
@@ -546,16 +489,8 @@ func TestShouldRun(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "no expanded deps",
-			task:    Task{},
-			hasher:  hash.AlwaysRun{},
-			cached:  hash.Always,
-			want:    false,
-			wantErr: true,
-		},
-		{
 			name:    "yes",
-			task:    Task{ExpandedDependencies: []string{"doesn't", "matter"}},
+			task:    Task{},
 			hasher:  hash.AlwaysRun{},
 			cached:  hash.Always,
 			want:    true,
@@ -563,7 +498,7 @@ func TestShouldRun(t *testing.T) {
 		},
 		{
 			name:    "no",
-			task:    Task{ExpandedDependencies: []string{"doesn't", "matter"}},
+			task:    Task{},
 			hasher:  neverHasher{},
 			cached:  "NEVER",
 			want:    false,
@@ -571,7 +506,7 @@ func TestShouldRun(t *testing.T) {
 		},
 		{
 			name:    "hash error",
-			task:    Task{ExpandedDependencies: []string{"doesn't", "matter"}},
+			task:    Task{},
 			hasher:  errorHasher{},
 			cached:  "NEVER",
 			want:    false,
@@ -581,7 +516,7 @@ func TestShouldRun(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.task.ShouldRun(tt.hasher, tt.cached)
+			got, err := tt.task.ShouldRun([]string{"doesn't", "matter"}, tt.hasher, tt.cached)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("ShouldRun() err = %v, wantErr = %v", err, tt.wantErr)
 			}
@@ -590,18 +525,6 @@ func TestShouldRun(t *testing.T) {
 				t.Errorf("got %v, wanted %v", got, tt.want)
 			}
 		})
-	}
-}
-
-func BenchmarkExpandGlob(b *testing.B) {
-	testdata := mustGetTestData()
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, err := expandGlob(testdata, "**/*.txt")
-		if err != nil {
-			b.Fatalf("expandGlob returned an error: %v", err)
-		}
 	}
 }
 
