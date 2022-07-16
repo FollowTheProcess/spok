@@ -20,10 +20,10 @@ var errNoSpokfile = errors.New("No spokfile found")
 
 // SpokFile represents a concrete spokfile.
 type SpokFile struct {
-	Vars  map[string]string    // Global variables in IDENT: value form (functions already evaluated)
-	Tasks map[string]task.Task // Map of task name to the task itself
-	Globs map[string][]string  // Map of glob pattern to their concrete filepaths (avoids recalculating)
-	Path  string               // The absolute path to the spokfile
+	Vars  map[string]string     // Global variables in IDENT: value form (functions already evaluated)
+	Tasks map[string]*task.Task // Map of task name to the task itself
+	Globs map[string][]string   // Map of glob pattern to their concrete filepaths (avoids recalculating)
+	Path  string                // The absolute path to the spokfile
 }
 
 // hasTask returns whether or not the SpokFile has a task with the given name.
@@ -66,7 +66,7 @@ func New(tree ast.Tree, root string) (SpokFile, error) {
 	var file SpokFile
 	file.Path = filepath.Join(root, Name)
 	file.Vars = make(map[string]string)
-	file.Tasks = make(map[string]task.Task)
+	file.Tasks = make(map[string]*task.Task)
 	file.Globs = make(map[string][]string)
 
 	for _, node := range tree.Nodes {
