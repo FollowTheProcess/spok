@@ -57,5 +57,5 @@ task cover("**/*.go") -> (COVERAGE_DATA, COVERAGE_HTML) {
 
 # Print lines of code (for fun)
 task sloc() {
-    find . -name "*.go" | xargs wc -l | sort -nr
+    find . -name "*.go" | xargs wc -l | sort -nr | head
 }
