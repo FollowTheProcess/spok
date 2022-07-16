@@ -49,6 +49,13 @@ func TestBuiltins(t *testing.T) {
 			args:    []string{"echo"},
 			wantErr: false,
 		},
+		{
+			fn:      execute,
+			name:    "bad syntax",
+			want:    "",
+			args:    []string{"(*^$$"},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
