@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/FollowTheProcess/spok/ast"
+	"github.com/FollowTheProcess/spok/hash"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/bmatcuk/doublestar/v4"
 )
@@ -41,9 +42,6 @@ func (t *Task) Run() ([]shell.Result, error) {
 		return nil, err
 	}
 
-	// TODO: Hash everything in expandedDependencies and compare against
-	// cached hash sum to see whether or not we should run
-
 	var results []shell.Result
 	for _, cmd := range t.Commands {
 		result, err := shell.Run(cmd, t.Name, nil)
@@ -53,6 +51,22 @@ func (t *Task) Run() ([]shell.Result, error) {
 		results = append(results, result)
 	}
 	return results, nil
+}
+
+// ShouldRun hashes the tasks expanded dependencies and compares against a
+// previously cached value to determine whether or not the task should be run
+// (i.e. if any dependency has changed). ShouldRun must be called after the glob
+// patterns have been expanded, to do otherwise will return an error.
+func (t *Task) ShouldRun(hasher hash.Hasher, cached string) (bool, error) {
+	if len(t.ExpandedDependencies) == 0 {
+		return false, fmt.Errorf("Glob patterns have not been expanded for task %s", t.Name)
+	}
+	digest, err := hasher.Hash(t.ExpandedDependencies)
+	if err != nil {
+		return false, err
+	}
+
+	return digest != cached, nil
 }
 
 // expandGlobs looks at all the glob patterns defined as dependencies on the task,
