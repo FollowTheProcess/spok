@@ -4,14 +4,12 @@
 package builtins
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/google/shlex"
+	"github.com/FollowTheProcess/spok/shell"
 )
 
 // Builtin is a spok built in function.
@@ -37,28 +35,16 @@ func execute(command ...string) (string, error) {
 	if len(command) != 1 {
 		return "", errors.New("exec takes the shell command as a single string argument")
 	}
-	com, err := shlex.Split(command[0])
+	cmd := command[0]
+	result, err := shell.Run(cmd, "", nil)
 	if err != nil {
-		return "", fmt.Errorf("could not split command into parts: %w", err)
+		return "", err
 	}
-	var cmd *exec.Cmd
-	bin := com[0]
-	if len(com) > 1 {
-		args := com[1:]
-		cmd = exec.Command(bin, args...)
-	} else {
-		cmd = exec.Command(bin)
+	if !result.Ok() {
+		return "", fmt.Errorf("Command %q exited with a non-zero exit code.\nStdout: %s\nStderr: %s", cmd, result.Stdout, result.Stderr)
 	}
 
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		return "", fmt.Errorf("command %v exited with a non-zero exit code.\nstdout: %s\nstderr: %s", command, stdout.String(), stderr.String())
-	}
-
-	return strings.TrimSpace(stdout.String()), nil
+	return strings.TrimSpace(result.Stdout), nil
 }
 
 // Get looks up a builtin function by name, it returns the Builtin and a bool
