@@ -87,10 +87,9 @@ func (g *Graph) Sort() ([]*Vertex, error) {
 
 	// While queue is not empty
 	for !zeroInDegreeQueue.IsEmpty() {
-		vertex, err := zeroInDegreeQueue.Pop() // Pop a vertex off the queue
-		if err != nil {
-			return nil, err
-		}
+		// Only error here is pop from empty queue, but we know
+		// the queue is not empty in this loop so no point checking
+		vertex, _ := zeroInDegreeQueue.Pop() // Pop a vertex off the queue
 
 		// Add it to the result slice
 		result = append(result, vertex)
