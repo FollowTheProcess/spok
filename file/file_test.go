@@ -14,16 +14,13 @@ import (
 
 func TestFind(t *testing.T) {
 	t.Parallel()
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("could not get cwd: %v", err)
-	}
+	testdata := getTestdata()
 
 	t.Run("found spokfile", func(t *testing.T) {
-		start := filepath.Join(cwd, "testdata", "suba", "subb", "subc") // Start deep inside testdata
-		stop := filepath.Join(cwd, "testdata")                          // Stop at testdata
+		start := filepath.Join(testdata, "nested", "deep", "down", "here") // Start deep inside testdata
+		stop := testdata                                                   // Stop at testdata
 
-		want, err := filepath.Abs(filepath.Join(cwd, "testdata", "suba", "spokfile"))
+		want, err := filepath.Abs(filepath.Join(testdata, "nested", "spokfile"))
 		if err != nil {
 			t.Fatal("could not resolve want")
 		}
@@ -39,8 +36,8 @@ func TestFind(t *testing.T) {
 	})
 
 	t.Run("missing spokfile", func(t *testing.T) {
-		start := filepath.Join(cwd, "testdata", "sub1", "sub2", "sub3")
-		stop := filepath.Join(cwd, "testdata")
+		start := filepath.Join(testdata, "missing", "deep", "down", "here")
+		stop := testdata
 
 		_, err := Find(start, stop)
 		if err == nil {
@@ -62,7 +59,7 @@ func TestExpandGlobs(t *testing.T) {
 		name string
 	}{
 		{
-			name: "txt",
+			name: "dependencies",
 			file: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Vars:  make(map[string]string),
@@ -81,10 +78,10 @@ func TestExpandGlobs(t *testing.T) {
 				Globs: map[string][]string{
 					"**/*.txt": {
 						mustAbs(testdata, "top.txt"),
-						mustAbs(testdata, "sub1/sub2/blah.txt"),
-						mustAbs(testdata, "sub1/sub2/sub3/hello.txt"),
-						mustAbs(testdata, "suba/subb/stuff.txt"),
-						mustAbs(testdata, "suba/subb/subc/something.txt"),
+						mustAbs(testdata, "deps/sub1/sub2/blah.txt"),
+						mustAbs(testdata, "deps/sub1/sub2/sub3/hello.txt"),
+						mustAbs(testdata, "deps/suba/subb/stuff.txt"),
+						mustAbs(testdata, "deps/suba/subb/subc/something.txt"),
 					},
 				},
 				Tasks: map[string]task.Task{
@@ -92,6 +89,41 @@ func TestExpandGlobs(t *testing.T) {
 						Doc:              "A simple test task",
 						Name:             "test",
 						GlobDependencies: []string{"**/*.txt"},
+					},
+				},
+			},
+		},
+		{
+			name: "outputs",
+			file: &SpokFile{
+				Path:  filepath.Join(testdata, "spokfile"),
+				Vars:  make(map[string]string),
+				Globs: make(map[string][]string),
+				Tasks: map[string]task.Task{
+					"test": {
+						Doc:         "A simple test task",
+						Name:        "test",
+						GlobOutputs: []string{"**/*.json"},
+					},
+				},
+			},
+			want: &SpokFile{
+				Path: filepath.Join(testdata, "spokfile"),
+				Vars: make(map[string]string),
+				Globs: map[string][]string{
+					"**/*.json": {
+						mustAbs(testdata, "top.json"),
+						mustAbs(testdata, "outputs/sub1/sub2/blah.json"),
+						mustAbs(testdata, "outputs/sub1/sub2/sub3/hello.json"),
+						mustAbs(testdata, "outputs/suba/subb/stuff.json"),
+						mustAbs(testdata, "outputs/suba/subb/subc/something.json"),
+					},
+				},
+				Tasks: map[string]task.Task{
+					"test": {
+						Doc:         "A simple test task",
+						Name:        "test",
+						GlobOutputs: []string{"**/*.json"},
 					},
 				},
 			},

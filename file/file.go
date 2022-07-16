@@ -52,6 +52,16 @@ func (s *SpokFile) ExpandGlobs() error {
 				s.Globs[pattern] = matches
 			}
 		}
+
+		for _, pattern := range task.GlobOutputs {
+			if !s.hasGlob(pattern) {
+				matches, err := expandGlob(filepath.Dir(s.Path), pattern)
+				if err != nil {
+					return err
+				}
+				s.Globs[pattern] = matches
+			}
+		}
 	}
 	return nil
 }
