@@ -1,15 +1,20 @@
-package cache
+package cache_test
 
 import (
 	"bytes"
+	"errors"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"testing"
+
+	"github.com/FollowTheProcess/spok/cache"
 )
 
 func TestString(t *testing.T) {
 	tests := []struct {
 		name  string
-		cache Cache
+		cache cache.Cache
 		want  string
 	}{
 		{
@@ -47,7 +52,7 @@ func TestString(t *testing.T) {
 func TestBytes(t *testing.T) {
 	tests := []struct {
 		name  string
-		cache Cache
+		cache cache.Cache
 		want  []byte
 	}{
 		{
@@ -83,7 +88,7 @@ func TestBytes(t *testing.T) {
 }
 
 func TestGetPut(t *testing.T) {
-	cache := New()
+	cache := cache.New()
 	cache.Put("test", "4440044af910a451502908de30e986fb97cdacf6")
 	cache.Put("docs", "254ac0c1e553c18be4c7baa82eba5a6293cec2c8")
 
@@ -112,7 +117,7 @@ func TestWrite(t *testing.T) {
 	tmp.Close()
 	defer os.RemoveAll(tmp.Name())
 
-	cache := New()
+	cache := cache.New()
 	cache.Put("test", "4440044af910a451502908de30e986fb97cdacf6")
 	cache.Put("docs", "254ac0c1e553c18be4c7baa82eba5a6293cec2c8")
 
@@ -144,7 +149,7 @@ func TestRead(t *testing.T) {
 	tmp.Close()
 	defer os.RemoveAll(tmp.Name())
 
-	cache := New()
+	cache := cache.New()
 	if err = cache.Load(tmp.Name()); err != nil {
 		t.Fatalf("Load returned an error: %v", err)
 	}
@@ -168,4 +173,37 @@ func TestRead(t *testing.T) {
 	if docs != "254ac0c1e553c18be4c7baa82eba5a6293cec2c8" {
 		t.Errorf("Wrong value for docs.\nGot %q\nWant %q", test, "254ac0c1e553c18be4c7baa82eba5a6293cec2c8")
 	}
+}
+
+func TestInit(t *testing.T) {
+	tmp, err := os.MkdirTemp("", "init")
+	if err != nil {
+		t.Fatalf("Could not make temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmp)
+
+	if err := cache.Init(tmp); err != nil {
+		t.Fatalf("Init returned an error: %v", err)
+	}
+
+	dir := filepath.Join(tmp, ".spok")
+	file := filepath.Join(dir, "cache")
+
+	if !exists(dir) {
+		t.Fatal("Init did not create .spok dir")
+	}
+
+	if !exists(file) {
+		t.Fatal("Init did not create cache file")
+	}
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return false
+		}
+	}
+	return true
 }

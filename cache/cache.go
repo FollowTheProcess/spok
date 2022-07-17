@@ -9,8 +9,14 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
+)
+
+const (
+	dir  = ".spok" // Name of spok's cache dir
+	file = "cache" // Name of the cache file itself
 )
 
 // Cache represents the entire cache of task name to hash sum.
@@ -19,6 +25,22 @@ type Cache map[string]string
 // New builds and returns a new cache.
 func New() Cache {
 	return Cache{}
+}
+
+// Init creates the .spok directory relative to root and writes an empty cache file.
+func Init(root string) error {
+	path, err := filepath.Abs(filepath.Join(root, dir, file))
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return err
+	}
+
+	if err := os.WriteFile(path, []byte(""), 0666); err != nil {
+		return nil
+	}
+	return nil
 }
 
 // String implements Stringer for a Cache.
