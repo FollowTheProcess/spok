@@ -61,6 +61,7 @@ func (t *Task) ShouldRun(files []string, hasher hash.Hasher, cached string) (boo
 // Result encodes the overall result of running a task which
 // may involve any number of shell commands.
 type Result struct {
+	Task           string         // The name of the task
 	CommandResults []shell.Result // The results of running the tasks commands
 }
 
