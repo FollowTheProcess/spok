@@ -92,6 +92,20 @@ func (a *App) Run(tasks []string) error {
 			if a.Options.Sync {
 				fmt.Fprintln(a.out, "--sync was true, tasks will not be run in parallel")
 			}
+			results, err := spokfile.Run(a.Options.Sync, a.Options.Force, tasks...)
+			if err != nil {
+				return err
+			}
+
+			for _, result := range results {
+				if !result.Ok() {
+					// TODO: Drill down into which one failed and show nice error
+					return fmt.Errorf("Task %q failed", result.Task)
+				}
+				for _, cmd := range result.CommandResults {
+					fmt.Fprint(a.out, cmd.Stdout)
+				}
+			}
 		}
 	}
 
