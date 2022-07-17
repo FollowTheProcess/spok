@@ -25,6 +25,7 @@ const timeout = 15 * time.Second
 
 // Result holds the result of running a shell command.
 type Result struct {
+	Cmd    string // The command that was run
 	Stdout string // The stdout of the command
 	Stderr string // The stderr of the command
 	Status int    // The exit status of the command
@@ -48,6 +49,7 @@ func Run(cmd, task string, env []string) (Result, error) {
 	}
 
 	var result Result
+	result.Cmd = cmd
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 

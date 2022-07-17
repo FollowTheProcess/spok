@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
+	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/google/go-cmp/cmp"
 )
@@ -449,6 +450,59 @@ func TestFromAST(t *testing.T) {
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("File mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestRun(t *testing.T) {
+	tests := []struct {
+		spokfile *SpokFile
+		name     string
+		tasks    []string
+		want     []task.Result
+		sync     bool
+		force    bool
+	}{
+		{
+			name: "simple",
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"echo hello",
+						},
+					},
+				},
+			},
+			sync:  false,
+			force: false,
+			tasks: []string{"test"},
+			want: []task.Result{
+				{
+					CommandResults: []shell.Result{
+						{
+							Cmd:    "echo hello",
+							Stdout: "hello\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.spokfile.Run(tt.sync, tt.force, tt.tasks...)
+			if err != nil {
+				t.Fatalf("Run returned an error: %v", err)
+			}
+
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("Result mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

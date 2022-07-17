@@ -58,6 +58,23 @@ func (t *Task) ShouldRun(files []string, hasher hash.Hasher, cached string) (boo
 	return digest != cached, nil
 }
 
+// Result encodes the overall result of running a task which
+// may involve any number of shell commands.
+type Result struct {
+	CommandResults []shell.Result // The results of running the tasks commands
+}
+
+// Ok returns whether or not the task was successful, true if
+// all commands exited with 0, else false.
+func (r Result) Ok() bool {
+	for _, result := range r.CommandResults {
+		if !result.Ok() {
+			return false
+		}
+	}
+	return true
+}
+
 // New parses a task AST node into a concrete task,
 // root is the absolute path of the directory to use as the root for
 // glob expansion, typically the path to the spokfile.
