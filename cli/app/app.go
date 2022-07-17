@@ -10,6 +10,7 @@ import (
 	"sort"
 
 	"github.com/FollowTheProcess/msg"
+	"github.com/FollowTheProcess/spok/cache"
 	"github.com/FollowTheProcess/spok/file"
 	"github.com/FollowTheProcess/spok/parser"
 	"github.com/fatih/color"
@@ -166,6 +167,11 @@ func (a *App) setup() error {
 		return err
 	}
 	a.logger = logger
+
+	// Initialise the cache
+	if err := cache.Init(filepath.Dir(a.Options.Spokfile)); err != nil {
+		return err
+	}
 
 	return nil
 }

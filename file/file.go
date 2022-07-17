@@ -9,6 +9,7 @@ import (
 
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
+	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/bmatcuk/doublestar/v4"
 )
@@ -64,6 +65,36 @@ func (s *SpokFile) ExpandGlobs() error {
 		}
 	}
 	return nil
+}
+
+// Run runs the specified tasks, it takes sync and force which are boolean flags
+// set by the CLI which enforces synchronous running and always reruns tasks respectively.
+func (s *SpokFile) Run(sync, force bool, tasks ...string) ([]task.Result, error) {
+	// TODO: Parallelise in a worker pool
+	// TODO: Check if should be run with hashes
+	// TODO: Use sync and force
+	results := make([]task.Result, 0, len(tasks))
+	for _, t := range tasks {
+		res, err := s.run(t)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, task.Result{CommandResults: res})
+	}
+	return results, nil
+}
+
+// run runs a single spok task and returns it's command results.
+func (s *SpokFile) run(task string) ([]shell.Result, error) {
+	got, ok := s.Tasks[task]
+	if !ok {
+		return nil, fmt.Errorf("Spokfile has no task %q", task)
+	}
+	results, err := got.Run()
+	if err != nil {
+		return nil, fmt.Errorf("Task %q encountered an error: %w", task, err)
+	}
+	return results, nil
 }
 
 // Find climbs the file tree from 'start' to 'stop' looking for a spokfile,

@@ -408,6 +408,7 @@ func TestTaskRun(t *testing.T) {
 				Stdout: "hello\n",
 				Stderr: "",
 				Status: 0,
+				Cmd:    "echo hello",
 			}},
 			wantErr: false,
 		},
@@ -420,6 +421,7 @@ func TestTaskRun(t *testing.T) {
 				Stdout: "",
 				Stderr: "hello stderr\n",
 				Status: 0,
+				Cmd:    "echo hello stderr >&2",
 			}},
 			wantErr: false,
 		},
@@ -432,10 +434,10 @@ func TestTaskRun(t *testing.T) {
 				"false",
 			}},
 			want: []shell.Result{
-				{Stdout: "hello\n", Stderr: "", Status: 0},
-				{Stdout: "", Stderr: "hello stderr\n", Status: 0},
-				{Stdout: "", Stderr: "", Status: 0},
-				{Stdout: "", Stderr: "", Status: 1},
+				{Stdout: "hello\n", Stderr: "", Status: 0, Cmd: "echo hello"},
+				{Stdout: "", Stderr: "hello stderr\n", Status: 0, Cmd: "echo hello stderr >&2"},
+				{Stdout: "", Stderr: "", Status: 0, Cmd: "true"},
+				{Stdout: "", Stderr: "", Status: 1, Cmd: "false"},
 			},
 			wantErr: false,
 		},
@@ -448,10 +450,10 @@ func TestTaskRun(t *testing.T) {
 				"true",
 			}},
 			want: []shell.Result{
-				{Stdout: "hello\n", Stderr: "", Status: 0},
-				{Stdout: "", Stderr: "", Status: 1},
-				{Stdout: "", Stderr: "hello stderr\n", Status: 0},
-				{Stdout: "", Stderr: "", Status: 0},
+				{Stdout: "hello\n", Stderr: "", Status: 0, Cmd: "echo hello"},
+				{Stdout: "", Stderr: "", Status: 1, Cmd: "false"},
+				{Stdout: "", Stderr: "hello stderr\n", Status: 0, Cmd: "echo hello stderr >&2"},
+				{Stdout: "", Stderr: "", Status: 0, Cmd: "true"},
 			},
 			wantErr: false,
 		},
@@ -522,6 +524,77 @@ func TestShouldRun(t *testing.T) {
 			}
 
 			if got != tt.want {
+				t.Errorf("got %v, wanted %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestResultOk(t *testing.T) {
+	tests := []struct {
+		name   string
+		result Result
+		want   bool
+	}{
+		{
+			name: "one success",
+			result: Result{
+				CommandResults: []shell.Result{
+					{Stdout: "Hello", Stderr: "", Status: 0},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "one failure",
+			result: Result{
+				CommandResults: []shell.Result{
+					{Stdout: "", Stderr: "Hello", Status: 1},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "multiple successes",
+			result: Result{
+				CommandResults: []shell.Result{
+					{Stdout: "Hello", Stderr: "", Status: 0},
+					{Stdout: "There", Stderr: "", Status: 0},
+					{Stdout: "General", Stderr: "", Status: 0},
+					{Stdout: "Kenobi", Stderr: "", Status: 0},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "multiple failures",
+			result: Result{
+				CommandResults: []shell.Result{
+					{Stdout: "Hello", Stderr: "", Status: 1},
+					{Stdout: "There", Stderr: "", Status: 1},
+					{Stdout: "General", Stderr: "", Status: 1},
+					{Stdout: "Kenobi", Stderr: "", Status: 1},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "failure in the middle",
+			result: Result{
+				CommandResults: []shell.Result{
+					{Stdout: "Hello", Stderr: "", Status: 0},
+					{Stdout: "There", Stderr: "", Status: 1},
+					{Stdout: "General", Stderr: "", Status: 0},
+					{Stdout: "Kenobi", Stderr: "", Status: 0},
+				},
+			},
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.result.Ok(); got != tt.want {
 				t.Errorf("got %v, wanted %v", got, tt.want)
 			}
 		})
