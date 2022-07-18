@@ -85,7 +85,7 @@ func (a *App) Run(tasks []string) error {
 			// No tasks provided, show defined tasks and exit
 			return a.showTasks(spokfile)
 		default:
-			fmt.Fprintf(a.out, "Running tasks: %v\n", tasks)
+			a.logger.Debugf("Running requested tasks: %v", tasks)
 			results, err := spokfile.Run(a.Options.Sync, a.Options.Force, tasks...)
 			if err != nil {
 				return err
@@ -94,6 +94,14 @@ func (a *App) Run(tasks []string) error {
 			for _, result := range results {
 				if !result.Ok() {
 					// TODO: Drill down into which one failed and show nice error
+					a.logger.Debugf("Command in task %q exited with non-zero status", result.Task)
+					for _, cmd := range result.CommandResults {
+						if !cmd.Ok() {
+							// We've found the one
+							return fmt.Errorf("Command %q in task %q exited with status %d\nStdout: %s\nStderr: %s", cmd.Cmd, result.Task, cmd.Status, cmd.Stdout, cmd.Stderr)
+						}
+					}
+
 					return fmt.Errorf("Task %q failed", result.Task)
 				}
 				for _, cmd := range result.CommandResults {

@@ -79,7 +79,7 @@ func (s *SpokFile) Run(sync, force bool, tasks ...string) ([]task.Result, error)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, task.Result{CommandResults: res})
+		results = append(results, task.Result{CommandResults: res, Task: t})
 	}
 	return results, nil
 }
