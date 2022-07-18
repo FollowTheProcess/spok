@@ -461,6 +461,7 @@ func TestRun(t *testing.T) {
 		name     string
 		tasks    []string
 		want     []task.Result
+		wantErr  bool
 		sync     bool
 		force    bool
 	}{
@@ -476,9 +477,10 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-			sync:  false,
-			force: false,
-			tasks: []string{"test"},
+			sync:    false,
+			force:   false,
+			tasks:   []string{"test"},
+			wantErr: false,
 			want: []task.Result{
 				{
 					CommandResults: []shell.Result{
@@ -492,13 +494,225 @@ func TestRun(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "missing task",
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"echo hello",
+						},
+					},
+				},
+			},
+			sync:    false,
+			force:   false,
+			tasks:   []string{"missing"},
+			wantErr: true,
+			want:    nil,
+		},
+		{
+			name: "non zero exit",
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"false",
+						},
+					},
+				},
+			},
+			sync:    false,
+			force:   false,
+			tasks:   []string{"test"},
+			wantErr: false,
+			want: []task.Result{
+				{
+					CommandResults: []shell.Result{
+						{
+							Cmd:    "false",
+							Stdout: "",
+							Stderr: "",
+							Status: 1,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "multiple commands",
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"echo hello",
+							"true",
+							"echo general kenobi",
+							"false",
+						},
+					},
+				},
+			},
+			sync:    false,
+			force:   false,
+			tasks:   []string{"test"},
+			wantErr: false,
+			want: []task.Result{
+				{
+					CommandResults: []shell.Result{
+						{
+							Cmd:    "echo hello",
+							Stdout: "hello\n",
+							Stderr: "",
+							Status: 0,
+						},
+						{
+							Cmd:    "true",
+							Stdout: "",
+							Stderr: "",
+							Status: 0,
+						},
+						{
+							Cmd:    "echo general kenobi",
+							Stdout: "general kenobi\n",
+							Stderr: "",
+							Status: 0,
+						},
+						{
+							Cmd:    "false",
+							Stdout: "",
+							Stderr: "",
+							Status: 1,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "multiple tasks choose one",
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"echo task1",
+						},
+					},
+					"lint": {
+						Name: "lint",
+						Commands: []string{
+							"echo task2",
+						},
+					},
+				},
+			},
+			sync:    false,
+			force:   false,
+			tasks:   []string{"test"},
+			wantErr: false,
+			want: []task.Result{
+				{
+					CommandResults: []shell.Result{
+						{
+							Cmd:    "echo task1",
+							Stdout: "task1\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "multiple tasks choose other",
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"echo task1",
+						},
+					},
+					"lint": {
+						Name: "lint",
+						Commands: []string{
+							"echo task2",
+						},
+					},
+				},
+			},
+			sync:    false,
+			force:   false,
+			tasks:   []string{"lint"},
+			wantErr: false,
+			want: []task.Result{
+				{
+					CommandResults: []shell.Result{
+						{
+							Cmd:    "echo task2",
+							Stdout: "task2\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "multiple tasks choose both",
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"echo task1",
+						},
+					},
+					"lint": {
+						Name: "lint",
+						Commands: []string{
+							"false",
+						},
+					},
+				},
+			},
+			sync:    false,
+			force:   false,
+			tasks:   []string{"lint", "test"},
+			wantErr: false,
+			want: []task.Result{
+				{
+					CommandResults: []shell.Result{
+						{
+							Cmd:    "false",
+							Stdout: "",
+							Stderr: "",
+							Status: 1,
+						},
+					},
+				},
+				{
+					CommandResults: []shell.Result{
+						{
+							Cmd:    "echo task1",
+							Stdout: "task1\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.spokfile.Run(tt.sync, tt.force, tt.tasks...)
-			if err != nil {
-				t.Fatalf("Run returned an error: %v", err)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
 			}
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {

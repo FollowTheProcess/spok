@@ -20,10 +20,10 @@ import (
 
 // App represents the spok program.
 type App struct {
-	out     io.Writer    // Where to write to
-	Options *Options     // All the CLI options
-	printer *msg.Printer // Spok's printer
-	logger  *zap.Logger  // The spok logger
+	out     io.Writer          // Where to write to
+	Options *Options           // All the CLI options
+	printer *msg.Printer       // Spok's printer
+	logger  *zap.SugaredLogger // The spok logger
 }
 
 // Options holds all the flag options for spok, these will be at their zero values
@@ -62,7 +62,7 @@ func (a *App) Run(tasks []string) error {
 	// Flush the logger
 	defer a.logger.Sync() // nolint: errcheck
 
-	a.logger.Sugar().Debugf("Parsing spokfile at %s", a.Options.Spokfile)
+	a.logger.Debugf("Parsing spokfile at %s", a.Options.Spokfile)
 	spokfile, err := a.parse(a.Options.Spokfile)
 	if err != nil {
 		return err
@@ -86,12 +86,6 @@ func (a *App) Run(tasks []string) error {
 			return a.showTasks(spokfile)
 		default:
 			fmt.Fprintf(a.out, "Running tasks: %v\n", tasks)
-			if a.Options.Force {
-				fmt.Fprintln(a.out, "--force was true, tasks will be re-run even if not changed")
-			}
-			if a.Options.Sync {
-				fmt.Fprintln(a.out, "--sync was true, tasks will not be run in parallel")
-			}
 			results, err := spokfile.Run(a.Options.Sync, a.Options.Force, tasks...)
 			if err != nil {
 				return err
@@ -172,7 +166,7 @@ func (a *App) setup() error {
 	if a.Options.Verbose {
 		level = zap.DebugLevel
 	}
-	// TODO: Configure a proper logger closer to release time but this will do for now
+
 	cfg := zap.NewDevelopmentConfig()
 	cfg.DisableCaller = true
 	cfg.EncoderConfig.TimeKey = ""
@@ -180,7 +174,8 @@ func (a *App) setup() error {
 	if err != nil {
 		return err
 	}
-	a.logger = logger
+	sugar := logger.Sugar()
+	a.logger = sugar
 
 	// Initialise the cache
 	if err := cache.Init(filepath.Dir(a.Options.Spokfile)); err != nil {
