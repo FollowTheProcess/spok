@@ -93,7 +93,6 @@ func (a *App) Run(tasks []string) error {
 
 			for _, result := range results {
 				if !result.Ok() {
-					// TODO: Drill down into which one failed and show nice error
 					a.logger.Debugf("Command in task %q exited with non-zero status", result.Task)
 					for _, cmd := range result.CommandResults {
 						if !cmd.Ok() {
@@ -101,8 +100,6 @@ func (a *App) Run(tasks []string) error {
 							return fmt.Errorf("Command %q in task %q exited with status %d\nStdout: %s\nStderr: %s", cmd.Cmd, result.Task, cmd.Status, cmd.Stdout, cmd.Stderr)
 						}
 					}
-
-					return fmt.Errorf("Task %q failed", result.Task)
 				}
 				for _, cmd := range result.CommandResults {
 					fmt.Fprint(a.out, cmd.Stdout)
