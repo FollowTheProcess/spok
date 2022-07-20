@@ -7,12 +7,14 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/bmatcuk/doublestar/v4"
+	"github.com/lithammer/fuzzysearch/fuzzy"
 )
 
 // Name is the canonical spok file name.
@@ -89,7 +91,20 @@ func (s *SpokFile) Run(out io.Writer, sync, force bool, tasks ...string) ([]task
 func (s *SpokFile) run(out io.Writer, task string) ([]shell.Result, error) {
 	got, ok := s.Tasks[task]
 	if !ok {
-		return nil, fmt.Errorf("Spokfile has no task %q", task)
+		names := make([]string, 0, len(s.Tasks))
+		for _, t := range s.Tasks {
+			names = append(names, t.Name)
+		}
+		matches := fuzzy.RankFindNormalizedFold(task, names)
+		sort.Sort(matches)
+		err := fmt.Errorf("Spokfile has no task %q", task)
+		if len(matches) != 0 {
+			// We have a "did you mean" target
+			closest := matches[0]
+			err = fmt.Errorf("Spokfile has no task %q, did you mean %q?", task, closest.Target)
+		}
+
+		return nil, err
 	}
 	results, err := got.Run(out)
 	if err != nil {

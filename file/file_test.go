@@ -730,6 +730,59 @@ func TestRun(t *testing.T) {
 	}
 }
 
+func TestRunFuzzyMatch(t *testing.T) {
+	tests := []struct {
+		spokfile *SpokFile
+		name     string
+		want     string
+		tasks    []string
+	}{
+		{
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"echo hello",
+						},
+					},
+				},
+			},
+			name:  "test",
+			want:  `Spokfile has no task "tst", did you mean "test"?`,
+			tasks: []string{"tst"},
+		},
+		{
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"build": {
+						Name: "build",
+						Commands: []string{
+							"echo hello",
+						},
+					},
+				},
+			},
+			name:  "build",
+			want:  `Spokfile has no task "bild", did you mean "build"?`,
+			tasks: []string{"bild"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := tt.spokfile.Run(&bytes.Buffer{}, false, false, tt.tasks...)
+			if err == nil {
+				t.Fatalf("Run() did not return an error")
+			}
+
+			if err.Error() != tt.want {
+				t.Errorf("Wrong error message\nGot: %s\nWant: %s", err.Error(), tt.want)
+			}
+		})
+	}
+}
+
 //
 // INTEGRATION TESTS START HERE
 //
