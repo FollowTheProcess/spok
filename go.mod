@@ -10,6 +10,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/google/go-cmp v0.5.8
 	github.com/juju/ansiterm v1.0.0
+	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/spf13/cobra v1.5.0
 	go.uber.org/zap v1.21.0
 	mvdan.cc/sh/v3 v3.5.1
@@ -26,4 +27,5 @@ require (
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
 	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
+	golang.org/x/text v0.3.7 // indirect
 )
