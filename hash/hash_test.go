@@ -13,8 +13,8 @@ import (
 func TestAlwaysHasher(t *testing.T) {
 	hasher := hash.AlwaysRun{}
 	got, _ := hasher.Hash([]string{"doesnt", "matter"})
-	if got != "ALWAYS" {
-		t.Errorf("got %s, wanted %s", got, "ALWAYS")
+	if got != "DIFFERENT" {
+		t.Errorf("got %s, wanted %s", got, "DIFFERENT")
 	}
 }
 

@@ -2,7 +2,6 @@ package file
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -43,11 +42,11 @@ func TestFind(t *testing.T) {
 
 		_, err := Find(start, stop)
 		if err == nil {
-			t.Fatal("expected ErrNoSpokfile, got nil")
+			t.Fatal("expected No spokfile found, got nil")
 		}
 
-		if !errors.Is(err, errNoSpokfile) {
-			t.Errorf("wrong error, got %v, wanted %v", err, errNoSpokfile)
+		if err.Error() != "No spokfile found" {
+			t.Errorf("Wrong error\nGot: %s\nWant: %s", err.Error(), "No spokfile found")
 		}
 	})
 }
@@ -749,7 +748,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 				},
 			},
 			name:  "test",
-			want:  `Spokfile has no task "tst", did you mean "test"?`,
+			want:  `Spokfile has no task "tst". Did you mean "test"?`,
 			tasks: []string{"tst"},
 		},
 		{
@@ -764,7 +763,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 				},
 			},
 			name:  "build",
-			want:  `Spokfile has no task "bild", did you mean "build"?`,
+			want:  `Spokfile has no task "bild". Did you mean "build"?`,
 			tasks: []string{"bild"},
 		},
 	}

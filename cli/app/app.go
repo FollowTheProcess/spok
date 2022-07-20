@@ -164,8 +164,8 @@ func (a *App) setup() error {
 		return err
 	}
 
-	if filepath.Base(a.Options.Spokfile) != file.Name {
-		return fmt.Errorf("Invalid spokfile file name. Got %s, Expected %s", filepath.Base(a.Options.Spokfile), file.Name)
+	if filepath.Base(a.Options.Spokfile) != file.NAME {
+		return fmt.Errorf("Invalid spokfile file name. Got %s, Expected %s", filepath.Base(a.Options.Spokfile), file.NAME)
 	}
 
 	// Set up the logger

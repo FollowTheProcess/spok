@@ -21,10 +21,10 @@ import (
 	"sync"
 )
 
-// Always is a constant string that is different to the string returned from
-// the AlwaysHasher, to be used as the cache comparison value so that a task
+// ALWAYS is a constant string that is different to the string returned from
+// the AlwaysRun hasher to be used as the cache comparison value so that a task
 // is always re-run regardless of it's dependencies.
-const Always = "DIFFERENT"
+const ALWAYS = "ALWAYS"
 
 // Hasher is the interface representing something capable of hashing
 // a number of files into a final digest.
@@ -38,9 +38,12 @@ type Hasher interface {
 // of their dependencies e.g. (spok <tasks...> --force).
 type AlwaysRun struct{}
 
-// Hash implements Hasher for AlwaysRun and returns the constant string "ALWAYS".
+// Hash implements Hasher for AlwaysRun and returns the constant string "DIFFERENT"
+// in place of an actual hash digest. Comparing the return of this method
+// to the "ALWAYS" constant will result in the digests never matching and therefore
+// tasks that use this will always run regardless of the state of their dependencies.
 func (a AlwaysRun) Hash(files []string) (string, error) {
-	return "ALWAYS", nil
+	return "DIFFERENT", nil
 }
 
 // result encodes the result of a concurrent hashing operation on
@@ -106,8 +109,8 @@ func (c Concurrent) Hash(files []string) (string, error) {
 
 		// Include the filepath in the hash so a rename counts as a change
 		hashItem := [][]byte{r.hash, []byte(r.file)}
-		joinedHashItems := []byte(bytes.Join(hashItem, []byte(""))) // nolint: unconvert
-		accumulator = append(accumulator, joinedHashItems)
+		joinedHashItem := []byte(bytes.Join(hashItem, []byte(""))) // nolint: unconvert
+		accumulator = append(accumulator, joinedHashItem)
 	}
 
 	if len(errors) != 0 {

@@ -17,11 +17,8 @@ import (
 	"github.com/lithammer/fuzzysearch/fuzzy"
 )
 
-// Name is the canonical spok file name.
-const Name = "spokfile"
-
-// errNoSpokfile is what happens when spok can't find a spokfile.
-var errNoSpokfile = errors.New("No spokfile found")
+// NAME is the canonical spok file name.
+const NAME = "spokfile"
 
 // SpokFile represents a concrete spokfile.
 type SpokFile struct {
@@ -78,45 +75,60 @@ func (s *SpokFile) Run(out io.Writer, sync, force bool, tasks ...string) ([]task
 	// work out which ones could be run in parallel and which ones need to be synchronous
 	// resolve this with sync and force (sync should mean no parallel, force should mean no hashing)
 	// submit tasks to run (worker pool for parallel ones, for loop for synchronous ones)
+
+	// Check for a missing task up here before we actually try and run anything
+	// means we can be sure of validity before we get to the hard bit
 	results := make([]task.Result, 0, len(tasks))
-	for _, t := range tasks {
-		res, err := s.run(out, t)
-		if err != nil {
+	for _, taskName := range tasks {
+		t, ok := s.Tasks[taskName]
+		if !ok {
+			closest := s.findClosestMatch(taskName)
+			err := fmt.Errorf("Spokfile has no task %q", taskName)
+			if closest != "" {
+				// We have a close enough match to do a "did you mean X?"
+				err = fmt.Errorf("Spokfile has no task %q. Did you mean %q?", taskName, closest)
+			}
 			return nil, err
 		}
-		results = append(results, task.Result{CommandResults: res, Task: t})
+
+		// TODO: For now we're just running one after the other, do what we've said above
+		res, err := s.run(out, t)
+		if err != nil {
+			return nil, fmt.Errorf("Task %q encountered an error: %w", t.Name, err)
+		}
+		results = append(results, task.Result{CommandResults: res, Task: t.Name})
 	}
 	return results, nil
 }
 
-// run runs a single spok task and returns it's command results.
-func (s *SpokFile) run(out io.Writer, task string) ([]shell.Result, error) {
-	got, ok := s.Tasks[task]
-	if !ok {
-		names := make([]string, 0, len(s.Tasks))
-		for _, t := range s.Tasks {
-			names = append(names, t.Name)
-		}
-		matches := fuzzy.RankFindNormalizedFold(task, names)
-		sort.Sort(matches)
-		err := fmt.Errorf("Spokfile has no task %q", task)
-		if len(matches) != 0 {
-			// We have a "did you mean" target
-			closest := matches[0]
-			err = fmt.Errorf("Spokfile has no task %q, did you mean %q?", task, closest.Target)
-		}
-
-		return nil, err
-	}
-	results, err := got.Run(out)
+// run runs a single spok task and returns it's command results, task
+// is known to exist prior to calling run.
+func (s *SpokFile) run(out io.Writer, task task.Task) ([]shell.Result, error) {
+	results, err := task.Run(out)
 	if err != nil {
 		return nil, fmt.Errorf("Task %q encountered an error: %w", task, err)
 	}
 	return results, nil
 }
 
+// findClosestMatch takes the name of a task contained in the spokfile
+// and finds the closest matching task. If no matches are found, an empty string is returned.
+func (s *SpokFile) findClosestMatch(task string) string {
+	names := make([]string, 0, len(s.Tasks))
+	for _, t := range s.Tasks {
+		names = append(names, t.Name)
+	}
+	matches := fuzzy.RankFindNormalizedFold(task, names)
+	sort.Sort(matches)
+	if len(matches) != 0 {
+		return matches[0].Target
+	}
+
+	return ""
+}
+
 // Find climbs the file tree from 'start' to 'stop' looking for a spokfile,
-// if it hits 'stop' before finding one, an errNoSpokfile will be returned
+// if it hits 'stop' before finding one, an error will be returned
 // If a spokfile is found, it's absolute path will be returned
 // typical usage will make start = $CWD and stop = $HOME.
 func Find(start, stop string) (string, error) {
@@ -127,7 +139,7 @@ func Find(start, stop string) (string, error) {
 		}
 
 		for _, e := range entries {
-			if !e.IsDir() && e.Name() == Name {
+			if !e.IsDir() && e.Name() == NAME {
 				// We've found it
 				abs, err := filepath.Abs(filepath.Join(start, e.Name()))
 				if err != nil {
@@ -135,7 +147,7 @@ func Find(start, stop string) (string, error) {
 				}
 				return abs, nil
 			} else if start == stop {
-				return "", errNoSpokfile
+				return "", errors.New("No spokfile found")
 			}
 		}
 		start = filepath.Dir(start)
@@ -147,7 +159,7 @@ func Find(start, stop string) (string, error) {
 // expansion, typically the path to the directory the spokfile sits in.
 func New(tree ast.Tree, root string) (*SpokFile, error) {
 	var file SpokFile
-	file.Path = filepath.Join(root, Name)
+	file.Path = filepath.Join(root, NAME)
 	file.Vars = make(map[string]string)
 	file.Tasks = make(map[string]task.Task)
 	file.Globs = make(map[string][]string)

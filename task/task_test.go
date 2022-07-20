@@ -495,7 +495,7 @@ func TestShouldRun(t *testing.T) {
 			name:    "yes",
 			task:    Task{},
 			hasher:  hash.AlwaysRun{},
-			cached:  hash.Always,
+			cached:  hash.ALWAYS,
 			want:    true,
 			wantErr: false,
 		},
