@@ -3,8 +3,10 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
@@ -241,17 +243,20 @@ func (a *App) showVariables(spokfile *file.SpokFile) error {
 
 // cleanOutputs removes all declared outputs in the spokfile.
 func (a *App) cleanOutputs(spokfile *file.SpokFile) error {
+	var toRemove []string
 	for _, task := range spokfile.Tasks {
 		for _, fileOutput := range task.FileOutputs {
 			resolved, err := filepath.Abs(fileOutput)
 			if err != nil {
 				return err
 			}
-			err = os.RemoveAll(resolved)
+			_, err = os.Stat(resolved)
 			if err != nil {
-				return fmt.Errorf("Could not remove %s: %v", resolved, err)
+				if errors.Is(err, fs.ErrNotExist) {
+					continue
+				}
 			}
-			msg.Goodf("Removed %s", resolved)
+			toRemove = append(toRemove, resolved)
 		}
 
 		for _, namedOutput := range task.NamedOutputs {
@@ -264,12 +269,28 @@ func (a *App) cleanOutputs(spokfile *file.SpokFile) error {
 			if err != nil {
 				return err
 			}
-			err = os.RemoveAll(resolved)
+			_, err = os.Stat(resolved)
 			if err != nil {
-				return fmt.Errorf("Could not remove %s: %v", resolved, err)
+				if errors.Is(err, fs.ErrNotExist) {
+					continue
+				}
 			}
-			msg.Goodf("Removed %s", resolved)
+			toRemove = append(toRemove, resolved)
 		}
 	}
+
+	if len(toRemove) == 0 {
+		a.printer.Good("Nothing to remove")
+		return nil
+	}
+
+	for _, file := range toRemove {
+		err := os.RemoveAll(file)
+		if err != nil {
+			return fmt.Errorf("Could not remove %s: %w", file, err)
+		}
+		a.printer.Textf("Removed %s", file)
+	}
+	a.printer.Good("Done")
 	return nil
 }
