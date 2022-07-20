@@ -73,9 +73,11 @@ func (s *SpokFile) ExpandGlobs() error {
 // Run runs the specified tasks, it takes sync and force which are boolean flags
 // set by the CLI which enforces synchronous running and always reruns tasks respectively.
 func (s *SpokFile) Run(out io.Writer, sync, force bool, tasks ...string) ([]task.Result, error) {
-	// TODO: Parallelise in a worker pool
-	// TODO: Check if should be run with hashes
-	// TODO: Use sync and force
+	// TODO: For all requested tasks (args) gather up all their dependencies and build the DAG,
+	// for all requested tasks and their dependencies, determine whether they should run using the hashes
+	// work out which ones could be run in parallel and which ones need to be synchronous
+	// resolve this with sync and force (sync should mean no parallel, force should mean no hashing)
+	// submit tasks to run (worker pool for parallel ones, for loop for synchronous ones)
 	results := make([]task.Result, 0, len(tasks))
 	for _, t := range tasks {
 		res, err := s.run(out, t)
