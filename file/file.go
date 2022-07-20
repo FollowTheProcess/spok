@@ -4,6 +4,7 @@ package file
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -69,13 +70,13 @@ func (s *SpokFile) ExpandGlobs() error {
 
 // Run runs the specified tasks, it takes sync and force which are boolean flags
 // set by the CLI which enforces synchronous running and always reruns tasks respectively.
-func (s *SpokFile) Run(sync, force bool, tasks ...string) ([]task.Result, error) {
+func (s *SpokFile) Run(out io.Writer, sync, force bool, tasks ...string) ([]task.Result, error) {
 	// TODO: Parallelise in a worker pool
 	// TODO: Check if should be run with hashes
 	// TODO: Use sync and force
 	results := make([]task.Result, 0, len(tasks))
 	for _, t := range tasks {
-		res, err := s.run(t)
+		res, err := s.run(out, t)
 		if err != nil {
 			return nil, err
 		}
@@ -85,12 +86,12 @@ func (s *SpokFile) Run(sync, force bool, tasks ...string) ([]task.Result, error)
 }
 
 // run runs a single spok task and returns it's command results.
-func (s *SpokFile) run(task string) ([]shell.Result, error) {
+func (s *SpokFile) run(out io.Writer, task string) ([]shell.Result, error) {
 	got, ok := s.Tasks[task]
 	if !ok {
 		return nil, fmt.Errorf("Spokfile has no task %q", task)
 	}
-	results, err := got.Run()
+	results, err := got.Run(out)
 	if err != nil {
 		return nil, fmt.Errorf("Task %q encountered an error: %w", task, err)
 	}

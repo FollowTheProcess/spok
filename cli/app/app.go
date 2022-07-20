@@ -86,7 +86,7 @@ func (a *App) Run(tasks []string) error {
 			return a.showTasks(spokfile)
 		default:
 			a.logger.Debugf("Running requested tasks: %v", tasks)
-			results, err := spokfile.Run(a.Options.Sync, a.Options.Force, tasks...)
+			results, err := spokfile.Run(a.out, a.Options.Sync, a.Options.Force, tasks...)
 			if err != nil {
 				return err
 			}

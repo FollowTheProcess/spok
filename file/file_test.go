@@ -1,6 +1,7 @@
 package file
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -717,7 +718,7 @@ func TestRun(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.spokfile.Run(tt.sync, tt.force, tt.tasks...)
+			got, err := tt.spokfile.Run(&bytes.Buffer{}, tt.sync, tt.force, tt.tasks...)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
 			}

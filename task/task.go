@@ -5,6 +5,8 @@ package task
 import (
 	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -12,6 +14,7 @@ import (
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/hash"
 	"github.com/FollowTheProcess/spok/shell"
+	"github.com/fatih/color"
 )
 
 // Task represents a spok Task.
@@ -27,15 +30,19 @@ type Task struct {
 	GlobOutputs      []string // Filepaths this task outputs that are specified as glob patterns
 }
 
-// Run runs a task commands in order, returning the list of results containing
-// the exit status, stdout and stderr of each command.
-func (t *Task) Run() ([]shell.Result, error) {
+// Run runs a task commands in order, echoing each one to out and
+// returning the list of results containing the exit status,
+// stdout and stderr of each command.
+func (t *Task) Run(out io.Writer) ([]shell.Result, error) {
 	if len(t.Commands) == 0 {
 		return nil, fmt.Errorf("Task %q has no commands", t.Name)
 	}
 
+	echoStyle := color.New(color.FgHiWhite, color.Bold)
+
 	var results []shell.Result
 	for _, cmd := range t.Commands {
+		echoStyle.Fprintln(os.Stdout, cmd)
 		result, err := shell.Run(cmd, t.Name, nil)
 		if err != nil {
 			return nil, err
