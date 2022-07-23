@@ -47,6 +47,12 @@ func (g *Graph) AddVertex(v *Vertex) {
 	g.vertices[v.Name] = v
 }
 
+// GetVertex gets a vertex by it's name.
+func (g *Graph) GetVertex(name string) (*Vertex, bool) {
+	v, ok := g.vertices[name]
+	return v, ok
+}
+
 // AddEdge creates an edge connection from parent to child vertices.
 func (g *Graph) AddEdge(parent, child *Vertex) error {
 	parentVertex, ok := g.vertices[parent.Name]

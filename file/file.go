@@ -11,7 +11,6 @@ import (
 
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
-	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/lithammer/fuzzysearch/fuzzy"
@@ -68,8 +67,10 @@ func (s *SpokFile) ExpandGlobs() error {
 }
 
 // Run runs the specified tasks, it takes sync and force which are boolean flags
-// set by the CLI which enforces synchronous running and always reruns tasks respectively.
-func (s *SpokFile) Run(out io.Writer, sync, force bool, tasks ...string) ([]task.Result, error) {
+// set by the CLI which enforces synchronous running and always reruns tasks respectively and
+// an io.Writer which is used only to echo the commands being run, the command's stdout and stderr
+// is stored in the result.
+func (s *SpokFile) Run(echo io.Writer, sync, force bool, tasks ...string) ([]task.Result, error) {
 	// TODO: For all requested tasks (args) gather up all their dependencies and build the DAG,
 	// for all requested tasks and their dependencies, determine whether they should run using the hashes
 	// work out which ones could be run in parallel and which ones need to be synchronous
@@ -79,6 +80,7 @@ func (s *SpokFile) Run(out io.Writer, sync, force bool, tasks ...string) ([]task
 	// Check for a missing task up here before we actually try and run anything
 	// means we can be sure of validity before we get to the hard bit
 	results := make([]task.Result, 0, len(tasks))
+	requested := make([]task.Task, 0, len(tasks))
 	for _, taskName := range tasks {
 		t, ok := s.Tasks[taskName]
 		if !ok {
@@ -90,23 +92,17 @@ func (s *SpokFile) Run(out io.Writer, sync, force bool, tasks ...string) ([]task
 			}
 			return nil, err
 		}
+		requested = append(requested, t)
+	}
 
-		// TODO: For now we're just running one after the other, do what we've said above
-		res, err := s.run(out, t)
+	// TODO: For now let's just run all the requested tasks one after the other
+	// so we have something that works and can run stuff
+	for _, t := range requested {
+		result, err := t.Run(echo)
 		if err != nil {
 			return nil, fmt.Errorf("Task %q encountered an error: %w", t.Name, err)
 		}
-		results = append(results, task.Result{CommandResults: res, Task: t.Name})
-	}
-	return results, nil
-}
-
-// run runs a single spok task and returns it's command results, task
-// is known to exist prior to calling run.
-func (s *SpokFile) run(out io.Writer, task task.Task) ([]shell.Result, error) {
-	results, err := task.Run(out)
-	if err != nil {
-		return nil, fmt.Errorf("Task %q encountered an error: %w", task, err)
+		results = append(results, task.Result{CommandResults: result, Task: t.Name})
 	}
 	return results, nil
 }

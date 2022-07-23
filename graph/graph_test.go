@@ -21,6 +21,33 @@ func TestGraph_AddVertex(t *testing.T) {
 	}
 }
 
+func TestGraph_GetVertex(t *testing.T) {
+	graph := New()
+	v1 := NewVertex(task.Task{Name: "v1"})
+	v2 := NewVertex(task.Task{Name: "v2"})
+
+	// Trying to get one now should return nil, false
+	v, ok := graph.GetVertex("v1")
+	if v != nil {
+		t.Errorf("GetVertex should return nil, got %v", v)
+	}
+	if ok {
+		t.Errorf("GetVertex should return false, got %v", ok)
+	}
+
+	graph.AddVertex(v1)
+	graph.AddVertex(v2)
+
+	v, ok = graph.GetVertex("v1")
+
+	if v == nil {
+		t.Error("GetVertex should return the vertex, got nil")
+	}
+	if !ok {
+		t.Errorf("GetVertex should return true, got %v", ok)
+	}
+}
+
 func TestGraph_AddEdge(t *testing.T) {
 	t.Run("happy path", func(t *testing.T) {
 		graph := New()
