@@ -20,6 +20,16 @@ type Vertex struct {
 	inDegree int               // Number of incoming edges
 }
 
+// Parents returns the vertices parents.
+func (v *Vertex) Parents() []*Vertex {
+	return v.parents.Items()
+}
+
+// Children returns the vertices children.
+func (v *Vertex) Children() []*Vertex {
+	return v.children.Items()
+}
+
 // NewVertex creates and returns a new Vertex.
 func NewVertex(task task.Task) *Vertex {
 	return &Vertex{
@@ -39,6 +49,11 @@ type Graph struct {
 // New constructs and returns a new Graph.
 func New() *Graph {
 	return &Graph{vertices: make(map[string]*Vertex)}
+}
+
+// Size returns the number of vertices in the graph.
+func (g *Graph) Size() int {
+	return len(g.vertices)
 }
 
 // AddVertex adds the passed vertex to the graph, if a vertex

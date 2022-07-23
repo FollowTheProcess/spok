@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -42,7 +41,7 @@ func (t *Task) Run(out io.Writer) ([]shell.Result, error) {
 
 	var results []shell.Result
 	for _, cmd := range t.Commands {
-		echoStyle.Fprintln(os.Stdout, cmd)
+		echoStyle.Fprintln(out, cmd)
 		result, err := shell.Run(cmd, t.Name, nil)
 		if err != nil {
 			return nil, err
