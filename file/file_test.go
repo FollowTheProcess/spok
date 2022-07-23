@@ -675,6 +675,7 @@ func TestRun(t *testing.T) {
 						Commands: []string{
 							"echo task1",
 						},
+						TaskDependencies: []string{"lint"},
 					},
 					"lint": {
 						Name: "lint",

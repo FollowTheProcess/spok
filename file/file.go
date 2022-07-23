@@ -74,9 +74,14 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 	// For all requested tasks
 	for _, name := range requested {
 		requestedTask, ok := s.Tasks[name]
-		// TODO: We end up checking this twice currently
 		if !ok {
-			return nil, fmt.Errorf("Spokfile has no task %q", name)
+			closest := s.findClosestMatch(name)
+			err := fmt.Errorf("Spokfile has no task %q", name)
+			if closest != "" {
+				// We have a close enough match to do a "did you mean X?"
+				err = fmt.Errorf("Spokfile has no task %q. Did you mean %q?", name, closest)
+			}
+			return nil, err
 		}
 		// Create a vertex and add the task to the graph
 		vertex := graph.NewVertex(requestedTask)
@@ -86,7 +91,13 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 		for _, dep := range requestedTask.TaskDependencies {
 			depTask, ok := s.Tasks[dep]
 			if !ok {
-				return nil, fmt.Errorf("Task %q declares dependency on task %q, which does not exist", requestedTask.Name, dep)
+				closest := s.findClosestMatch(dep)
+				err := fmt.Errorf("Task %q declares a dependency on task %q, which does not exist", requestedTask.Name, dep)
+				if closest != "" {
+					// We have a close enough match to do a "did you mean X?"
+					err = fmt.Errorf("Task %q declares a dependency on task %q, which does not exist. Did you mean %q?", requestedTask.Name, dep, closest)
+				}
+				return nil, err
 			}
 			depVertex := graph.NewVertex(depTask)
 			dag.AddVertex(depVertex)
@@ -108,39 +119,32 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 // an io.Writer which is used only to echo the commands being run, the command's stdout and stderr
 // is stored in the result.
 func (s *SpokFile) Run(echo io.Writer, sync, force bool, tasks ...string) ([]task.Result, error) {
-	// TODO: For all requested tasks (args) gather up all their dependencies and build the DAG,
-	// for all requested tasks and their dependencies, determine whether they should run using the hashes
+	// TODO: For all requested tasks and their dependencies, determine whether they need to run using the hashes
 	// work out which ones could be run in parallel and which ones need to be synchronous
 	// resolve this with sync and force (sync should mean no parallel, force should mean no hashing)
 	// submit tasks to run (worker pool for parallel ones, for loop for synchronous ones)
-
-	// Check for a missing task up here before we actually try and run anything
-	// means we can be sure of validity before we get to the hard bit
-	results := make([]task.Result, 0, len(tasks))
-	requested := make([]task.Task, 0, len(tasks))
-	for _, taskName := range tasks {
-		t, ok := s.Tasks[taskName]
-		if !ok {
-			closest := s.findClosestMatch(taskName)
-			err := fmt.Errorf("Spokfile has no task %q", taskName)
-			if closest != "" {
-				// We have a close enough match to do a "did you mean X?"
-				err = fmt.Errorf("Spokfile has no task %q. Did you mean %q?", taskName, closest)
-			}
-			return nil, err
-		}
-		requested = append(requested, t)
+	dag, err := s.buildGraph(tasks...)
+	if err != nil {
+		return nil, err
 	}
 
-	// TODO: For now let's just run all the requested tasks one after the other
+	runOrder, err := dag.Sort()
+	if err != nil {
+		return nil, err
+	}
+
+	var results []task.Result
+
+	// TODO: For now let's just run all the required tasks one after the other
 	// so we have something that works and can run stuff
-	for _, t := range requested {
-		result, err := t.Run(echo)
+	for _, vertex := range runOrder {
+		result, err := vertex.Task.Run(echo)
 		if err != nil {
-			return nil, fmt.Errorf("Task %q encountered an error: %w", t.Name, err)
+			return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
 		}
-		results = append(results, task.Result{CommandResults: result, Task: t.Name})
+		results = append(results, task.Result{CommandResults: result, Task: vertex.Task.Name})
 	}
+
 	return results, nil
 }
 
