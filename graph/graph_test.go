@@ -21,6 +21,28 @@ func TestGraph_AddVertex(t *testing.T) {
 	}
 }
 
+func TestGraph_Size(t *testing.T) {
+	graph := New()
+	v1 := NewVertex(task.Task{Name: "v1"})
+	v2 := NewVertex(task.Task{Name: "v2"})
+
+	if graph.Size() != 0 {
+		t.Errorf("Size() of empty graph was not 0, got %d", graph.Size())
+	}
+
+	graph.AddVertex(v1)
+
+	if graph.Size() != 1 {
+		t.Errorf("Size() of graph was not 1, got %d", graph.Size())
+	}
+
+	graph.AddVertex(v2)
+
+	if graph.Size() != 2 {
+		t.Errorf("Size() of graph was not 2, got %d", graph.Size())
+	}
+}
+
 func TestGraph_GetVertex(t *testing.T) {
 	graph := New()
 	v1 := NewVertex(task.Task{Name: "v1"})

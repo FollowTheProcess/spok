@@ -782,6 +782,122 @@ func TestRunFuzzyMatch(t *testing.T) {
 	}
 }
 
+func TestBuildGraph(t *testing.T) {
+	spokfile := &SpokFile{
+		Tasks: map[string]task.Task{
+			"test": {
+				Name:             "test",
+				Doc:              "test depends on fmt",
+				TaskDependencies: []string{"fmt"},
+			},
+			"fmt": {
+				Name: "fmt",
+				Doc:  "fmt does not depend on anything",
+			},
+			"tidy": {
+				Name: "tidy",
+				Doc:  "tidy does not depend on anything",
+			},
+			"build": {
+				Name:             "build",
+				Doc:              "build depends on tidy and fmt but not test",
+				TaskDependencies: []string{"tidy", "fmt"},
+			},
+			"lint": {
+				Name:             "lint",
+				Doc:              "lint depends on fmt",
+				TaskDependencies: []string{"fmt"},
+			},
+			"all": {
+				Name:             "all",
+				Doc:              "all depends on all other tasks",
+				TaskDependencies: []string{"test", "fmt", "tidy", "build", "lint"},
+			},
+		},
+	}
+
+	tests := []struct {
+		expectedLenParents  map[string]int
+		expectedLenChildren map[string]int
+		name                string
+		requested           []string
+		expectedSize        int
+	}{
+		{
+			name:         "fmt",
+			requested:    []string{"fmt"},
+			expectedSize: 1,
+			expectedLenParents: map[string]int{
+				"fmt": 0,
+			},
+			expectedLenChildren: map[string]int{
+				"fmt": 0,
+			},
+		},
+		{
+			name:         "test",
+			requested:    []string{"test"},
+			expectedSize: 2, // Should be test, fmt
+			expectedLenParents: map[string]int{
+				"test": 1, // 1 parent: fmt
+			},
+			expectedLenChildren: map[string]int{
+				"test": 0, // 0 children
+			},
+		},
+		{
+			name:         "build",
+			requested:    []string{"build"},
+			expectedSize: 3, // build depends on tidy and fmt
+			expectedLenParents: map[string]int{
+				"build": 2, // 2 parents: tidy and fmt
+				"tidy":  0, // tidy doesn't depend on anything
+				"fmt":   0, // fmt doesn't depend on anything
+			},
+			expectedLenChildren: map[string]int{
+				"build": 0, // Nothing depends on build
+				"tidy":  1, // build depends on tidy
+				"fmt":   1, // build also depends on fmt
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dag, err := spokfile.buildGraph(tt.requested...)
+			if err != nil {
+				t.Fatalf("buildGraph returned an error: %v", err)
+			}
+
+			if dag.Size() != tt.expectedSize {
+				t.Fatalf("Wrong graph size\nGot: %d\nWant: %d", dag.Size(), tt.expectedSize)
+			}
+
+			for key, val := range tt.expectedLenParents {
+				vertex, ok := dag.GetVertex(key)
+				if !ok {
+					t.Fatalf("%s not a vertex in the graph", key)
+				}
+
+				if len(vertex.Parents()) != val {
+					t.Errorf("Wrong number of parents for vertex %q\nGot: %d\nWant: %d", key, len(vertex.Parents()), val)
+				}
+			}
+
+			for key, val := range tt.expectedLenChildren {
+				vertex, ok := dag.GetVertex(key)
+				if !ok {
+					t.Fatalf("%s not a vertex in the graph", key)
+				}
+
+				if len(vertex.Children()) != val {
+					t.Errorf("Wrong number of children for vertex %q\nGot: %d\nWant: %d", key, len(vertex.Children()), val)
+				}
+			}
+		})
+	}
+}
+
 //
 // INTEGRATION TESTS START HERE
 //

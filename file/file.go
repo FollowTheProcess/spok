@@ -11,6 +11,7 @@ import (
 
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
+	"github.com/FollowTheProcess/spok/graph"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/lithammer/fuzzysearch/fuzzy"
@@ -64,6 +65,42 @@ func (s *SpokFile) ExpandGlobs() error {
 		}
 	}
 	return nil
+}
+
+// buildGraph takes in a list of requested tasks, examines their dependencies, constructs
+// and returns the dependency graph.
+func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
+	dag := graph.New()
+	// For all requested tasks
+	for _, name := range requested {
+		requestedTask, ok := s.Tasks[name]
+		// TODO: We end up checking this twice currently
+		if !ok {
+			return nil, fmt.Errorf("Spokfile has no task %q", name)
+		}
+		// Create a vertex and add the task to the graph
+		vertex := graph.NewVertex(requestedTask)
+		dag.AddVertex(vertex)
+
+		// For all of this tasks dependencies, do the same
+		for _, dep := range requestedTask.TaskDependencies {
+			depTask, ok := s.Tasks[dep]
+			if !ok {
+				return nil, fmt.Errorf("Task %q declares dependency on task %q, which does not exist", requestedTask.Name, dep)
+			}
+			depVertex := graph.NewVertex(depTask)
+			dag.AddVertex(depVertex)
+
+			// Now create the dependency connection between the parent task and this one
+			// depVertex is the parent here because it must be run before the task we're
+			// currently in
+			if err := dag.AddEdge(depVertex, vertex); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return dag, nil
 }
 
 // Run runs the specified tasks, it takes sync and force which are boolean flags
