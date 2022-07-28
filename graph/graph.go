@@ -68,6 +68,12 @@ func (g *Graph) GetVertex(name string) (*Vertex, bool) {
 	return v, ok
 }
 
+// ContainsVertex reports whether a graph contains a certain vertex.
+func (g *Graph) ContainsVertex(name string) bool {
+	_, ok := g.vertices[name]
+	return ok
+}
+
 // AddEdge creates an edge connection from parent to child vertices.
 func (g *Graph) AddEdge(parent, child *Vertex) error {
 	parentVertex, ok := g.vertices[parent.Name]

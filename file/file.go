@@ -83,9 +83,11 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 			}
 			return nil, err
 		}
-		// Create a vertex and add the task to the graph
+		// Create a vertex and add the task to the graph, if it's not already there
 		vertex := graph.NewVertex(requestedTask)
-		dag.AddVertex(vertex)
+		if !dag.ContainsVertex(name) {
+			dag.AddVertex(vertex)
+		}
 
 		// For all of this tasks dependencies, do the same
 		for _, dep := range requestedTask.TaskDependencies {
@@ -100,7 +102,9 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 				return nil, err
 			}
 			depVertex := graph.NewVertex(depTask)
-			dag.AddVertex(depVertex)
+			if !dag.ContainsVertex(dep) {
+				dag.AddVertex(depVertex)
+			}
 
 			// Now create the dependency connection between the parent task and this one
 			// depVertex is the parent here because it must be run before the task we're

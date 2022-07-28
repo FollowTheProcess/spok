@@ -70,6 +70,30 @@ func TestGraph_GetVertex(t *testing.T) {
 	}
 }
 
+func TestGraph_ContainsVertex(t *testing.T) {
+	graph := New()
+	v1 := NewVertex(task.Task{Name: "v1"})
+	v2 := NewVertex(task.Task{Name: "v2"})
+
+	// Shouldn't exist yet
+	if graph.ContainsVertex("v1") {
+		t.Error("v1 is not in the graph but ContainsVertex returned true")
+	}
+	if graph.ContainsVertex("v2") {
+		t.Error("v2 is not in the graph but ContainsVertex returned true")
+	}
+
+	graph.AddVertex(v1)
+	graph.AddVertex(v2)
+
+	if !graph.ContainsVertex("v1") {
+		t.Error("v1 is in the graph but ContainsVertex returned false")
+	}
+	if !graph.ContainsVertex("v2") {
+		t.Error("v2 is in the graph but ContainsVertex returned false")
+	}
+}
+
 func TestGraph_AddEdge(t *testing.T) {
 	t.Run("happy path", func(t *testing.T) {
 		graph := New()
