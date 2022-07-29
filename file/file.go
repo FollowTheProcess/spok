@@ -40,9 +40,9 @@ func (s *SpokFile) hasGlob(pattern string) bool {
 	return ok
 }
 
-// ExpandGlobs gathers up all the glob patterns in the spokfile and expands them
+// expandGlobs gathers up all the glob patterns in the spokfile and expands them
 // saving the results to the Globs map as e.g. {"**/*.go": [file1.go, file2.go]}.
-func (s *SpokFile) ExpandGlobs() error {
+func (s *SpokFile) expandGlobs() error {
 	for _, task := range s.Tasks {
 		for _, pattern := range task.GlobDependencies {
 			if !s.hasGlob(pattern) {

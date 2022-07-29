@@ -133,7 +133,7 @@ func TestExpandGlobs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.file.ExpandGlobs(); err != nil {
+			if err := tt.file.expandGlobs(); err != nil {
 				t.Fatalf("ExpandGlobs returned an error: %v", err)
 			}
 
