@@ -74,7 +74,10 @@ func (c Concurrent) Hash(files []string) (string, error) {
 
 	// Launch a concurrent worker pool to chew through the queue of files to hash
 	// these will all initially block as no files are on the jobs channel yet
-	for i := 0; i < runtime.NumCPU(); i++ {
+	// nWorkers is min of NumCPU and len(files) so we don't start more workers than
+	// is necessary (no point kicking off 8 workers to do 3 files for example)
+	nWorkers := min(runtime.NumCPU(), len(files))
+	for i := 0; i < nWorkers; i++ {
 		wg.Add(1)
 		go worker(results, jobs, &wg)
 	}
@@ -172,4 +175,12 @@ func (b sortByteSlices) Less(i, j int) bool {
 // Swap swaps byte slice i with byte slice j in the outer slice.
 func (b sortByteSlices) Swap(i, j int) {
 	b[j], b[i] = b[i], b[j]
+}
+
+// min returns the minimum of 2 ints.
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

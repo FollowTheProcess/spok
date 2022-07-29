@@ -1,4 +1,4 @@
-package hash_test
+package hash
 
 import (
 	"fmt"
@@ -6,12 +6,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
-
-	"github.com/FollowTheProcess/spok/hash"
 )
 
 func TestAlwaysHasher(t *testing.T) {
-	hasher := hash.AlwaysRun{}
+	hasher := AlwaysRun{}
 	got, _ := hasher.Hash([]string{"doesnt", "matter"})
 	if got != "DIFFERENT" {
 		t.Errorf("got %s, wanted %s", got, "DIFFERENT")
@@ -23,7 +21,7 @@ func TestHashFilesIsDeterministic(t *testing.T) {
 	files, cleanup := makeFiles(t)
 	defer cleanup()
 
-	hasher := hash.New()
+	hasher := New()
 	// Run the hasher a number of times and see if the output varies
 	runs := 100
 
@@ -54,7 +52,7 @@ func TestHashDifferentContents(t *testing.T) {
 	files, cleanup := makeFilesDifferentContent(t)
 	defer cleanup()
 
-	hasher := hash.New()
+	hasher := New()
 
 	digest, err := hasher.Hash(files)
 	if err != nil {
@@ -87,7 +85,7 @@ func TestHashDifferentName(t *testing.T) {
 	files, cleanup := makeFilesDifferentName(t)
 	defer cleanup()
 
-	hasher := hash.New()
+	hasher := New()
 
 	digest, err := hasher.Hash(files)
 	if err != nil {
@@ -112,6 +110,48 @@ func TestHashDifferentName(t *testing.T) {
 
 	if digest == original {
 		t.Error("Digest did not respond to different file names")
+	}
+}
+
+func TestMin(t *testing.T) {
+	tests := []struct {
+		name string
+		a    int
+		b    int
+		want int
+	}{
+		{
+			name: "a",
+			a:    2,
+			b:    10,
+			want: 2,
+		},
+		{
+			name: "b",
+			a:    10,
+			b:    2,
+			want: 2,
+		},
+		{
+			name: "equal",
+			a:    10,
+			b:    10,
+			want: 10,
+		},
+		{
+			name: "negative",
+			a:    -2,
+			b:    10,
+			want: -2,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := min(tt.a, tt.b); got != tt.want {
+				t.Errorf("got %d, wanted %d", got, tt.want)
+			}
+		})
 	}
 }
 
