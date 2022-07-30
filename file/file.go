@@ -127,6 +127,10 @@ func (s *SpokFile) Run(echo io.Writer, sync, force bool, tasks ...string) ([]tas
 	// work out which ones could be run in parallel and which ones need to be synchronous
 	// resolve this with sync and force (sync should mean no parallel, force should mean no hashing)
 	// submit tasks to run (worker pool for parallel ones, for loop for synchronous ones)
+	if err := s.expandGlobs(); err != nil {
+		return nil, err
+	}
+
 	dag, err := s.buildGraph(tasks...)
 	if err != nil {
 		return nil, err
