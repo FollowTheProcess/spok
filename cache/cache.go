@@ -43,6 +43,20 @@ func Init(root string) error {
 	return nil
 }
 
+// IsEmpty returns whether or not the cache file is empty.
+func IsEmpty(root string) bool {
+	path, err := filepath.Abs(filepath.Join(root, dir, file))
+	if err != nil {
+		return false
+	}
+	file, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+
+	return file.Size() == 0
+}
+
 // String implements Stringer for a Cache.
 func (c Cache) String() string {
 	lines := make([]string, 0, len(c))

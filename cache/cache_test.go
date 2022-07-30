@@ -198,6 +198,48 @@ func TestInit(t *testing.T) {
 	}
 }
 
+func TestIsEmpty(t *testing.T) {
+	t.Run("yes", func(t *testing.T) {
+		tmp, err := os.MkdirTemp("", "empty")
+		if err != nil {
+			t.Fatalf("Could not make temp dir: %v", err)
+		}
+		defer os.RemoveAll(tmp)
+
+		if err := cache.Init(tmp); err != nil {
+			t.Fatalf("Init returned an error: %v", err)
+		}
+
+		if !cache.IsEmpty(tmp) {
+			t.Fatal("IsEmpty returned false but should have returned true")
+		}
+	})
+
+	t.Run("no", func(t *testing.T) {
+		tmp, err := os.MkdirTemp("", "empty")
+		if err != nil {
+			t.Fatalf("Could not make temp dir: %v", err)
+		}
+		defer os.RemoveAll(tmp)
+
+		if err := cache.Init(tmp); err != nil {
+			t.Fatalf("Init returned an error: %v", err)
+		}
+
+		file := filepath.Join(tmp, ".spok", "cache")
+
+		c := cache.New()
+		c.Put("test", "DIGEST")
+		if err := c.Write(file); err != nil {
+			t.Fatalf("Could not write to cache file: %v", err)
+		}
+
+		if cache.IsEmpty(tmp) {
+			t.Fatal("IsEmpty returned true but should have returned false")
+		}
+	})
+}
+
 func exists(path string) bool {
 	_, err := os.Stat(path)
 	if err != nil {
