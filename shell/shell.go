@@ -44,9 +44,10 @@ func Run(cmd, task string, env []string) (Result, error) {
 		return Result{}, fmt.Errorf("Command %q in task %q not valid shell syntax: %w", cmd, task, err)
 	}
 
-	if len(env) == 0 {
-		env = os.Environ()
-	}
+	// os.Environ() is added to env so that if nothing is passed, the
+	// process environment is used, but if we do pass env vars these
+	// are added as well as all the normal process env vars
+	env = append(env, os.Environ()...)
 
 	var result Result
 	result.Cmd = cmd

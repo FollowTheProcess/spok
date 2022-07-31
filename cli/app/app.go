@@ -82,30 +82,29 @@ func (a *App) Run(tasks []string) error {
 	case a.Options.Init:
 		fmt.Fprintf(a.out, "Create a new spokfile at %s\n", a.Options.Spokfile)
 	default:
-		switch len(tasks) {
-		case 0:
+		if len(tasks) == 0 {
 			// No tasks provided, show defined tasks and exit
 			return a.showTasks(spokfile)
-		default:
-			a.logger.Debugf("Running requested tasks: %v", tasks)
-			results, err := spokfile.Run(a.out, a.Options.Sync, a.Options.Force, tasks...)
-			if err != nil {
-				return err
-			}
+		}
 
-			for _, result := range results {
-				if !result.Ok() {
-					a.logger.Debugf("Command in task %q exited with non-zero status", result.Task)
-					for _, cmd := range result.CommandResults {
-						if !cmd.Ok() {
-							// We've found the one
-							return fmt.Errorf("Command %q in task %q exited with status %d\nStdout: %s\nStderr: %s", cmd.Cmd, result.Task, cmd.Status, cmd.Stdout, cmd.Stderr)
-						}
+		a.logger.Debugf("Running requested tasks: %v", tasks)
+		results, err := spokfile.Run(a.out, a.Options.Sync, a.Options.Force, tasks...)
+		if err != nil {
+			return err
+		}
+
+		for _, result := range results {
+			if !result.Ok() {
+				a.logger.Debugf("Command in task %q exited with non-zero status", result.Task)
+				for _, cmd := range result.CommandResults {
+					if !cmd.Ok() {
+						// We've found the one
+						return fmt.Errorf("Command %q in task %q exited with status %d\nStdout: %s\nStderr: %s", cmd.Cmd, result.Task, cmd.Status, cmd.Stdout, cmd.Stderr)
 					}
 				}
-				for _, cmd := range result.CommandResults {
-					fmt.Fprint(a.out, cmd.Stdout)
-				}
+			}
+			for _, cmd := range result.CommandResults {
+				fmt.Fprint(a.out, cmd.Stdout)
 			}
 		}
 	}
