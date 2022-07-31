@@ -69,6 +69,7 @@ func (t *Task) ShouldRun(files []string, hasher hash.Hasher, cached string) (boo
 type Result struct {
 	Task           string         // The name of the task
 	CommandResults []shell.Result // The results of running the tasks commands
+	Skipped        bool           // Whether the task was skipped or run
 }
 
 // Ok returns whether or not the task was successful, true if
