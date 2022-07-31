@@ -16,6 +16,7 @@ import (
 	"github.com/FollowTheProcess/spok/file"
 	"github.com/FollowTheProcess/spok/parser"
 	"github.com/fatih/color"
+	"github.com/joho/godotenv"
 	"github.com/juju/ansiterm/tabwriter"
 	"go.uber.org/zap"
 )
@@ -176,6 +177,15 @@ func (a *App) setup() error {
 	// Initialise the cache
 	if err := cache.Init(filepath.Dir(a.Options.Spokfile)); err != nil {
 		return err
+	}
+
+	// Auto load .env file (if present) to be present in os.Environ
+	if err := godotenv.Load(filepath.Join(cwd, ".env")); err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			// A missing .env file is not an error, just don't load it in
+			// If however it does exist and we can't load then report that
+			return fmt.Errorf("Could not load .env file: %w", err)
+		}
 	}
 
 	return nil
