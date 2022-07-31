@@ -32,7 +32,7 @@ type Task struct {
 // Run runs a task commands in order, echoing each one to out and
 // returning the list of results containing the exit status,
 // stdout and stderr of each command.
-func (t *Task) Run(out io.Writer) ([]shell.Result, error) {
+func (t *Task) Run(out io.Writer, env []string) ([]shell.Result, error) {
 	if len(t.Commands) == 0 {
 		return nil, fmt.Errorf("Task %q has no commands", t.Name)
 	}
@@ -42,7 +42,7 @@ func (t *Task) Run(out io.Writer) ([]shell.Result, error) {
 	var results []shell.Result
 	for _, cmd := range t.Commands {
 		echoStyle.Fprintln(out, cmd)
-		result, err := shell.Run(cmd, t.Name, nil)
+		result, err := shell.Run(cmd, t.Name, env)
 		if err != nil {
 			return nil, err
 		}

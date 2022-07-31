@@ -504,6 +504,39 @@ func TestRun(t *testing.T) {
 			},
 		},
 		{
+			name: "simple with env vars",
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"echo $GLOBAL_VARIABLE",
+						},
+					},
+				},
+				Vars: map[string]string{
+					"GLOBAL_VARIABLE": "Hello from a global",
+				},
+			},
+			sync:    false,
+			force:   false,
+			tasks:   []string{"test"},
+			wantErr: false,
+			want: []task.Result{
+				{
+					CommandResults: []shell.Result{
+						{
+							Cmd:    "echo $GLOBAL_VARIABLE",
+							Stdout: "Hello from a global\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+					Task: "test",
+				},
+			},
+		},
+		{
 			name: "missing task",
 			spokfile: &SpokFile{
 				Tasks: map[string]task.Task{

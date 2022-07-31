@@ -41,6 +41,16 @@ func (s *SpokFile) hasGlob(pattern string) bool {
 	return ok
 }
 
+// env returns the spokfile Vars as a string slice of KEY=VALUE format
+// so it may be passed to running task commands.
+func (s *SpokFile) env() []string {
+	results := make([]string, 0, len(s.Vars))
+	for key, val := range s.Vars {
+		results = append(results, key+"="+val)
+	}
+	return results
+}
+
 // expandGlobs gathers up all the glob patterns in the spokfile and expands them
 // saving the results to the Globs map as e.g. {"**/*.go": [file1.go, file2.go]}.
 func (s *SpokFile) expandGlobs() error {
@@ -147,7 +157,7 @@ func (s *SpokFile) Run(echo io.Writer, sync, force bool, tasks ...string) ([]tas
 	// TODO: For now let's just run all the required tasks one after the other
 	// so we have something that works and can run stuff
 	for _, vertex := range runOrder {
-		result, err := vertex.Task.Run(echo)
+		result, err := vertex.Task.Run(echo, s.env())
 		if err != nil {
 			return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
 		}
