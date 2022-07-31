@@ -240,6 +240,36 @@ func TestIsEmpty(t *testing.T) {
 	})
 }
 
+func TestExists(t *testing.T) {
+	t.Run("no", func(t *testing.T) {
+		tmp, err := os.MkdirTemp("", "empty")
+		if err != nil {
+			t.Fatalf("Could not make temp dir: %v", err)
+		}
+		defer os.RemoveAll(tmp)
+
+		if cache.Exists(tmp) {
+			t.Error("Exists returned true but the cache does not exist")
+		}
+	})
+
+	t.Run("yes", func(t *testing.T) {
+		tmp, err := os.MkdirTemp("", "empty")
+		if err != nil {
+			t.Fatalf("Could not make temp dir: %v", err)
+		}
+		defer os.RemoveAll(tmp)
+
+		if err := cache.Init(tmp); err != nil {
+			t.Fatalf("Init returned an error: %v", err)
+		}
+
+		if !cache.Exists(tmp) {
+			t.Fatal("Exists returned false but should have returned true")
+		}
+	})
+}
+
 func exists(path string) bool {
 	_, err := os.Stat(path)
 	if err != nil {

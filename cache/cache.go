@@ -57,6 +57,16 @@ func IsEmpty(root string) bool {
 	return file.Size() == 0
 }
 
+// Exists returns whether or not the cache file exists.
+func Exists(root string) bool {
+	path, err := filepath.Abs(filepath.Join(root, dir, file))
+	if err != nil {
+		return false
+	}
+	_, err = os.Stat(path)
+	return err == nil
+}
+
 // String implements Stringer for a Cache.
 func (c Cache) String() string {
 	lines := make([]string, 0, len(c))
