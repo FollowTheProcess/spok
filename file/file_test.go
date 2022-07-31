@@ -167,6 +167,7 @@ func TestFromAST(t *testing.T) {
 			},
 			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
+				Dir:   testdata,
 				Vars:  make(map[string]string),
 				Globs: make(map[string][]string),
 				Tasks: map[string]task.Task{
@@ -194,6 +195,7 @@ func TestFromAST(t *testing.T) {
 			},
 			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
+				Dir:   testdata,
 				Vars:  make(map[string]string),
 				Globs: map[string][]string{"**/*.go": nil},
 				Tasks: map[string]task.Task{
@@ -222,6 +224,7 @@ func TestFromAST(t *testing.T) {
 			},
 			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
+				Dir:   testdata,
 				Vars:  make(map[string]string),
 				Globs: map[string][]string{"**/*.go": nil},
 				Tasks: map[string]task.Task{
@@ -248,6 +251,7 @@ func TestFromAST(t *testing.T) {
 			},
 			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
+				Dir:   testdata,
 				Vars:  make(map[string]string),
 				Globs: make(map[string][]string),
 				Tasks: map[string]task.Task{
@@ -298,6 +302,7 @@ func TestFromAST(t *testing.T) {
 			},
 			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
+				Dir:   testdata,
 				Vars:  map[string]string{"global1": "hello", "global2": "hello again"},
 				Globs: make(map[string][]string),
 				Tasks: make(map[string]task.Task),
@@ -325,6 +330,7 @@ func TestFromAST(t *testing.T) {
 			},
 			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
+				Dir:   testdata,
 				Vars:  map[string]string{"global1": filepath.Join("path", "parts", "more")},
 				Globs: make(map[string][]string),
 				Tasks: make(map[string]task.Task),
@@ -350,6 +356,7 @@ func TestFromAST(t *testing.T) {
 			},
 			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
+				Dir:   testdata,
 				Vars:  map[string]string{"global1": "hello"},
 				Globs: make(map[string][]string),
 				Tasks: make(map[string]task.Task),
@@ -375,6 +382,7 @@ func TestFromAST(t *testing.T) {
 			},
 			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
+				Dir:   testdata,
 				Vars:  map[string]string{"global1": ""},
 				Globs: make(map[string][]string),
 				Tasks: make(map[string]task.Task),
@@ -1117,6 +1125,7 @@ var fullSpokfileAST = ast.Tree{
 // spokFileWant is the expected concrete spok.File object when the above AST is concretised.
 var spokFileWant = &SpokFile{
 	Path: filepath.Join(getTestdata(), "spokfile"),
+	Dir:  getTestdata(),
 	Vars: map[string]string{
 		"GLOBAL":     "very important stuff here",
 		"GIT_COMMIT": "hello",

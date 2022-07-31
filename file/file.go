@@ -26,6 +26,7 @@ type SpokFile struct {
 	Tasks map[string]task.Task // Map of task name to the task itself
 	Globs map[string][]string  // Map of glob pattern to their concrete filepaths (avoids recalculating)
 	Path  string               // The absolute path to the spokfile
+	Dir   string               // The directory under which the spokfile sits
 }
 
 // hasTask returns whether or not the SpokFile has a task with the given name.
@@ -46,7 +47,7 @@ func (s *SpokFile) expandGlobs() error {
 	for _, task := range s.Tasks {
 		for _, pattern := range task.GlobDependencies {
 			if !s.hasGlob(pattern) {
-				matches, err := expandGlob(filepath.Dir(s.Path), pattern)
+				matches, err := expandGlob(s.Dir, pattern)
 				if err != nil {
 					return err
 				}
@@ -56,7 +57,7 @@ func (s *SpokFile) expandGlobs() error {
 
 		for _, pattern := range task.GlobOutputs {
 			if !s.hasGlob(pattern) {
-				matches, err := expandGlob(filepath.Dir(s.Path), pattern)
+				matches, err := expandGlob(s.Dir, pattern)
 				if err != nil {
 					return err
 				}
@@ -205,6 +206,7 @@ func Find(start, stop string) (string, error) {
 func New(tree ast.Tree, root string) (*SpokFile, error) {
 	var file SpokFile
 	file.Path = filepath.Join(root, NAME)
+	file.Dir = root
 	file.Vars = make(map[string]string)
 	file.Tasks = make(map[string]task.Task)
 	file.Globs = make(map[string][]string)
