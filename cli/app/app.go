@@ -65,14 +65,25 @@ func (a *App) Run(tasks []string) error {
 	defer a.logger.Sync() // nolint: errcheck
 
 	a.logger.Debugf("Parsing spokfile at %s", a.Options.Spokfile)
-	spokfile, err := a.parse(a.Options.Spokfile)
+	contents, err := os.ReadFile(a.Options.Spokfile)
+	if err != nil {
+		return err
+	}
+
+	tree, err := parser.New(string(contents)).Parse()
+	if err != nil {
+		return err
+	}
+
+	spokfile, err := file.New(tree, filepath.Dir(a.Options.Spokfile))
 	if err != nil {
 		return err
 	}
 
 	switch {
 	case a.Options.Fmt:
-		fmt.Fprintln(a.out, "Format spokfile")
+		a.printer.Infof("Formatting spokfile at %q", a.Options.Spokfile)
+		return os.WriteFile(a.Options.Spokfile, []byte(tree.String()), 0666)
 	case a.Options.Variables:
 		return a.showVariables(spokfile)
 	case a.Options.Show != "":
@@ -110,27 +121,6 @@ func (a *App) Run(tasks []string) error {
 	}
 
 	return nil
-}
-
-// parse fully parses a spokfile located at path and returns the
-// concrete Spokfile object along with any errors.
-func (a *App) parse(path string) (*file.SpokFile, error) {
-	contents, err := os.ReadFile(a.Options.Spokfile)
-	if err != nil {
-		return nil, err
-	}
-
-	tree, err := parser.New(string(contents)).Parse()
-	if err != nil {
-		return nil, err
-	}
-
-	spokfile, err := file.New(tree, filepath.Dir(a.Options.Spokfile))
-	if err != nil {
-		return spokfile, err
-	}
-
-	return spokfile, nil
 }
 
 // setup performs one time initialise actions like finding the cwd and $HOME

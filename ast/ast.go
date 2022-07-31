@@ -242,7 +242,7 @@ func (f Function) String() string {
 	for _, arg := range f.Arguments {
 		args = append(args, arg.String())
 	}
-	return f.Name.String() + "(" + strings.Join(args, ", ") + ")\n"
+	return f.Name.String() + "(" + strings.Join(args, ", ") + ")"
 }
 
 func (f Function) Literal() string {

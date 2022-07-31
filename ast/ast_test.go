@@ -95,7 +95,7 @@ func TestLiteral(t *testing.T) {
 				Name:     Ident{Name: "VALUE"},
 				NodeType: NodeAssign,
 			},
-			want: "VALUE := exec(\"true\")\n\n",
+			want: "VALUE := exec(\"true\")\n",
 		},
 		{
 			name: "string",
@@ -109,7 +109,7 @@ func TestLiteral(t *testing.T) {
 				Arguments: []Node{String{Text: "dir"}, String{Text: "another"}},
 				NodeType:  NodeFunction,
 			},
-			want: "join(\"dir\", \"another\")\n",
+			want: "join(\"dir\", \"another\")",
 		},
 		{
 			name: "task",
@@ -182,7 +182,7 @@ func TestWrite(t *testing.T) {
 				Name:     Ident{Name: "VALUE"},
 				NodeType: NodeAssign,
 			},
-			want: "VALUE := exec(\"true\")\n\n",
+			want: "VALUE := exec(\"true\")\n",
 		},
 		{
 			name: "string",
@@ -196,7 +196,7 @@ func TestWrite(t *testing.T) {
 				Arguments: []Node{String{Text: "dir"}, String{Text: "another"}},
 				NodeType:  NodeFunction,
 			},
-			want: "join(\"dir\", \"another\")\n",
+			want: "join(\"dir\", \"another\")",
 		},
 		{
 			name: "task",
@@ -305,7 +305,6 @@ const fullSpokfile = `# This is a top level comment
 # This variable is presumably important later
 GLOBAL := "very important stuff here"
 GIT_COMMIT := exec("git rev-parse HEAD")
-
 # Run the project unit tests
 task test(fmt) {
     go test -race ./...
