@@ -16,7 +16,7 @@
 
 ## Project Description
 
-:warning: **Spok is in early development and is not ready for use yet!**
+:warning: **Spok is still in development and is not ready for use yet!**
 
 `spok` is a lightweight build system and command runner inspired by things like [make], [just] and others.
 
@@ -24,13 +24,54 @@ On top of this, `spok` provides:
 
 * A cleaner, more "developer friendly" syntax
 * Fully cross compatible (tested on Windows, Linux and Mac)
-* Incremental runs based on file hashing and sum checks (not dates like e.g. [make]), so nothing runs if nothing's changed!
+* Ships with it's own shell interpreter so no dependency on `sh`, `bash`, or `zsh`!
+* Incremental runs based on file hashing and sum checks (not timestamps like e.g. [make]), so nothing runs if nothing's changed!
 * Parallel execution by default (unless task dependencies preclude this)
+* Auto loading of `.env` files
+* Debug info with the `--verbose` flag
+* An auto `spokfile` formatter
 * More features TBC
 
 ## Installation
 
+There are binaries for Mac, Linux and Windows in the [GitHub releases] section, just download the correct one for your OS and architecture and place it somewhere on `$PATH`.
+
+For Mac and Linux there is also a [homebrew] tap:
+
+```shell
+brew install FollowTheProcess/homebrew-tap/spok
+```
+
 ## Quickstart
+
+To get started with spok, simply create a `spokfile` in your project and add a task:
+
+```python
+# Run the go tests
+task test() {
+    go test ./...
+}
+```
+
+We also recommend you add the following to your `.gitignore`:
+
+```gitignore
+.spok/
+```
+
+Now on the command line you can run:
+
+```shell
+spok test
+```
+
+And your tests will be run!
+
+If you want spok to help you out by initialising a demo spokfile (and adding the `.spok` entry to `.gitignore`) you can run:
+
+```shell
+spok --init
+```
 
 ## The Spokfile
 
@@ -144,3 +185,5 @@ task clean() {
 
 [make]: https://www.gnu.org/software/make/
 [just]: https://github.com/casey/just
+[GitHub releases]: https://github.com/FollowTheProcess/spok/releases
+[homebrew]: https://brew.sh
