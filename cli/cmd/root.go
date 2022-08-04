@@ -39,6 +39,8 @@ func BuildRootCmd() *cobra.Command {
 
 		- Cleaner, more developer-friendly syntax
 		- Full cross compatibility
+		- No dependency on any form of shell
+		- Load .env files by default
 		- Incremental runs based on file hashing and sum checks
 		- Parallel execution by default
 		`),
@@ -51,7 +53,7 @@ func BuildRootCmd() *cobra.Command {
 		$ spok test lint
 
 		# Show all defined variables in the 'spokfile'
-		$ spok --variables
+		$ spok --vars
 
 		# Show a task's source code
 		$ spok --show <task>
