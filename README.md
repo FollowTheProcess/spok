@@ -108,6 +108,8 @@ A `spokfile` looks like this...
 # Comments are preceeded by a hash
 
 # You can store global variables like this (caps are optional)
+# these will also be exported as environment variables available for use
+# in any tasks commands
 GLOBAL_VARIABLE := "hello"
 BIN := "./bin/main"
 
