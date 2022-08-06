@@ -37,7 +37,8 @@ import (
 // when asked to by it's NextToken method, this includes our actual Lexer
 // defined below but can be readily stubbed out for testing e.g. the parser.
 type Tokeniser interface {
-	NextToken() token.Token // Yield a single Token
+	// NextToken yields a single token from the input stream.
+	NextToken() token.Token
 }
 
 // lexFn represents the state of the scanner as a function that returns the next state.
