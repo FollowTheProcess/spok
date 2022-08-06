@@ -7,7 +7,6 @@ linters:
     - gocritic
     - gocyclo
     - godot
-    - gofmt
     - goimports
     - gosimple
     - govet
