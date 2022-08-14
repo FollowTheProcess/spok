@@ -808,6 +808,28 @@ func TestRunFuzzyMatch(t *testing.T) {
 			want:  `Spokfile has no task "bild". Did you mean "build"?`,
 			tasks: []string{"bild"},
 		},
+		{
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"build": {
+						Name: "build",
+						Commands: []string{
+							"echo hello",
+						},
+					},
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"echo testing",
+						},
+						TaskDependencies: []string{"bild"}, // Misspelled
+					},
+				},
+			},
+			name:  "dependency misspelled",
+			want:  `Task "test" declares a dependency on task "bild", which does not exist. Did you mean "build"?`,
+			tasks: []string{"test"},
+		},
 	}
 
 	for _, tt := range tests {
