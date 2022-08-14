@@ -74,6 +74,7 @@ func TestBuiltins(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
+	t.Parallel()
 	_, ok := Get("exec")
 	if !ok {
 		t.Fatal("Get failed to retrieve 'exec' which is known to exist")

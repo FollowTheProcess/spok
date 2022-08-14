@@ -12,6 +12,7 @@ import (
 )
 
 func TestString(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name  string
 		cache cache.Cache
@@ -50,6 +51,7 @@ func TestString(t *testing.T) {
 }
 
 func TestBytes(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name  string
 		cache cache.Cache
@@ -88,6 +90,7 @@ func TestBytes(t *testing.T) {
 }
 
 func TestGetPut(t *testing.T) {
+	t.Parallel()
 	cache := cache.New()
 	cache.Put("test", "4440044af910a451502908de30e986fb97cdacf6")
 	cache.Put("docs", "254ac0c1e553c18be4c7baa82eba5a6293cec2c8")
@@ -110,6 +113,7 @@ func TestGetPut(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
+	t.Parallel()
 	tmp, err := os.CreateTemp("", "cache")
 	if err != nil {
 		t.Fatalf("Could not create temp file: %v", err)
@@ -138,6 +142,7 @@ func TestWrite(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
+	t.Parallel()
 	tmp, err := os.CreateTemp("", "cache")
 	if err != nil {
 		t.Fatalf("Could not create temp file: %v", err)
@@ -176,6 +181,7 @@ func TestRead(t *testing.T) {
 }
 
 func TestInit(t *testing.T) {
+	t.Parallel()
 	tmp, err := os.MkdirTemp("", "init")
 	if err != nil {
 		t.Fatalf("Could not make temp dir: %v", err)
@@ -200,6 +206,7 @@ func TestInit(t *testing.T) {
 
 func TestIsEmpty(t *testing.T) {
 	t.Run("yes", func(t *testing.T) {
+		t.Parallel()
 		tmp, err := os.MkdirTemp("", "empty")
 		if err != nil {
 			t.Fatalf("Could not make temp dir: %v", err)
@@ -216,6 +223,7 @@ func TestIsEmpty(t *testing.T) {
 	})
 
 	t.Run("no", func(t *testing.T) {
+		t.Parallel()
 		tmp, err := os.MkdirTemp("", "empty")
 		if err != nil {
 			t.Fatalf("Could not make temp dir: %v", err)
@@ -242,6 +250,7 @@ func TestIsEmpty(t *testing.T) {
 
 func TestExists(t *testing.T) {
 	t.Run("no", func(t *testing.T) {
+		t.Parallel()
 		tmp, err := os.MkdirTemp("", "empty")
 		if err != nil {
 			t.Fatalf("Could not make temp dir: %v", err)
@@ -254,6 +263,7 @@ func TestExists(t *testing.T) {
 	})
 
 	t.Run("yes", func(t *testing.T) {
+		t.Parallel()
 		tmp, err := os.MkdirTemp("", "empty")
 		if err != nil {
 			t.Fatalf("Could not make temp dir: %v", err)

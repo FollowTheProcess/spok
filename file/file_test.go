@@ -14,10 +14,10 @@ import (
 )
 
 func TestFind(t *testing.T) {
-	t.Parallel()
 	testdata := getTestdata()
 
 	t.Run("found spokfile", func(t *testing.T) {
+		t.Parallel()
 		start := filepath.Join(testdata, "nested", "deep", "down", "here") // Start deep inside testdata
 		stop := testdata                                                   // Stop at testdata
 
@@ -37,6 +37,7 @@ func TestFind(t *testing.T) {
 	})
 
 	t.Run("missing spokfile", func(t *testing.T) {
+		t.Parallel()
 		start := filepath.Join(testdata, "missing", "deep", "down", "here")
 		stop := testdata
 
@@ -464,6 +465,7 @@ func TestFromAST(t *testing.T) {
 }
 
 func TestRun(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		spokfile *SpokFile
 		name     string
@@ -772,6 +774,7 @@ func TestRun(t *testing.T) {
 }
 
 func TestRunFuzzyMatch(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		spokfile *SpokFile
 		name     string
@@ -847,6 +850,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 }
 
 func TestBuildGraph(t *testing.T) {
+	t.Parallel()
 	spokfile := &SpokFile{
 		Tasks: map[string]task.Task{
 			"test": {

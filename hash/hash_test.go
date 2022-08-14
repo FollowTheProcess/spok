@@ -9,6 +9,7 @@ import (
 )
 
 func TestAlwaysHasher(t *testing.T) {
+	t.Parallel()
 	hasher := AlwaysRun{}
 	got, _ := hasher.Hash([]string{"doesnt", "matter"})
 	if got != "DIFFERENT" {
@@ -18,6 +19,7 @@ func TestAlwaysHasher(t *testing.T) {
 
 // Test that the final hash digest is repeatable.
 func TestHashFilesIsDeterministic(t *testing.T) {
+	t.Parallel()
 	files, cleanup := makeFiles(t)
 	defer cleanup()
 
@@ -114,6 +116,7 @@ func TestHashDifferentName(t *testing.T) {
 }
 
 func TestMin(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name string
 		a    int

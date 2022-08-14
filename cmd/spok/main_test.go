@@ -32,6 +32,7 @@ func TestMain(m *testing.M) {
 // TestCLISmoke just tests a few core things on the CLI to ensure it's not
 // totally broken e.g. does --help work, --version etc.
 func TestCLISmoke(t *testing.T) {
+	t.Parallel()
 	dir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)

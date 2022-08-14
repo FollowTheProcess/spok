@@ -8,6 +8,7 @@ import (
 )
 
 func TestOk(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		result shell.Result
@@ -35,6 +36,7 @@ func TestOk(t *testing.T) {
 }
 
 func TestRun(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		cmd     string

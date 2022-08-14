@@ -1189,6 +1189,7 @@ var fullSpokfileStream = []token.Token{
 
 // TestLexerIntegration tests the lexer against a fully populated, syntactically valid spokfile.
 func TestLexerIntegration(t *testing.T) {
+	t.Parallel()
 	if os.Getenv("SPOK_INTEGRATION_TEST") == "" {
 		t.Skip("Set SPOK_INTEGRATION_TEST to run this test.")
 	}

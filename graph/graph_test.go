@@ -7,6 +7,7 @@ import (
 )
 
 func TestGraph_AddVertex(t *testing.T) {
+	t.Parallel()
 	graph := New()
 	v1 := NewVertex(task.Task{Name: "v1"})
 
@@ -22,6 +23,7 @@ func TestGraph_AddVertex(t *testing.T) {
 }
 
 func TestGraph_Size(t *testing.T) {
+	t.Parallel()
 	graph := New()
 	v1 := NewVertex(task.Task{Name: "v1"})
 	v2 := NewVertex(task.Task{Name: "v2"})
@@ -44,6 +46,7 @@ func TestGraph_Size(t *testing.T) {
 }
 
 func TestGraph_GetVertex(t *testing.T) {
+	t.Parallel()
 	graph := New()
 	v1 := NewVertex(task.Task{Name: "v1"})
 	v2 := NewVertex(task.Task{Name: "v2"})
@@ -71,6 +74,7 @@ func TestGraph_GetVertex(t *testing.T) {
 }
 
 func TestGraph_ContainsVertex(t *testing.T) {
+	t.Parallel()
 	graph := New()
 	v1 := NewVertex(task.Task{Name: "v1"})
 	v2 := NewVertex(task.Task{Name: "v2"})
@@ -95,7 +99,9 @@ func TestGraph_ContainsVertex(t *testing.T) {
 }
 
 func TestGraph_AddEdge(t *testing.T) {
+	t.Parallel()
 	t.Run("happy path", func(t *testing.T) {
+		t.Parallel()
 		graph := New()
 		v1 := NewVertex(task.Task{Name: "v1"})
 		v2 := NewVertex(task.Task{Name: "v2"})
@@ -128,6 +134,7 @@ func TestGraph_AddEdge(t *testing.T) {
 	})
 
 	t.Run("parent missing", func(t *testing.T) {
+		t.Parallel()
 		graph := New()
 		v2 := NewVertex(task.Task{Name: "v2"})
 
@@ -139,6 +146,7 @@ func TestGraph_AddEdge(t *testing.T) {
 	})
 
 	t.Run("child missing", func(t *testing.T) {
+		t.Parallel()
 		graph := New()
 		v1 := NewVertex(task.Task{Name: "v1"})
 
@@ -151,6 +159,7 @@ func TestGraph_AddEdge(t *testing.T) {
 }
 
 func TestSort(t *testing.T) {
+	t.Parallel()
 	graph := New()
 
 	v1 := NewVertex(task.Task{Name: "v1"})
@@ -198,6 +207,7 @@ func TestSort(t *testing.T) {
 }
 
 func TestSortNotADAG(t *testing.T) {
+	t.Parallel()
 	graph := New()
 
 	v1 := NewVertex(task.Task{Name: "v1"})

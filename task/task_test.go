@@ -388,6 +388,7 @@ func TestNewTask(t *testing.T) {
 }
 
 func TestTaskRun(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		task    Task
@@ -483,6 +484,7 @@ func TestTaskRun(t *testing.T) {
 }
 
 func TestShouldRun(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		hasher  hash.Hasher
 		name    string
@@ -532,6 +534,7 @@ func TestShouldRun(t *testing.T) {
 }
 
 func TestResultOk(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		result Result

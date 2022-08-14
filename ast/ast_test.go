@@ -8,6 +8,7 @@ import (
 )
 
 func TestType(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		node Node
 		name string
