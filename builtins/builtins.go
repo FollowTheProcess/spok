@@ -36,7 +36,8 @@ func execute(command ...string) (string, error) {
 		return "", errors.New("exec takes the shell command as a single string argument")
 	}
 	cmd := command[0]
-	result, err := shell.Run(cmd, "", nil)
+	runner := shell.NewIntegratedRunner()
+	result, err := runner.Run(cmd, "", nil)
 	if err != nil {
 		return "", err
 	}

@@ -23,6 +23,13 @@ import (
 // The default timeout after which shell commands will be aborted.
 const timeout = 15 * time.Second
 
+// Runner is an interface representing something capable of running shell commands
+// and returning Results.
+type Runner interface {
+	// Run runs the shell command belonging to task with environment variables set.
+	Run(cmd, task string, env []string) (Result, error)
+}
+
 // Result holds the result of running a shell command.
 type Result struct {
 	Cmd    string // The command that was run
@@ -36,9 +43,19 @@ func (r Result) Ok() bool {
 	return r.Status == 0
 }
 
-// Run runs the shell command cmd belonging to task with
-// environment variables set, if env is empty or nil, os.Environ is used.
-func Run(cmd, task string, env []string) (Result, error) {
+// IntegratedRunner implements Runner by using a 100% go implementation
+// of a shell interpreter, this is the most cross-compatible version of a shell
+// runner possible as it does not depend on any external shell.
+type IntegratedRunner struct{}
+
+// NewIntegratedRunner returns a shell runner with no external dependency.
+func NewIntegratedRunner() IntegratedRunner {
+	return IntegratedRunner{}
+}
+
+// Run implements Runner for an IntegratedRunner, using a 100% go implementation
+// of a shell interpreter.
+func (i IntegratedRunner) Run(cmd, task string, env []string) (Result, error) {
 	prog, err := syntax.NewParser().Parse(strings.NewReader(cmd), "")
 	if err != nil {
 		return Result{}, fmt.Errorf("Command %q in task %q not valid shell syntax: %w", cmd, task, err)

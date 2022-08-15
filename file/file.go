@@ -12,6 +12,7 @@ import (
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
 	"github.com/FollowTheProcess/spok/graph"
+	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/lithammer/fuzzysearch/fuzzy"
@@ -133,7 +134,7 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 // set by the CLI which enforces synchronous running and always reruns tasks respectively and
 // an io.Writer which is used only to echo the commands being run, the command's stdout and stderr
 // is stored in the result.
-func (s *SpokFile) Run(echo io.Writer, sync, force bool, tasks ...string) ([]task.Result, error) {
+func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, sync, force bool, tasks ...string) ([]task.Result, error) {
 	// TODO: For all requested tasks and their dependencies, determine whether they need to run using the hashes
 	// work out which ones could be run in parallel and which ones need to be synchronous
 	// resolve this with sync and force (sync should mean no parallel, force should mean no hashing)
@@ -157,7 +158,7 @@ func (s *SpokFile) Run(echo io.Writer, sync, force bool, tasks ...string) ([]tas
 	// TODO: For now let's just run all the required tasks one after the other
 	// so we have something that works and can run stuff
 	for _, vertex := range runOrder {
-		result, err := vertex.Task.Run(echo, s.env())
+		result, err := vertex.Task.Run(runner, echo, s.env())
 		if err != nil {
 			return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
 		}

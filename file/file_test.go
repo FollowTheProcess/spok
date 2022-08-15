@@ -761,7 +761,8 @@ func TestRun(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.spokfile.Run(&bytes.Buffer{}, tt.sync, tt.force, tt.tasks...)
+			runner := shell.NewIntegratedRunner()
+			got, err := tt.spokfile.Run(&bytes.Buffer{}, runner, tt.sync, tt.force, tt.tasks...)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
 			}
@@ -837,7 +838,8 @@ func TestRunFuzzyMatch(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := tt.spokfile.Run(&bytes.Buffer{}, false, false, tt.tasks...)
+			runner := shell.NewIntegratedRunner()
+			_, err := tt.spokfile.Run(&bytes.Buffer{}, runner, false, false, tt.tasks...)
 			if err == nil {
 				t.Fatalf("Run() did not return an error")
 			}

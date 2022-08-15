@@ -125,7 +125,8 @@ func TestRun(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := shell.Run(tt.cmd, tt.name, tt.env)
+			runner := shell.NewIntegratedRunner()
+			got, err := runner.Run(tt.cmd, tt.name, tt.env)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
 			}

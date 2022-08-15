@@ -15,6 +15,7 @@ import (
 	"github.com/FollowTheProcess/spok/cache"
 	"github.com/FollowTheProcess/spok/file"
 	"github.com/FollowTheProcess/spok/parser"
+	"github.com/FollowTheProcess/spok/shell"
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 	"github.com/juju/ansiterm/tabwriter"
@@ -81,6 +82,8 @@ func (a *App) Run(tasks []string) error {
 		return err
 	}
 
+	runner := shell.NewIntegratedRunner()
+
 	switch {
 	case a.Options.Fmt:
 		a.printer.Infof("Formatting spokfile at %q", a.Options.Spokfile)
@@ -100,7 +103,7 @@ func (a *App) Run(tasks []string) error {
 		}
 
 		a.logger.Debugf("Running requested tasks: %v", tasks)
-		results, err := spokfile.Run(a.out, a.Options.Sync, a.Options.Force, tasks...)
+		results, err := spokfile.Run(a.out, runner, a.Options.Sync, a.Options.Force, tasks...)
 		if err != nil {
 			return err
 		}

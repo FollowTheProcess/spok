@@ -471,7 +471,8 @@ func TestTaskRun(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.task.Run(&bytes.Buffer{}, nil)
+			runner := shell.NewIntegratedRunner()
+			got, err := tt.task.Run(runner, &bytes.Buffer{}, nil)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
 			}
