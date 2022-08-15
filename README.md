@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/FollowTheProcess/spok/raw/main/img/logo.png" alt="logo" width=75%>
+<img src="https://github.com/FollowTheProcess/spok/raw/main/docs/img/logo.png" alt="logo" width=75%>
 </p>
 
 # Spok
