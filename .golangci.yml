@@ -1,7 +1,6 @@
 linters:
   disable-all: true
   enable:
-    - deadcode
     - errcheck
     - exhaustive
     - gocritic
@@ -17,7 +16,6 @@ linters:
     - staticcheck
     - unconvert
     - unused
-    - varcheck
     - whitespace
 
 linters-settings:
