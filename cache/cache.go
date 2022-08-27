@@ -20,11 +20,13 @@ const (
 )
 
 // Cache represents the entire cache of task name to hash sum.
-type Cache map[string]string
+type Cache struct {
+	inner map[string]string
+}
 
 // New builds and returns a new cache.
-func New() Cache {
-	return Cache{}
+func New() *Cache {
+	return &Cache{inner: make(map[string]string)}
 }
 
 // Init creates the .spok directory relative to root and writes an empty cache file.
@@ -69,8 +71,8 @@ func Exists(root string) bool {
 
 // String implements Stringer for a Cache.
 func (c Cache) String() string {
-	lines := make([]string, 0, len(c))
-	for task, hash := range c {
+	lines := make([]string, 0, len(c.inner))
+	for task, hash := range c.inner {
 		line := task + "\t" + hash
 		lines = append(lines, line)
 	}
@@ -96,18 +98,18 @@ func (c Cache) Write(file string) error {
 
 // Put puts a task name and hash sum into the cache to
 // be later written.
-func (c Cache) Put(task, digest string) {
-	c[task] = digest
+func (c *Cache) Put(task, digest string) {
+	c.inner[task] = digest
 }
 
 // Get gets the digest for a task.
-func (c Cache) Get(task string) (string, bool) {
-	digest, ok := c[task]
+func (c *Cache) Get(task string) (string, bool) {
+	digest, ok := c.inner[task]
 	return digest, ok
 }
 
 // Load reads the cache file into the caller.
-func (c Cache) Load(file string) error {
+func (c *Cache) Load(file string) error {
 	contents, err := os.ReadFile(file)
 	if err != nil {
 		return fmt.Errorf("Could not read from cache file %s: %w", file, err)
