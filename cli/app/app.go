@@ -114,7 +114,7 @@ func (a *App) Run(tasks []string) error {
 				for _, cmd := range result.CommandResults {
 					if !cmd.Ok() {
 						// We've found the one
-						return fmt.Errorf("Command %q in task %q exited with status %d\nStdout: %s\nStderr: %s", cmd.Cmd, result.Task, cmd.Status, cmd.Stdout, cmd.Stderr)
+						return fmt.Errorf("Command %q in task %q exited with status %d\nStdout:\n-------\n %s\nStderr:\n-------\n %s", cmd.Cmd, result.Task, cmd.Status, cmd.Stdout, cmd.Stderr)
 					}
 				}
 			}
