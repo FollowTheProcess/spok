@@ -59,8 +59,3 @@ task cover("**/*.go") -> (COVERAGE_DATA, COVERAGE_HTML) {
 task sloc() {
     find . -name "*.go" | xargs wc -l | sort -nr | head
 }
-
-# Try and run nox
-task nox() {
-    nox
-}
