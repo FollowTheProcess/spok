@@ -1,4 +1,4 @@
-package cache_test
+package cache
 
 import (
 	"bytes"
@@ -7,35 +7,37 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/FollowTheProcess/spok/cache"
 )
 
 func TestString(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name  string
-		cache cache.Cache
+		cache *Cache
 		want  string
 	}{
 		{
 			name:  "empty",
-			cache: map[string]string{},
+			cache: New(),
 			want:  "",
 		},
 		{
 			name: "single",
-			cache: map[string]string{
-				"test": "4440044af910a451502908de30e986fb97cdacf6",
+			cache: &Cache{
+				inner: map[string]string{
+					"test": "4440044af910a451502908de30e986fb97cdacf6",
+				},
 			},
 			want: "test\t4440044af910a451502908de30e986fb97cdacf6",
 		},
 		{
 			name: "multiple",
-			cache: map[string]string{
-				"test": "4440044af910a451502908de30e986fb97cdacf6",
-				"docs": "254ac0c1e553c18be4c7baa82eba5a6293cec2c8",
-				"lint": "106dfe5fcfa96f4b70036d0e3f9ac1c126f03175",
+			cache: &Cache{
+				inner: map[string]string{
+					"test": "4440044af910a451502908de30e986fb97cdacf6",
+					"docs": "254ac0c1e553c18be4c7baa82eba5a6293cec2c8",
+					"lint": "106dfe5fcfa96f4b70036d0e3f9ac1c126f03175",
+				},
 			},
 			want: "docs\t254ac0c1e553c18be4c7baa82eba5a6293cec2c8\nlint\t106dfe5fcfa96f4b70036d0e3f9ac1c126f03175\ntest\t4440044af910a451502908de30e986fb97cdacf6",
 		},
@@ -54,27 +56,31 @@ func TestBytes(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name  string
-		cache cache.Cache
+		cache *Cache
 		want  []byte
 	}{
 		{
 			name:  "empty",
-			cache: map[string]string{},
+			cache: New(),
 			want:  []byte(""),
 		},
 		{
 			name: "single",
-			cache: map[string]string{
-				"test": "4440044af910a451502908de30e986fb97cdacf6",
+			cache: &Cache{
+				map[string]string{
+					"test": "4440044af910a451502908de30e986fb97cdacf6",
+				},
 			},
 			want: []byte("test\t4440044af910a451502908de30e986fb97cdacf6"),
 		},
 		{
 			name: "multiple",
-			cache: map[string]string{
-				"test": "4440044af910a451502908de30e986fb97cdacf6",
-				"docs": "254ac0c1e553c18be4c7baa82eba5a6293cec2c8",
-				"lint": "106dfe5fcfa96f4b70036d0e3f9ac1c126f03175",
+			cache: &Cache{
+				inner: map[string]string{
+					"test": "4440044af910a451502908de30e986fb97cdacf6",
+					"docs": "254ac0c1e553c18be4c7baa82eba5a6293cec2c8",
+					"lint": "106dfe5fcfa96f4b70036d0e3f9ac1c126f03175",
+				},
 			},
 			want: []byte("docs\t254ac0c1e553c18be4c7baa82eba5a6293cec2c8\nlint\t106dfe5fcfa96f4b70036d0e3f9ac1c126f03175\ntest\t4440044af910a451502908de30e986fb97cdacf6"),
 		},
@@ -91,7 +97,7 @@ func TestBytes(t *testing.T) {
 
 func TestGetPut(t *testing.T) {
 	t.Parallel()
-	cache := cache.New()
+	cache := New()
 	cache.Put("test", "4440044af910a451502908de30e986fb97cdacf6")
 	cache.Put("docs", "254ac0c1e553c18be4c7baa82eba5a6293cec2c8")
 
@@ -121,7 +127,7 @@ func TestWrite(t *testing.T) {
 	tmp.Close()
 	defer os.RemoveAll(tmp.Name())
 
-	cache := cache.New()
+	cache := New()
 	cache.Put("test", "4440044af910a451502908de30e986fb97cdacf6")
 	cache.Put("docs", "254ac0c1e553c18be4c7baa82eba5a6293cec2c8")
 
@@ -154,13 +160,13 @@ func TestRead(t *testing.T) {
 	tmp.Close()
 	defer os.RemoveAll(tmp.Name())
 
-	cache := cache.New()
+	cache := New()
 	if err = cache.Load(tmp.Name()); err != nil {
 		t.Fatalf("Load returned an error: %v", err)
 	}
 
-	if len(cache) != 2 {
-		t.Errorf("Wrong number of entries in the cache\nGot %d, Want %d", len(cache), 2)
+	if len(cache.inner) != 2 {
+		t.Errorf("Wrong number of entries in the cache\nGot %d, Want %d", len(cache.inner), 2)
 	}
 
 	test, ok := cache.Get("test")
@@ -188,7 +194,7 @@ func TestInit(t *testing.T) {
 	}
 	defer os.RemoveAll(tmp)
 
-	if err := cache.Init(tmp); err != nil {
+	if err := Init(tmp); err != nil {
 		t.Fatalf("Init returned an error: %v", err)
 	}
 
@@ -213,11 +219,11 @@ func TestIsEmpty(t *testing.T) {
 		}
 		defer os.RemoveAll(tmp)
 
-		if err := cache.Init(tmp); err != nil {
+		if err := Init(tmp); err != nil {
 			t.Fatalf("Init returned an error: %v", err)
 		}
 
-		if !cache.IsEmpty(tmp) {
+		if !IsEmpty(tmp) {
 			t.Fatal("IsEmpty returned false but should have returned true")
 		}
 	})
@@ -230,19 +236,19 @@ func TestIsEmpty(t *testing.T) {
 		}
 		defer os.RemoveAll(tmp)
 
-		if err := cache.Init(tmp); err != nil {
+		if err := Init(tmp); err != nil {
 			t.Fatalf("Init returned an error: %v", err)
 		}
 
 		file := filepath.Join(tmp, ".spok", "cache")
 
-		c := cache.New()
+		c := New()
 		c.Put("test", "DIGEST")
 		if err := c.Write(file); err != nil {
 			t.Fatalf("Could not write to cache file: %v", err)
 		}
 
-		if cache.IsEmpty(tmp) {
+		if IsEmpty(tmp) {
 			t.Fatal("IsEmpty returned true but should have returned false")
 		}
 	})
@@ -257,7 +263,7 @@ func TestExists(t *testing.T) {
 		}
 		defer os.RemoveAll(tmp)
 
-		if cache.Exists(tmp) {
+		if Exists(tmp) {
 			t.Error("Exists returned true but the cache does not exist")
 		}
 	})
@@ -270,11 +276,11 @@ func TestExists(t *testing.T) {
 		}
 		defer os.RemoveAll(tmp)
 
-		if err := cache.Init(tmp); err != nil {
+		if err := Init(tmp); err != nil {
 			t.Fatalf("Init returned an error: %v", err)
 		}
 
-		if !cache.Exists(tmp) {
+		if !Exists(tmp) {
 			t.Fatal("Exists returned false but should have returned true")
 		}
 	})
