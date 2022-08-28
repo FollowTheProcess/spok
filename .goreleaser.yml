@@ -3,6 +3,8 @@ project_name: "spok"
 before:
   hooks:
     - go mod tidy
+    - go generate ./...
+    - go fmt ./...
 
 builds:
   - id: "spok"
@@ -39,7 +41,7 @@ brews:
     install: |
       bin.install "spok"
     test: |
-      "#{bin}/spok version"
+      "#{bin}/spok --version"
 
 archives:
   - replacements:
