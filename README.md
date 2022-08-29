@@ -185,7 +185,12 @@ task clean() {
 }
 ```
 
+## Editor Support
+
+There is a [VSCode Extension] available that provides basic syntax highlighting for spokfiles. It's still in active development so more features TBC!
+
 [make]: https://www.gnu.org/software/make/
 [just]: https://github.com/casey/just
 [GitHub releases]: https://github.com/FollowTheProcess/spok/releases
 [homebrew]: https://brew.sh
+[VSCode Extension]: https://marketplace.visualstudio.com/items?itemName=FollowTheProcess.spok
