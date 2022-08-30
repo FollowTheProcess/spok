@@ -38,8 +38,14 @@ func (s *SpokFile) hasTask(name string) bool {
 
 // hasGlob returns whether or not the SpokFile has already expanded a glob pattern.
 func (s *SpokFile) hasGlob(pattern string) bool {
-	_, ok := s.Globs[pattern]
-	return ok
+	expanded, ok := s.Globs[pattern]
+	if !ok {
+		return false
+	}
+	if len(expanded) == 0 {
+		return false
+	}
+	return true
 }
 
 // env returns the spokfile Vars as a string slice of KEY=VALUE format
