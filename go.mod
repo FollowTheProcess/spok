@@ -8,7 +8,7 @@ require (
 	github.com/MakeNowJust/heredoc/v2 v2.0.1
 	github.com/bmatcuk/doublestar/v4 v4.2.0
 	github.com/fatih/color v1.13.0
-	github.com/google/go-cmp v0.5.8
+	github.com/google/go-cmp v0.5.9
 	github.com/joho/godotenv v1.4.0
 	github.com/juju/ansiterm v1.0.0
 	github.com/lithammer/fuzzysearch v1.1.5
