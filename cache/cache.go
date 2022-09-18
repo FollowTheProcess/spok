@@ -35,12 +35,13 @@ func Init(root string) error {
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+	if err = os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return err
 	}
 
-	if err := os.WriteFile(path, []byte(""), 0666); err != nil {
-		return nil
+	_, err = os.Create(path)
+	if err != nil {
+		return err
 	}
 	return nil
 }
