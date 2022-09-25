@@ -26,7 +26,6 @@ On top of this, `spok` provides:
 * Fully cross compatible (tested on Windows, Linux and Mac)
 * Ships with it's own shell interpreter so no dependency on `sh`, `bash`, or `zsh`!
 * Incremental runs based on file hashing and sum checks (not timestamps like e.g. [make]), so nothing runs if nothing's changed!
-* Parallel execution by default (unless task dependencies preclude this)
 * Auto loading of `.env` files
 * Debug info with the `--verbose` flag
 * An auto `spokfile` formatter
