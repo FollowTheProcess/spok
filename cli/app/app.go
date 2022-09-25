@@ -26,8 +26,8 @@ import (
 type App struct {
 	out     io.Writer          // Where to write to
 	Options *Options           // All the CLI options
-	printer *msg.Printer       // Spok's printer
-	logger  *zap.SugaredLogger // The spok logger
+	printer *msg.Printer       // Spok's printer, prints user messages to stdout
+	logger  *zap.SugaredLogger // Spok's logger, prints debug messages to stderr if --verbose is used
 }
 
 // Options holds all the flag options for spok, these will be at their zero values
@@ -183,7 +183,7 @@ func (a *App) setup() error {
 	}
 
 	// Auto load .env file (if present) to be present in os.Environ
-	if err := godotenv.Load(filepath.Join(cwd, ".env")); err != nil {
+	if err := godotenv.Load(filepath.Join(filepath.Dir(a.Options.Spokfile), ".env")); err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
 			// A missing .env file is not an error, just don't load it in
 			// If however it does exist and we can't load then report that
