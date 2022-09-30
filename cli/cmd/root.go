@@ -42,7 +42,6 @@ func BuildRootCmd() *cobra.Command {
 		- No dependency on any form of shell
 		- Load .env files by default
 		- Incremental runs based on file hashing and sum checks
-		- Parallel execution by default
 		`),
 		Example: heredoc.Doc(`
 
