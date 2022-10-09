@@ -19,7 +19,7 @@ var (
 
 // BuildRootCmd builds and returns the root spok CLI command.
 func BuildRootCmd() *cobra.Command {
-	spok := app.New(os.Stdout)
+	spok := app.New(os.Stdout, os.Stderr)
 
 	rootCmd := &cobra.Command{
 		Use:           "spok [tasks]...",
