@@ -12,7 +12,7 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/juju/ansiterm v1.0.0
 	github.com/lithammer/fuzzysearch v1.1.5
-	github.com/spf13/cobra v1.6.0
+	github.com/spf13/cobra v1.6.1
 	go.uber.org/zap v1.23.0
 	mvdan.cc/sh/v3 v3.5.1
 )
