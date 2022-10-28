@@ -27,8 +27,8 @@ type App struct {
 	stdout  io.Writer          // Where to write to
 	stderr  io.Writer          // Where to write errors to
 	Options *Options           // All the CLI options
-	printer *msg.Printer       // Spok's printer, prints user messages to stdout
 	logger  *zap.SugaredLogger // Spok's logger, prints debug messages to stderr if --verbose is used
+	printer msg.Printer        // Spok's printer, prints user messages to stdout
 }
 
 // Options holds all the flag options for spok, these will be at their zero values
