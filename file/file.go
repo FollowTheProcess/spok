@@ -202,10 +202,9 @@ func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder
 		toHash = append(toHash, vertex.Task.FileDependencies...)
 
 		var hasher hash.Hasher
-		switch force {
-		case true:
+		if force {
 			hasher = hash.AlwaysRun{}
-		case false:
+		} else {
 			hasher = hash.New()
 		}
 

@@ -105,6 +105,7 @@ func (a *App) Run(tasks []string) error {
 		}
 
 		a.logger.Debugf("Running requested tasks: %v", tasks)
+
 		results, err := spokfile.Run(a.stdout, runner, a.Options.Force, tasks...)
 		if err != nil {
 			return err
@@ -121,10 +122,13 @@ func (a *App) Run(tasks []string) error {
 				}
 			}
 			if result.Skipped {
-				a.printer.Goodf("Task %q up to date", result.Task)
+				a.printer.Goodf("Task %q skipped as none of its dependencies have changed", result.Task)
 			}
-			for _, cmd := range result.CommandResults {
-				fmt.Fprint(a.stdout, cmd.Stdout)
+			if !a.Options.Quiet {
+				for _, cmd := range result.CommandResults {
+					fmt.Fprint(a.stdout, cmd.Stdout)
+					a.printer.Goodf("Task %q completed successfully", result.Task)
+				}
 			}
 		}
 	}
