@@ -164,16 +164,16 @@ func TestInit(t *testing.T) {
 	}
 	defer os.RemoveAll(tmp)
 
-	if err := cache.Init(filepath.Join(tmp, ".spok", "cache.json")); err != nil {
+	if err := cache.Init(filepath.Join(tmp, cache.Dir, cache.File)); err != nil {
 		t.Fatalf("cache.Init returned an error: %v", err)
 	}
 
-	gitIgnorePath := filepath.Join(tmp, ".spok", ".gitignore")
+	gitIgnorePath := filepath.Join(tmp, cache.Dir, ".gitignore")
 	if !exists(gitIgnorePath) {
 		t.Errorf(".gitignore not found at %s", gitIgnorePath)
 	}
 
-	cachePath := filepath.Join(tmp, ".spok", "cache.json")
+	cachePath := filepath.Join(tmp, cache.Dir, cache.File)
 	if !exists(cachePath) {
 		t.Errorf("cache.json not found at %s", cachePath)
 	}
@@ -182,7 +182,7 @@ func TestInit(t *testing.T) {
 // makeCache writes a cache JSON to a temporary file, returning it
 // and a cleanup function to be deferred.
 func makeCache(t *testing.T) (*os.File, func()) {
-	file, err := os.CreateTemp("", ".cache.json")
+	file, err := os.CreateTemp("", "cache.json")
 	if err != nil {
 		t.Fatalf("Could not create temp file: %v", err)
 	}

@@ -471,7 +471,6 @@ func TestRun(t *testing.T) {
 		tasks    []string
 		want     []task.Result
 		wantErr  bool
-		sync     bool
 		force    bool
 	}{
 		{
@@ -486,7 +485,6 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-			sync:    false,
 			force:   false,
 			tasks:   []string{"test"},
 			wantErr: false,
@@ -519,7 +517,6 @@ func TestRun(t *testing.T) {
 					"GLOBAL_VARIABLE": "Hello from a global",
 				},
 			},
-			sync:    false,
 			force:   false,
 			tasks:   []string{"test"},
 			wantErr: false,
@@ -549,7 +546,6 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-			sync:    false,
 			force:   false,
 			tasks:   []string{"missing"},
 			wantErr: true,
@@ -567,7 +563,6 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-			sync:    false,
 			force:   false,
 			tasks:   []string{"test"},
 			wantErr: false,
@@ -600,7 +595,6 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-			sync:    false,
 			force:   false,
 			tasks:   []string{"test"},
 			wantErr: false,
@@ -654,7 +648,6 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-			sync:    false,
 			force:   false,
 			tasks:   []string{"test"},
 			wantErr: false,
@@ -690,7 +683,6 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-			sync:    false,
 			force:   false,
 			tasks:   []string{"lint"},
 			wantErr: false,
@@ -727,7 +719,6 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-			sync:    false,
 			force:   false,
 			tasks:   []string{"lint", "test"},
 			wantErr: false,
@@ -764,7 +755,7 @@ func TestRun(t *testing.T) {
 			// of each test
 			defer os.RemoveAll(".spok")
 			runner := shell.NewIntegratedRunner()
-			got, err := tt.spokfile.Run(&bytes.Buffer{}, runner, tt.sync, tt.force, tt.tasks...)
+			got, err := tt.spokfile.Run(&bytes.Buffer{}, runner, tt.force, tt.tasks...)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
 			}
@@ -840,7 +831,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			runner := shell.NewIntegratedRunner()
-			_, err := tt.spokfile.Run(&bytes.Buffer{}, runner, false, false, tt.tasks...)
+			_, err := tt.spokfile.Run(&bytes.Buffer{}, runner, false, tt.tasks...)
 			if err == nil {
 				t.Fatalf("Run() did not return an error")
 			}

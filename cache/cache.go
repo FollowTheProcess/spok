@@ -9,6 +9,12 @@ import (
 	"path/filepath"
 )
 
+var (
+	Dir  = ".spok"                  // Dir is the directory under which the spok cache is kept
+	File = "cache.json"             // File is filename of the spok cache file
+	Path = filepath.Join(Dir, File) // Path is the whole filepath to the spok cache file
+)
+
 // Entry represents a single cache entry.
 type Entry struct {
 	Name   string `json:"name"`   // Name of the entry (e.g. task name)

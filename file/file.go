@@ -139,11 +139,10 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 	return dag, nil
 }
 
-// Run runs the specified tasks, it takes sync and force which are boolean flags
-// set by the CLI which enforces synchronous running and always reruns tasks respectively and
-// an io.Writer which is used only to echo the commands being run, the command's stdout and stderr
+// Run runs the specified tasks, it takes force which is a boolean flag set by the CLI which
+// always reruns tasks and an io.Writer which is used only to echo the commands being run, the command's stdout and stderr
 // is stored in the result.
-func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, sync, force bool, tasks ...string) ([]task.Result, error) {
+func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, force bool, tasks ...string) ([]task.Result, error) {
 	// TODO: For all requested tasks and their dependencies, determine whether they need to run using the hashes
 	// work out which ones could be run in parallel and which ones need to be synchronous
 	// resolve this with sync and force (sync should mean no parallel, force should mean no hashing)
@@ -162,7 +161,7 @@ func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, sync, force bool, ta
 		return nil, err
 	}
 
-	results, err := s.run(echo, runner, sync, force, runOrder)
+	results, err := s.run(echo, runner, force, runOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -171,10 +170,10 @@ func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, sync, force bool, ta
 }
 
 // run is the implementation of the public Run method.
-func (s *SpokFile) run(echo io.Writer, runner shell.Runner, sync, force bool, runOrder []*graph.Vertex) ([]task.Result, error) {
+func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder []*graph.Vertex) ([]task.Result, error) {
 	var results []task.Result
 
-	cachePath := filepath.Join(s.Dir, ".spok", "cache.json")
+	cachePath := filepath.Join(s.Dir, cache.Path)
 	if !cache.Exists(cachePath) {
 		// Spok has not run at all before and the cache does not exist
 		// so just dump a placeholder cache in with all the task names and empty digest entries
