@@ -2,6 +2,7 @@ package cache_test
 
 import (
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -105,6 +106,79 @@ func TestExists(t *testing.T) {
 	}
 }
 
+func TestSet(t *testing.T) {
+	cached := cache.Cache{
+		{
+			Name:   "testtask",
+			Digest: "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
+		},
+		{
+			Name:   "another",
+			Digest: "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
+		},
+	}
+
+	want := cache.Cache{
+		{
+			Name:   "testtask",
+			Digest: "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
+		},
+		{
+			Name:   "another",
+			Digest: "somethingelse",
+		},
+	}
+
+	cached.Set("another", "somethingelse")
+
+	if !reflect.DeepEqual(cached, want) {
+		t.Errorf("got %#v, wanted %#v", cached, want)
+	}
+}
+
+func TestGet(t *testing.T) {
+	cached := cache.Cache{
+		{
+			Name:   "testtask",
+			Digest: "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
+		},
+		{
+			Name:   "another",
+			Digest: "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
+		},
+	}
+
+	got, ok := cached.Get("testtask")
+	if !ok {
+		t.Fatalf("cache.Get unexpected 'ok' value %v, expected %v", ok, true)
+	}
+	if got != "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537" {
+		t.Errorf("Retrieved value for 'testtask' wrong: got %s, expected %s", got, "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537")
+	}
+}
+
+func TestInit(t *testing.T) {
+	tmp, err := os.MkdirTemp("", "spoktemp")
+	if err != nil {
+		t.Fatalf("Could not create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmp)
+
+	if err := cache.Init(filepath.Join(tmp, ".spok", "cache.json")); err != nil {
+		t.Fatalf("cache.Init returned an error: %v", err)
+	}
+
+	gitIgnorePath := filepath.Join(tmp, ".spok", ".gitignore")
+	if !exists(gitIgnorePath) {
+		t.Errorf(".gitignore not found at %s", gitIgnorePath)
+	}
+
+	cachePath := filepath.Join(tmp, ".spok", "cache.json")
+	if !exists(cachePath) {
+		t.Errorf("cache.json not found at %s", cachePath)
+	}
+}
+
 // makeCache writes a cache JSON to a temporary file, returning it
 // and a cleanup function to be deferred.
 func makeCache(t *testing.T) (*os.File, func()) {
@@ -121,4 +195,9 @@ func makeCache(t *testing.T) (*os.File, func()) {
 	cleanup := func() { _ = os.RemoveAll(file.Name()) }
 
 	return file, cleanup
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }

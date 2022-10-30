@@ -105,7 +105,7 @@ func TestExpandGlobs(t *testing.T) {
 					"test": {
 						Doc:         "A simple test task",
 						Name:        "test",
-						GlobOutputs: []string{"**/*.json"},
+						GlobOutputs: []string{"**/*.test"},
 					},
 				},
 			},
@@ -113,19 +113,19 @@ func TestExpandGlobs(t *testing.T) {
 				Path: filepath.Join(testdata, "spokfile"),
 				Vars: make(map[string]string),
 				Globs: map[string][]string{
-					"**/*.json": {
-						mustAbs(testdata, "top.json"),
-						mustAbs(testdata, "outputs/sub1/sub2/blah.json"),
-						mustAbs(testdata, "outputs/sub1/sub2/sub3/hello.json"),
-						mustAbs(testdata, "outputs/suba/subb/stuff.json"),
-						mustAbs(testdata, "outputs/suba/subb/subc/something.json"),
+					"**/*.test": {
+						mustAbs(testdata, "top.test"),
+						mustAbs(testdata, "outputs/sub1/sub2/blah.test"),
+						mustAbs(testdata, "outputs/sub1/sub2/sub3/hello.test"),
+						mustAbs(testdata, "outputs/suba/subb/stuff.test"),
+						mustAbs(testdata, "outputs/suba/subb/subc/something.test"),
 					},
 				},
 				Tasks: map[string]task.Task{
 					"test": {
 						Doc:         "A simple test task",
 						Name:        "test",
-						GlobOutputs: []string{"**/*.json"},
+						GlobOutputs: []string{"**/*.test"},
 					},
 				},
 			},
@@ -465,7 +465,6 @@ func TestFromAST(t *testing.T) {
 }
 
 func TestRun(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		spokfile *SpokFile
 		name     string
@@ -761,6 +760,9 @@ func TestRun(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// A cache will get built on run, so we must clean it up at the end
+			// of each test
+			defer os.RemoveAll(".spok")
 			runner := shell.NewIntegratedRunner()
 			got, err := tt.spokfile.Run(&bytes.Buffer{}, runner, tt.sync, tt.force, tt.tasks...)
 			if (err != nil) != tt.wantErr {
@@ -775,7 +777,6 @@ func TestRun(t *testing.T) {
 }
 
 func TestRunFuzzyMatch(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		spokfile *SpokFile
 		name     string

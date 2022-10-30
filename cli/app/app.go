@@ -121,6 +121,9 @@ func (a *App) Run(tasks []string) error {
 					}
 				}
 			}
+			if result.Skipped {
+				a.printer.Goodf("Task %q up to date", result.Task)
+			}
 			for _, cmd := range result.CommandResults {
 				fmt.Fprint(a.stdout, cmd.Stdout)
 			}

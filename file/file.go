@@ -11,12 +11,14 @@ import (
 
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
+	"github.com/FollowTheProcess/spok/cache"
 	"github.com/FollowTheProcess/spok/graph"
 	"github.com/FollowTheProcess/spok/hash"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/lithammer/fuzzysearch/fuzzy"
+	"golang.org/x/exp/maps"
 )
 
 // NAME is the canonical spok file name.
@@ -160,7 +162,31 @@ func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, sync, force bool, ta
 		return nil, err
 	}
 
+	results, err := s.run(echo, runner, sync, force, runOrder)
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+// run is the implementation of the public Run method.
+func (s *SpokFile) run(echo io.Writer, runner shell.Runner, sync, force bool, runOrder []*graph.Vertex) ([]task.Result, error) {
 	var results []task.Result
+
+	cachePath := filepath.Join(s.Dir, ".spok", "cache.json")
+	if !cache.Exists(cachePath) {
+		// Spok has not run at all before and the cache does not exist
+		// so just dump a placeholder cache in with all the task names and empty digest entries
+		if err := cache.Init(cachePath, maps.Keys(s.Tasks)...); err != nil {
+			return nil, err
+		}
+	}
+
+	cachedState, err := cache.Load(cachePath)
+	if err != nil {
+		return nil, fmt.Errorf("Could not load spok cache file at %q: %s", cachePath, err)
+	}
 
 	// TODO: For now let's just run all the required tasks one after the other
 	// so we have something that works and can run stuff
@@ -178,20 +204,54 @@ func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, sync, force bool, ta
 
 		// TODO: This hasher should be dependent on `--force`
 		hasher := hash.New()
-		digest, err := hasher.Hash(toHash)
+		currentDigest, err := hasher.Hash(toHash)
 		if err != nil {
 			return nil, err
 		}
-		fmt.Printf("SHA256 digest for task %q (%d files) is: %s\n", vertex.Task.Name, len(toHash), digest)
-		// TODO: Check the digest against the value loaded from cache (if exists)
-		// If the hash we've just done is the same as the cache, don't need to run the task
-		// If the hash is different to the cache, run the task then update the cached digest
-		// If the cached digest for this task doesn't exist yet, run the task then update the cached digest
-		result, err := vertex.Task.Run(runner, echo, s.env())
-		if err != nil {
-			return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
+
+		// TODO: Check the digest against the value loaded from cache, 3 scenarios to check:
+		// by the time we get here we know the cache file will exist and will have the name of every task in it (above check)
+		// 1) The digest for the task isn't there meaning it hasn't run before -> Run the task, populate the cache
+		cachedDigest, ok := cachedState.Get(vertex.Task.Name)
+		if !ok {
+			return nil, fmt.Errorf("Task %q not present in cache, this is a bug", vertex.Task.Name)
 		}
-		results = append(results, task.Result{CommandResults: result, Task: vertex.Task.Name})
+
+		// I'm a change to a file somewhere
+
+		var result []shell.Result
+		skipped := false
+		switch {
+		case cachedDigest == "":
+			// The task has never been run before and still has an empty string as it's digest
+			// from cache.Init. Set the cache to the new digest and run the task
+			cachedState.Set(vertex.Task.Name, currentDigest)
+			result, err = vertex.Task.Run(runner, echo, s.env())
+			if err != nil {
+				return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
+			}
+
+		case currentDigest != cachedDigest:
+			// This task has been run before and has a digest in the cache but the digest
+			// has changed. Set the cache to the new digest and run the task
+			cachedState.Set(vertex.Task.Name, currentDigest)
+			result, err = vertex.Task.Run(runner, echo, s.env())
+			if err != nil {
+				return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
+			}
+
+		case currentDigest == cachedDigest:
+			// This task has been run before and has a digest in the cache and the digest
+			// has not changed, meaning the files it depends on have not changed so there is
+			// no need to re-run the task
+			skipped = true
+		}
+
+		results = append(results, task.Result{CommandResults: result, Task: vertex.Task.Name, Skipped: skipped})
+	}
+
+	if err := cachedState.Dump(cachePath); err != nil {
+		return nil, err
 	}
 
 	return results, nil
