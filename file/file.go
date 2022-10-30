@@ -143,24 +143,25 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 // always reruns tasks and an io.Writer which is used only to echo the commands being run, the command's stdout and stderr
 // is stored in the result.
 func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, force bool, tasks ...string) ([]task.Result, error) {
-	// TODO: For all requested tasks and their dependencies, determine whether they need to run using the hashes
-	// work out which ones could be run in parallel and which ones need to be synchronous
-	// resolve this with sync and force (sync should mean no parallel, force should mean no hashing)
-	// submit tasks to run (worker pool for parallel ones, for loop for synchronous ones)
+	// Perform glob expansion for every glob pattern in the whole file and save
+	// the list of filepaths to the Globs map
 	if err := s.expandGlobs(); err != nil {
 		return nil, err
 	}
 
+	// Build the task dependency graph based on the requested tasks and their dependencies
 	dag, err := s.buildGraph(tasks...)
 	if err != nil {
 		return nil, err
 	}
 
+	// Topological sort on the DAG to determine a run order
 	runOrder, err := dag.Sort()
 	if err != nil {
 		return nil, err
 	}
 
+	// Submit the run order to be executed and gather up the results
 	results, err := s.run(echo, runner, force, runOrder)
 	if err != nil {
 		return nil, err
@@ -187,13 +188,12 @@ func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder
 		return nil, fmt.Errorf("Could not load spok cache file at %q: %s", cachePath, err)
 	}
 
-	// TODO: For now let's just run all the required tasks one after the other
-	// so we have something that works and can run stuff
 	for _, vertex := range runOrder {
 		// Gather up all the files to be hashed into a single slice
 		var toHash []string
 
-		// First, any glob file dependencies need their expanded files retrieving
+		// First, any glob file dependencies need their expanded files retrieving from
+		// the s.Globs map of pattern -> slice
 		for _, pattern := range vertex.Task.GlobDependencies {
 			toHash = append(toHash, s.Globs[pattern]...)
 		}
@@ -201,38 +201,33 @@ func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder
 		// Second, any non-glob file dependencies
 		toHash = append(toHash, vertex.Task.FileDependencies...)
 
-		// TODO: This hasher should be dependent on `--force`
-		hasher := hash.New()
+		var hasher hash.Hasher
+		switch force {
+		case true:
+			hasher = hash.AlwaysRun{}
+		case false:
+			hasher = hash.New()
+		}
+
 		currentDigest, err := hasher.Hash(toHash)
 		if err != nil {
 			return nil, err
 		}
 
-		// TODO: Check the digest against the value loaded from cache, 3 scenarios to check:
-		// by the time we get here we know the cache file will exist and will have the name of every task in it (above check)
-		// 1) The digest for the task isn't there meaning it hasn't run before -> Run the task, populate the cache
+		// By the time we get here, we know the cache file will exist (even if it has no digests)
+		// so we can go ahead and load as normal
 		cachedDigest, ok := cachedState.Get(vertex.Task.Name)
 		if !ok {
-			return nil, fmt.Errorf("Task %q not present in cache, this is a bug", vertex.Task.Name)
+			return nil, fmt.Errorf("Task %q not present in cache", vertex.Task.Name)
 		}
-
-		// I'm a change to a file somewhere
 
 		var result []shell.Result
 		skipped := false
-		switch {
-		case cachedDigest == "":
-			// The task has never been run before and still has an empty string as it's digest
-			// from cache.Init. Set the cache to the new digest and run the task
-			cachedState.Set(vertex.Task.Name, currentDigest)
-			result, err = vertex.Task.Run(runner, echo, s.env())
-			if err != nil {
-				return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
-			}
 
-		case currentDigest != cachedDigest:
-			// This task has been run before and has a digest in the cache but the digest
-			// has changed. Set the cache to the new digest and run the task
+		switch {
+		case cachedDigest == "" || currentDigest != cachedDigest:
+			// The digest is either empty or out of date, in which case the action to be taken is the same
+			// update the cache digest and run the task
 			cachedState.Set(vertex.Task.Name, currentDigest)
 			result, err = vertex.Task.Run(runner, echo, s.env())
 			if err != nil {
@@ -240,18 +235,25 @@ func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder
 			}
 
 		case currentDigest == cachedDigest:
-			// This task has been run before and has a digest in the cache and the digest
-			// has not changed, meaning the files it depends on have not changed so there is
-			// no need to re-run the task
+			// This task has been run before and its digest has not changed, therefore
+			// we don't need to run it again
 			skipped = true
 		}
 
+		// Gather up all the task results
 		results = append(results, task.Result{CommandResults: result, Task: vertex.Task.Name, Skipped: skipped})
 	}
 
-	if err := cachedState.Dump(cachePath); err != nil {
-		return nil, err
+	// Update the cache with any changes from the above, only if we haven't used force
+	// this guarantees that --force will always trigger a re-run which is exactly what we want
+	if !force {
+		if err := cachedState.Dump(cachePath); err != nil {
+			return nil, err
+		}
 	}
+
+	// TODO: Make it so that only successful runs are cached, we probably
+	// don't want to cache runs with a non-zero exit code
 
 	return results, nil
 }
