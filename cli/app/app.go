@@ -93,10 +93,12 @@ func (a *App) Run(tasks []string) error {
 	case a.Options.Variables:
 		return a.showVariables(spokfile)
 	case a.Options.Show != "":
+		// TODO: Implment --show
 		fmt.Fprintf(a.stdout, "Show source code for task: %s\n", a.Options.Show)
 	case a.Options.Clean:
 		return a.cleanOutputs(spokfile)
 	case a.Options.Init:
+		// TODO: Implement --init
 		fmt.Fprintf(a.stdout, "Create a new spokfile at %s\n", a.Options.Spokfile)
 	default:
 		if len(tasks) == 0 {
@@ -145,9 +147,26 @@ func (a *App) setup() error {
 		return err
 	}
 
+	// Set up the logger
+	level := zap.InfoLevel
+	if a.Options.Verbose {
+		level = zap.DebugLevel
+	}
+
+	cfg := zap.NewDevelopmentConfig()
+	cfg.DisableCaller = true
+	cfg.EncoderConfig.TimeKey = ""
+	logger, err := cfg.Build(zap.IncreaseLevel(level))
+	if err != nil {
+		return err
+	}
+	sugar := logger.Sugar()
+	a.logger = sugar
+
 	if a.Options.Spokfile == "" {
 		// The --spokfile flag has not been set, find the default
 		// findErr to avoid shadowing Getwd err
+		a.logger.Debugln("Looking for spokfile")
 		spokfilePath, findErr := file.Find(cwd, home)
 		if findErr != nil {
 			return findErr
@@ -166,29 +185,18 @@ func (a *App) setup() error {
 		return fmt.Errorf("Invalid spokfile file name. Got %s, Expected %s", filepath.Base(a.Options.Spokfile), file.NAME)
 	}
 
-	// Set up the logger
-	level := zap.InfoLevel
-	if a.Options.Verbose {
-		level = zap.DebugLevel
-	}
-
-	cfg := zap.NewDevelopmentConfig()
-	cfg.DisableCaller = true
-	cfg.EncoderConfig.TimeKey = ""
-	logger, err := cfg.Build(zap.IncreaseLevel(level))
-	if err != nil {
-		return err
-	}
-	sugar := logger.Sugar()
-	a.logger = sugar
+	a.logger.Debugf("Found spokfile at %s", a.Options.Spokfile)
 
 	// Auto load .env file (if present) to be present in os.Environ
-	if err := godotenv.Load(filepath.Join(filepath.Dir(a.Options.Spokfile), ".env")); err != nil {
+	a.logger.Debugln("Looking for .env file")
+	dotenvPath := filepath.Join(filepath.Dir(a.Options.Spokfile), ".env")
+	if err := godotenv.Load(dotenvPath); err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
 			// A missing .env file is not an error, just don't load it in
 			// If however it does exist and we can't load then report that
 			return fmt.Errorf("Could not load .env file: %w", err)
 		}
+		a.logger.Debugf("Loaded .env file at %s", dotenvPath)
 	}
 
 	return nil
