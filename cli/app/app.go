@@ -12,7 +12,6 @@ import (
 	"sort"
 
 	"github.com/FollowTheProcess/msg"
-	"github.com/FollowTheProcess/spok/cache"
 	"github.com/FollowTheProcess/spok/file"
 	"github.com/FollowTheProcess/spok/parser"
 	"github.com/FollowTheProcess/spok/shell"
@@ -180,11 +179,6 @@ func (a *App) setup() error {
 	}
 	sugar := logger.Sugar()
 	a.logger = sugar
-
-	// Initialise the cache
-	if err := cache.Init(filepath.Dir(a.Options.Spokfile)); err != nil {
-		return err
-	}
 
 	// Auto load .env file (if present) to be present in os.Environ
 	if err := godotenv.Load(filepath.Join(filepath.Dir(a.Options.Spokfile), ".env")); err != nil {
