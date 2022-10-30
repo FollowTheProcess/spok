@@ -767,6 +767,101 @@ func TestRun(t *testing.T) {
 	}
 }
 
+func TestRunForce(t *testing.T) {
+	t.Run("true", func(t *testing.T) {
+		// A cache will get built on run, so we must clean it up at the end
+		defer os.RemoveAll(".spok")
+
+		spokfile := &SpokFile{
+			Tasks: map[string]task.Task{
+				"test": {
+					Name: "test",
+					Commands: []string{
+						"echo hello",
+					},
+				},
+			},
+		}
+
+		runner := shell.NewIntegratedRunner()
+		first, err := spokfile.Run(&bytes.Buffer{}, runner, true, "test")
+		if err != nil {
+			t.Fatalf("Run() returned an error: %v", err)
+		}
+
+		// The first result should not be skipped regardless of force
+		if len(first) != 1 {
+			t.Fatalf("Wrong number of results. Got %d, wanted %d", len(first), 1)
+		}
+
+		if first[0].Skipped != false {
+			t.Fatal("First result was skipped and it shouldn't have been")
+		}
+
+		// Because force is true, second result should not be skipped either
+		// even though the cache won't have changed
+		second, err := spokfile.Run(&bytes.Buffer{}, runner, true, "test")
+		if err != nil {
+			t.Fatalf("Run() returned an error: %v", err)
+		}
+
+		// The second result should not be skipped either because force was true
+		if len(second) != 1 {
+			t.Fatalf("Wrong number of results. Got %d, wanted %d", len(second), 1)
+		}
+
+		if second[0].Skipped != false {
+			t.Fatal("Second result was skipped and it shouldn't have been")
+		}
+	})
+
+	t.Run("false", func(t *testing.T) {
+		// A cache will get built on run, so we must clean it up at the end
+		defer os.RemoveAll(".spok")
+
+		spokfile := &SpokFile{
+			Tasks: map[string]task.Task{
+				"test": {
+					Name: "test",
+					Commands: []string{
+						"echo hello",
+					},
+				},
+			},
+		}
+
+		runner := shell.NewIntegratedRunner()
+		first, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		if err != nil {
+			t.Fatalf("Run() returned an error: %v", err)
+		}
+
+		// The first result should not be skipped regardless of force
+		if len(first) != 1 {
+			t.Fatalf("Wrong number of results. Got %d, wanted %d", len(first), 1)
+		}
+
+		if first[0].Skipped != false {
+			t.Fatal("First result was skipped and it shouldn't have been")
+		}
+
+		// Because force is now false, the first result should run and the second should be skipped
+		second, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		if err != nil {
+			t.Fatalf("Run() returned an error: %v", err)
+		}
+
+		// The second result should now be skipped as the cache won't have changed
+		if len(second) != 1 {
+			t.Fatalf("Wrong number of results. Got %d, wanted %d", len(second), 1)
+		}
+
+		if second[0].Skipped != true {
+			t.Fatal("Second result was not skipped and it should have been")
+		}
+	})
+}
+
 func TestRunFuzzyMatch(t *testing.T) {
 	tests := []struct {
 		spokfile *SpokFile
