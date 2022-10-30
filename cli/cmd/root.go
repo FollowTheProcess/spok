@@ -54,9 +54,6 @@ func BuildRootCmd() *cobra.Command {
 		# Show all defined variables in the 'spokfile'
 		$ spok --vars
 
-		# Show a task's source code
-		$ spok --show <task>
-
 		# Format the spokfile
 		$ spok --fmt
 		`),
@@ -68,7 +65,6 @@ func BuildRootCmd() *cobra.Command {
 	// Attach the flags
 	flags := rootCmd.Flags()
 	flags.BoolVar(&spok.Options.Variables, "vars", false, "Show all defined variables in spokfile.")
-	flags.StringVar(&spok.Options.Show, "show", "", "Show the source code for a task.")
 	flags.BoolVar(&spok.Options.Fmt, "fmt", false, "Format the spokfile.")
 	flags.StringVar(&spok.Options.Spokfile, "spokfile", "", "The path to the spokfile (defaults to '$CWD/spokfile').")
 	flags.BoolVar(&spok.Options.Init, "init", false, "Initialise a new spokfile in $CWD.")

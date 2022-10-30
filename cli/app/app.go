@@ -12,6 +12,7 @@ import (
 	"sort"
 
 	"github.com/FollowTheProcess/msg"
+	"github.com/FollowTheProcess/spok/cache"
 	"github.com/FollowTheProcess/spok/file"
 	"github.com/FollowTheProcess/spok/parser"
 	"github.com/FollowTheProcess/spok/shell"
@@ -92,11 +93,8 @@ func (a *App) Run(tasks []string) error {
 		return os.WriteFile(a.Options.Spokfile, []byte(tree.String()), 0666)
 	case a.Options.Variables:
 		return a.showVariables(spokfile)
-	case a.Options.Show != "":
-		// TODO: Implment --show
-		fmt.Fprintf(a.stdout, "Show source code for task: %s\n", a.Options.Show)
 	case a.Options.Clean:
-		return a.cleanOutputs(spokfile)
+		return a.clean(spokfile)
 	case a.Options.Init:
 		// TODO: Implement --init
 		fmt.Fprintf(a.stdout, "Create a new spokfile at %s\n", a.Options.Spokfile)
@@ -251,10 +249,11 @@ func (a *App) showVariables(spokfile *file.SpokFile) error {
 	return writer.Flush()
 }
 
-// cleanOutputs removes all declared outputs in the spokfile.
-func (a *App) cleanOutputs(spokfile *file.SpokFile) error {
+// clean removes all declared outputs in the spokfile.
+func (a *App) clean(spokfile *file.SpokFile) error {
 	var toRemove []string
 	for _, task := range spokfile.Tasks {
+		// Gather up all the declared file outputs
 		for _, fileOutput := range task.FileOutputs {
 			resolved, err := filepath.Abs(fileOutput)
 			if err != nil {
@@ -262,13 +261,15 @@ func (a *App) cleanOutputs(spokfile *file.SpokFile) error {
 			}
 			_, err = os.Stat(resolved)
 			if err != nil {
-				if errors.Is(err, fs.ErrNotExist) {
-					continue
+				if !errors.Is(err, fs.ErrNotExist) {
+					// If it doesn't exist we can ignore the error
+					return err
 				}
 			}
 			toRemove = append(toRemove, resolved)
 		}
 
+		// Same with all named outputs
 		for _, namedOutput := range task.NamedOutputs {
 			// NamedOutputs are just idents that point to filepaths
 			actual, ok := spokfile.Vars[namedOutput]
@@ -281,13 +282,18 @@ func (a *App) cleanOutputs(spokfile *file.SpokFile) error {
 			}
 			_, err = os.Stat(resolved)
 			if err != nil {
-				if errors.Is(err, fs.ErrNotExist) {
-					continue
+				if !errors.Is(err, fs.ErrNotExist) {
+					// If it doesn't exist we can ignore the error
+					return err
 				}
 			}
 			toRemove = append(toRemove, resolved)
 		}
 	}
+
+	// Finally, add spok's own cache to the clean list
+	cachePath := filepath.Join(spokfile.Dir, cache.Dir)
+	toRemove = append(toRemove, cachePath)
 
 	if len(toRemove) == 0 {
 		a.printer.Good("Nothing to remove")
