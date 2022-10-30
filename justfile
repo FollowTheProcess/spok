@@ -8,6 +8,7 @@ GORELEASER_DIST := "dist"
 COMMIT_SHA := `git rev-parse HEAD`
 VERSION_LDFLAG := PROJECT_PATH + "/cli/cmd.version"
 COMMIT_LDFLAG := PROJECT_PATH + "/cli/cmd.commit"
+SPOK_CACHE := ".spok"
 
 # By default print the list of recipes
 _default:
@@ -67,7 +68,7 @@ cover:
 # Remove build artifacts and other project clutter
 clean:
     go clean ./...
-    rm -rf {{ COVERAGE_DATA }} {{ COVERAGE_HTML }} {{ PROJECT_BIN }} {{ GORELEASER_DIST }}
+    rm -rf {{ COVERAGE_DATA }} {{ COVERAGE_HTML }} {{ PROJECT_BIN }} {{ GORELEASER_DIST }} {{ SPOK_CACHE }}
 
 # Run all tests and linting in one go
 check: test lint
