@@ -32,6 +32,13 @@ func Load(path string) (Cache, error) {
 	return cache, nil
 }
 
+// Exists returns whether or not the spok cache exists at all, e.g.
+// if spok has not been run before.
+func Exists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
 // Dump saves the cache to disk.
 func (c Cache) Dump(path string) error {
 	file, err := os.Open(path)

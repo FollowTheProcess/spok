@@ -78,6 +78,33 @@ func TestDump(t *testing.T) {
 	}
 }
 
+func TestExists(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		want bool
+	}{
+		{
+			name: "missing",
+			path: "/not/here.txt",
+			want: false,
+		},
+		{
+			name: "present",
+			path: "cache.go",
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := cache.Exists(tt.path); got != tt.want {
+				t.Errorf("got %v, wanted %v", got, tt.want)
+			}
+		})
+	}
+}
+
 // makeCache writes a cache JSON to a temporary file, returning it
 // and a cleanup function to be deferred.
 func makeCache(t *testing.T) (*os.File, func()) {
