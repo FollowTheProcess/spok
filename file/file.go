@@ -12,6 +12,7 @@ import (
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
 	"github.com/FollowTheProcess/spok/graph"
+	"github.com/FollowTheProcess/spok/hash"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/bmatcuk/doublestar/v4"
@@ -164,6 +165,28 @@ func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, sync, force bool, ta
 	// TODO: For now let's just run all the required tasks one after the other
 	// so we have something that works and can run stuff
 	for _, vertex := range runOrder {
+		// Gather up all the files to be hashed into a single slice
+		var toHash []string
+
+		// First, any glob file dependencies need their expanded files retrieving
+		for _, pattern := range vertex.Task.GlobDependencies {
+			toHash = append(toHash, s.Globs[pattern]...)
+		}
+
+		// Second, any non-glob file dependencies
+		toHash = append(toHash, vertex.Task.FileDependencies...)
+
+		// TODO: This hasher should be dependent on `--force`
+		hasher := hash.New()
+		digest, err := hasher.Hash(toHash)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Printf("SHA256 digest for task %q (%d files) is: %s\n", vertex.Task.Name, len(toHash), digest)
+		// TODO: Check the digest against the value loaded from cache (if exists)
+		// If the hash we've just done is the same as the cache, don't need to run the task
+		// If the hash is different to the cache, run the task then update the cached digest
+		// If the cached digest for this task doesn't exist yet, run the task then update the cached digest
 		result, err := vertex.Task.Run(runner, echo, s.env())
 		if err != nil {
 			return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
