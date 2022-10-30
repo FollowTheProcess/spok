@@ -58,8 +58,8 @@ func (s *SpokFile) env() []string {
 	return results
 }
 
-// expandGlobs gathers up all the glob patterns in the spokfile and expands them
-// saving the results to the Globs map as e.g. {"**/*.go": [file1.go, file2.go]}.
+// expandGlobs gathers up all the glob patterns in every task in the spokfile and expands them
+// saving the results to the Globs map as e.g. {"**/*.go": ["file1.go", "file2.go"]}.
 func (s *SpokFile) expandGlobs() error {
 	for _, task := range s.Tasks {
 		for _, pattern := range task.GlobDependencies {
