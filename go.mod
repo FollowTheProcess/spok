@@ -6,7 +6,7 @@ require (
 	github.com/FollowTheProcess/collections v0.1.0
 	github.com/FollowTheProcess/msg v0.5.0
 	github.com/MakeNowJust/heredoc/v2 v2.0.1
-	github.com/bmatcuk/doublestar/v4 v4.2.0
+	github.com/bmatcuk/doublestar/v4 v4.3.0
 	github.com/fatih/color v1.13.0
 	github.com/google/go-cmp v0.5.9
 	github.com/joho/godotenv v1.4.0
