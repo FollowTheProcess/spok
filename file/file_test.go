@@ -469,7 +469,7 @@ func TestRun(t *testing.T) {
 		spokfile *SpokFile
 		name     string
 		tasks    []string
-		want     []task.Result
+		want     task.Results
 		wantErr  bool
 		force    bool
 	}{
@@ -488,7 +488,7 @@ func TestRun(t *testing.T) {
 			force:   false,
 			tasks:   []string{"test"},
 			wantErr: false,
-			want: []task.Result{
+			want: task.Results{
 				{
 					CommandResults: []shell.Result{
 						{
@@ -520,7 +520,7 @@ func TestRun(t *testing.T) {
 			force:   false,
 			tasks:   []string{"test"},
 			wantErr: false,
-			want: []task.Result{
+			want: task.Results{
 				{
 					CommandResults: []shell.Result{
 						{
@@ -566,7 +566,7 @@ func TestRun(t *testing.T) {
 			force:   false,
 			tasks:   []string{"test"},
 			wantErr: false,
-			want: []task.Result{
+			want: task.Results{
 				{
 					CommandResults: []shell.Result{
 						{
@@ -598,7 +598,7 @@ func TestRun(t *testing.T) {
 			force:   false,
 			tasks:   []string{"test"},
 			wantErr: false,
-			want: []task.Result{
+			want: task.Results{
 				{
 					CommandResults: []shell.Result{
 						{
@@ -651,7 +651,7 @@ func TestRun(t *testing.T) {
 			force:   false,
 			tasks:   []string{"test"},
 			wantErr: false,
-			want: []task.Result{
+			want: task.Results{
 				{
 					CommandResults: []shell.Result{
 						{
@@ -686,7 +686,7 @@ func TestRun(t *testing.T) {
 			force:   false,
 			tasks:   []string{"lint"},
 			wantErr: false,
-			want: []task.Result{
+			want: task.Results{
 				{
 					CommandResults: []shell.Result{
 						{
@@ -722,7 +722,7 @@ func TestRun(t *testing.T) {
 			force:   false,
 			tasks:   []string{"lint", "test"},
 			wantErr: false,
-			want: []task.Result{
+			want: task.Results{
 				{
 					CommandResults: []shell.Result{
 						{
@@ -858,6 +858,102 @@ func TestRunForce(t *testing.T) {
 
 		if second[0].Skipped != true {
 			t.Fatal("Second result was not skipped and it should have been")
+		}
+	})
+}
+
+func TestRunDoesNotCacheFailure(t *testing.T) {
+	t.Run("success should get cached", func(t *testing.T) {
+		// A cache will get built on run, so we must clean it up at the end
+		defer os.RemoveAll(".spok")
+
+		spokfile := &SpokFile{
+			Tasks: map[string]task.Task{
+				"test": {
+					Name: "test",
+					Commands: []string{
+						"echo hello",
+					},
+				},
+			},
+		}
+
+		runner := shell.NewIntegratedRunner()
+		first, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		if err != nil {
+			t.Fatalf("Run() returned an error: %v", err)
+		}
+
+		// The first result should not be skipped regardless as we have a fresh cache
+		if len(first) != 1 {
+			t.Fatalf("Wrong number of results. Got %d, wanted %d", len(first), 1)
+		}
+
+		if first[0].Skipped != false {
+			t.Fatal("First result was skipped and it shouldn't have been")
+		}
+
+		// Because the result was successful, it should have been cached
+		// force is false here so it should not be run again
+		second, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		if err != nil {
+			t.Fatalf("Run() returned an error: %v", err)
+		}
+
+		// The second result should now be skipped
+		if len(second) != 1 {
+			t.Fatalf("Wrong number of results. Got %d, wanted %d", len(second), 1)
+		}
+
+		if second[0].Skipped != true {
+			t.Fatal("Second result wasn't skipped but it should have been")
+		}
+	})
+
+	t.Run("failure should not get cached", func(t *testing.T) {
+		// A cache will get built on run, so we must clean it up at the end
+		defer os.RemoveAll(".spok")
+
+		spokfile := &SpokFile{
+			Tasks: map[string]task.Task{
+				"test": {
+					Name: "test",
+					Commands: []string{
+						"exit 1",
+					},
+				},
+			},
+		}
+
+		runner := shell.NewIntegratedRunner()
+		first, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		if err != nil {
+			t.Fatalf("Run() returned an error: %v", err)
+		}
+
+		// The first result should not be skipped regardless as we have a fresh cache
+		if len(first) != 1 {
+			t.Fatalf("Wrong number of results. Got %d, wanted %d", len(first), 1)
+		}
+
+		if first[0].Skipped != false {
+			t.Fatal("First result was skipped and it shouldn't have been")
+		}
+
+		// Because the result was unsuccessful, it should not have been cached
+		// and should be run again
+		second, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		if err != nil {
+			t.Fatalf("Run() returned an error: %v", err)
+		}
+
+		// The second result should now run again as the first was unsuccessful
+		if len(second) != 1 {
+			t.Fatalf("Wrong number of results. Got %d, wanted %d", len(second), 1)
+		}
+
+		if second[0].Skipped != false {
+			t.Fatal("Second result was skipped and it should not have been")
 		}
 	})
 }

@@ -142,7 +142,7 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 // Run runs the specified tasks, it takes force which is a boolean flag set by the CLI which
 // always reruns tasks and an io.Writer which is used only to echo the commands being run, the command's stdout and stderr
 // is stored in the result.
-func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, force bool, tasks ...string) ([]task.Result, error) {
+func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, force bool, tasks ...string) (task.Results, error) {
 	// Perform glob expansion for every glob pattern in the whole file and save
 	// the list of filepaths to the Globs map
 	if err := s.expandGlobs(); err != nil {
@@ -171,8 +171,8 @@ func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, force bool, tasks ..
 }
 
 // run is the implementation of the public Run method.
-func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder []*graph.Vertex) ([]task.Result, error) {
-	var results []task.Result
+func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder []*graph.Vertex) (task.Results, error) {
+	var results task.Results
 
 	cachePath := filepath.Join(s.Dir, cache.Path)
 	if !cache.Exists(cachePath) {
@@ -245,14 +245,12 @@ func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder
 
 	// Update the cache with any changes from the above, only if we haven't used force
 	// this guarantees that --force will always trigger a re-run which is exactly what we want
-	if !force {
+	// also, only cache the result if the execution was successful (0 exit code)
+	if !force && results.Ok() {
 		if err := cachedState.Dump(cachePath); err != nil {
 			return nil, err
 		}
 	}
-
-	// TODO: Make it so that only successful runs are cached, we probably
-	// don't want to cache runs with a non-zero exit code
 
 	return results, nil
 }

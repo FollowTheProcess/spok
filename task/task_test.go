@@ -606,6 +606,138 @@ func TestResultOk(t *testing.T) {
 	}
 }
 
+func TestResultsOk(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name    string
+		results Results
+		want    bool
+	}{
+		{
+			name: "one success",
+			results: []Result{
+				{
+					Task: "test",
+					CommandResults: []shell.Result{
+						{Status: 0},
+					},
+					Skipped: false,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "one failure",
+			results: []Result{
+				{
+					Task: "test",
+					CommandResults: []shell.Result{
+						{Status: 1},
+					},
+					Skipped: false,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "multiple successes",
+			results: []Result{
+				{
+					Task: "test",
+					CommandResults: []shell.Result{
+						{Status: 0},
+					},
+					Skipped: false,
+				},
+				{
+					Task: "test2",
+					CommandResults: []shell.Result{
+						{Status: 0},
+					},
+					Skipped: false,
+				},
+				{
+					Task: "test3",
+					CommandResults: []shell.Result{
+						{Status: 0},
+					},
+					Skipped: false,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "multiple failures",
+			results: []Result{
+				{
+					Task: "test",
+					CommandResults: []shell.Result{
+						{Status: 1},
+					},
+					Skipped: false,
+				},
+				{
+					Task: "test2",
+					CommandResults: []shell.Result{
+						{Status: 3},
+					},
+					Skipped: false,
+				},
+				{
+					Task: "test3",
+					CommandResults: []shell.Result{
+						{Status: 1},
+					},
+					Skipped: false,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "multiple both",
+			results: []Result{
+				{
+					Task: "test",
+					CommandResults: []shell.Result{
+						{Status: 0},
+					},
+					Skipped: false,
+				},
+				{
+					Task: "test2",
+					CommandResults: []shell.Result{
+						{Status: 3},
+					},
+					Skipped: false,
+				},
+				{
+					Task: "test3",
+					CommandResults: []shell.Result{
+						{Status: 0},
+					},
+					Skipped: false,
+				},
+				{
+					Task: "test4",
+					CommandResults: []shell.Result{
+						{Status: 1},
+					},
+					Skipped: false,
+				},
+			},
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.results.Ok(); got != tt.want {
+				t.Errorf("got %v, wanted %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func BenchmarkNewTask(b *testing.B) {
 	testdata := mustGetTestData()
 

@@ -83,6 +83,19 @@ func (r Result) Ok() bool {
 	return true
 }
 
+// Results is a collection of task results.
+type Results []Result
+
+// Ok reports whether all results in the collection are ok.
+func (r Results) Ok() bool {
+	for _, result := range r {
+		if !result.Ok() {
+			return false
+		}
+	}
+	return true
+}
+
 // New parses a task AST node into a concrete task,
 // root is the absolute path of the directory to use as the root for
 // glob expansion, typically the path to the spokfile.
