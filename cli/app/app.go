@@ -192,14 +192,16 @@ func (a *App) setup() error {
 	// Auto load .env file (if present) to be present in os.Environ
 	a.logger.Debugln("Looking for .env file")
 	dotenvPath := filepath.Join(filepath.Dir(a.Options.Spokfile), ".env")
-	if err := godotenv.Load(dotenvPath); err != nil {
-		if !errors.Is(err, fs.ErrNotExist) {
-			// A missing .env file is not an error, just don't load it in
-			// If however it does exist and we can't load then report that
-			return fmt.Errorf("Could not load .env file: %w", err)
-		}
-		a.logger.Debugf("Loaded .env file at %s", dotenvPath)
+
+	if !exists(dotenvPath) {
+		a.logger.Debugln("No .env file found")
+		return nil
 	}
+
+	if err := godotenv.Load(dotenvPath); err != nil {
+		return fmt.Errorf("Could not load .env file: %w", err)
+	}
+	a.logger.Debugf("Loaded .env file at %s", dotenvPath)
 
 	return nil
 }
@@ -313,4 +315,9 @@ func (a *App) clean(spokfile *file.SpokFile) error {
 	}
 	a.printer.Good("Done")
 	return nil
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
