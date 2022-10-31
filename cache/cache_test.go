@@ -23,28 +23,47 @@ const cacheText string = `
 `
 
 func TestLoad(t *testing.T) {
-	file, cleanup := makeCache(t)
-	defer cleanup()
+	t.Run("valid", func(t *testing.T) {
+		file, cleanup := makeCache(t, cacheText)
+		defer cleanup()
 
-	cached, err := cache.Load(file.Name())
-	if err != nil {
-		t.Fatalf("cache.Load returned an error: %v", err)
-	}
+		cached, err := cache.Load(file.Name())
+		if err != nil {
+			t.Fatalf("cache.Load returned an error: %v", err)
+		}
 
-	want := cache.Cache{
-		{
-			Name:   "testtask",
-			Digest: "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-		},
-		{
-			Name:   "another",
-			Digest: "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
-		},
-	}
+		want := cache.Cache{
+			{
+				Name:   "testtask",
+				Digest: "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
+			},
+			{
+				Name:   "another",
+				Digest: "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
+			},
+		}
 
-	if !reflect.DeepEqual(cached, want) {
-		t.Errorf("got %#v, wanted %#v", cached, want)
-	}
+		if !reflect.DeepEqual(cached, want) {
+			t.Errorf("got %#v, wanted %#v", cached, want)
+		}
+	})
+
+	t.Run("missing file", func(t *testing.T) {
+		_, err := cache.Load("missing.json")
+		if err == nil {
+			t.Fatal("Expected an error but got nil")
+		}
+	})
+
+	t.Run("bad json", func(t *testing.T) {
+		file, cleanup := makeCache(t, "I'm not JSON")
+		defer cleanup()
+
+		_, err := cache.Load(file.Name())
+		if err == nil {
+			t.Fatal("Expected an error but got nil")
+		}
+	})
 }
 
 func TestDump(t *testing.T) {
@@ -181,13 +200,13 @@ func TestInit(t *testing.T) {
 
 // makeCache writes a cache JSON to a temporary file, returning it
 // and a cleanup function to be deferred.
-func makeCache(t *testing.T) (*os.File, func()) {
+func makeCache(t *testing.T, text string) (*os.File, func()) {
 	file, err := os.CreateTemp("", "cache.json")
 	if err != nil {
 		t.Fatalf("Could not create temp file: %v", err)
 	}
 
-	_, err = file.WriteString(cacheText)
+	_, err = file.WriteString(text)
 	if err != nil {
 		t.Fatalf("Could not write to cache file: %v", err)
 	}
