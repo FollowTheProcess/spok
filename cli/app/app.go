@@ -122,7 +122,8 @@ func (a *App) Run(tasks []string) error {
 				}
 			}
 			if result.Skipped {
-				a.printer.Goodf("Task %q skipped as none of its dependencies have changed", result.Task)
+				skipStyle := color.New(color.FgYellow, color.Bold)
+				skipStyle.Fprintf(a.stdout, "- Task %q skipped as none of its dependencies have changed\n", result.Task)
 			}
 			if !a.Options.Quiet {
 				for _, cmd := range result.CommandResults {
@@ -157,7 +158,6 @@ func (a *App) setup() error {
 
 	cfg := zap.NewDevelopmentConfig()
 	cfg.DisableCaller = true
-	cfg.EncoderConfig.TimeKey = ""
 	logger, err := cfg.Build(zap.IncreaseLevel(level))
 	if err != nil {
 		return err
