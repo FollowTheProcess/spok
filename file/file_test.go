@@ -779,6 +779,7 @@ func TestRunForce(t *testing.T) {
 					Commands: []string{
 						"echo hello",
 					},
+					FileDependencies: []string{"file_test.go"}, // Needs a file dependency so cache is updated
 				},
 			},
 		}
@@ -826,6 +827,7 @@ func TestRunForce(t *testing.T) {
 					Commands: []string{
 						"echo hello",
 					},
+					FileDependencies: []string{"file_test.go"}, // Needs a file dependency so cache is updated
 				},
 			},
 		}
@@ -874,6 +876,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 					Commands: []string{
 						"echo hello",
 					},
+					FileDependencies: []string{"file_test.go"}, // Needs a file dependency so cache is updated
 				},
 			},
 		}
@@ -921,6 +924,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 					Commands: []string{
 						"exit 1",
 					},
+					FileDependencies: []string{"file_test.go"}, // Needs a file dependency so failure is reason it doesn't cache
 				},
 			},
 		}

@@ -188,6 +188,11 @@ func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder
 		return nil, fmt.Errorf("Could not load spok cache file at %q: %s", cachePath, err)
 	}
 
+	// Whether or not we want to update the cache after running e.g.
+	// if there were no file dependencies to update or if the task
+	// did not succeed
+	updateCache := true
+
 	for _, vertex := range runOrder {
 		// Gather up all the files to be hashed into a single slice
 		var toHash []string
@@ -200,6 +205,12 @@ func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder
 
 		// Second, any non-glob file dependencies
 		toHash = append(toHash, vertex.Task.FileDependencies...)
+
+		// If the task did not declare any file dependencies, let's not
+		// update the cache, this way it will always run
+		if len(toHash) == 0 {
+			updateCache = false
+		}
 
 		var hasher hash.Hasher
 		if force {
@@ -227,7 +238,9 @@ func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder
 		case cachedDigest == "" || currentDigest != cachedDigest:
 			// The digest is either empty or out of date, in which case the action to be taken is the same
 			// update the cache digest and run the task
-			cachedState.Set(vertex.Task.Name, currentDigest)
+			if updateCache {
+				cachedState.Set(vertex.Task.Name, currentDigest)
+			}
 			result, err = vertex.Task.Run(runner, echo, s.env())
 			if err != nil {
 				return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
@@ -243,10 +256,9 @@ func (s *SpokFile) run(echo io.Writer, runner shell.Runner, force bool, runOrder
 		results = append(results, task.Result{CommandResults: result, Task: vertex.Task.Name, Skipped: skipped})
 	}
 
-	// Update the cache with any changes from the above, only if we haven't used force
-	// this guarantees that --force will always trigger a re-run which is exactly what we want
-	// also, only cache the result if the execution was successful (0 exit code)
-	if !force && results.Ok() {
+	// Only update the cache if force was not set, the task declares file dependencies
+	// and the task run was successful
+	if !force && updateCache && results.Ok() {
 		if err := cachedState.Dump(cachePath); err != nil {
 			return nil, err
 		}
