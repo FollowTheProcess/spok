@@ -13,6 +13,18 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+// testLogger is a no op logger that implements the interface
+// defined in logger.go.
+type testLogger struct{}
+
+func (t testLogger) Sync() error {
+	return nil
+}
+
+func (t testLogger) Debug(format string, args ...any) {}
+
+var noOpLogger = testLogger{}
+
 func TestFind(t *testing.T) {
 	testdata := getTestdata()
 
@@ -755,7 +767,7 @@ func TestRun(t *testing.T) {
 			// of each test
 			defer os.RemoveAll(".spok")
 			runner := shell.NewIntegratedRunner()
-			got, err := tt.spokfile.Run(&bytes.Buffer{}, runner, tt.force, tt.tasks...)
+			got, err := tt.spokfile.Run(noOpLogger, &bytes.Buffer{}, runner, tt.force, tt.tasks...)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
 			}
@@ -785,7 +797,7 @@ func TestRunForce(t *testing.T) {
 		}
 
 		runner := shell.NewIntegratedRunner()
-		first, err := spokfile.Run(&bytes.Buffer{}, runner, true, "test")
+		first, err := spokfile.Run(noOpLogger, &bytes.Buffer{}, runner, true, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -801,7 +813,7 @@ func TestRunForce(t *testing.T) {
 
 		// Because force is true, second result should not be skipped either
 		// even though the cache won't have changed
-		second, err := spokfile.Run(&bytes.Buffer{}, runner, true, "test")
+		second, err := spokfile.Run(noOpLogger, &bytes.Buffer{}, runner, true, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -833,7 +845,7 @@ func TestRunForce(t *testing.T) {
 		}
 
 		runner := shell.NewIntegratedRunner()
-		first, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		first, err := spokfile.Run(noOpLogger, &bytes.Buffer{}, runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -848,7 +860,7 @@ func TestRunForce(t *testing.T) {
 		}
 
 		// Because force is now false, the first result should run and the second should be skipped
-		second, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		second, err := spokfile.Run(noOpLogger, &bytes.Buffer{}, runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -882,7 +894,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 		}
 
 		runner := shell.NewIntegratedRunner()
-		first, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		first, err := spokfile.Run(noOpLogger, &bytes.Buffer{}, runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -898,7 +910,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 
 		// Because the result was successful, it should have been cached
 		// force is false here so it should not be run again
-		second, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		second, err := spokfile.Run(noOpLogger, &bytes.Buffer{}, runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -930,7 +942,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 		}
 
 		runner := shell.NewIntegratedRunner()
-		first, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		first, err := spokfile.Run(noOpLogger, &bytes.Buffer{}, runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -946,7 +958,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 
 		// Because the result was unsuccessful, it should not have been cached
 		// and should be run again
-		second, err := spokfile.Run(&bytes.Buffer{}, runner, false, "test")
+		second, err := spokfile.Run(noOpLogger, &bytes.Buffer{}, runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -1026,7 +1038,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			runner := shell.NewIntegratedRunner()
-			_, err := tt.spokfile.Run(&bytes.Buffer{}, runner, false, tt.tasks...)
+			_, err := tt.spokfile.Run(noOpLogger, &bytes.Buffer{}, runner, false, tt.tasks...)
 			if err == nil {
 				t.Fatalf("Run() did not return an error")
 			}

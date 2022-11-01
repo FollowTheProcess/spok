@@ -14,6 +14,7 @@ import (
 	"github.com/FollowTheProcess/spok/cache"
 	"github.com/FollowTheProcess/spok/graph"
 	"github.com/FollowTheProcess/spok/hash"
+	"github.com/FollowTheProcess/spok/logger"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/bmatcuk/doublestar/v4"
@@ -142,7 +143,7 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 // Run runs the specified tasks, it takes force which is a boolean flag set by the CLI which
 // always reruns tasks and an io.Writer which is used only to echo the commands being run, the command's stdout and stderr
 // is stored in the result.
-func (s *SpokFile) Run(echo io.Writer, runner shell.Runner, force bool, tasks ...string) (task.Results, error) {
+func (s *SpokFile) Run(logger logger.Logger, echo io.Writer, runner shell.Runner, force bool, tasks ...string) (task.Results, error) {
 	// Perform glob expansion for every glob pattern in the whole file and save
 	// the list of filepaths to the Globs map
 	if err := s.expandGlobs(); err != nil {
