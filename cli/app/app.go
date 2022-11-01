@@ -14,21 +14,21 @@ import (
 	"github.com/FollowTheProcess/msg"
 	"github.com/FollowTheProcess/spok/cache"
 	"github.com/FollowTheProcess/spok/file"
+	"github.com/FollowTheProcess/spok/logger"
 	"github.com/FollowTheProcess/spok/parser"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 	"github.com/juju/ansiterm/tabwriter"
-	"go.uber.org/zap"
 )
 
 // App represents the spok program.
 type App struct {
-	stdout  io.Writer          // Where to write to
-	stderr  io.Writer          // Where to write errors to
-	Options *Options           // All the CLI options
-	logger  *zap.SugaredLogger // Spok's logger, prints debug messages to stderr if --verbose is used
-	printer msg.Printer        // Spok's printer, prints user messages to stdout
+	stdout  io.Writer     // Where to write to
+	stderr  io.Writer     // Where to write errors to
+	Options *Options      // All the CLI options
+	logger  logger.Logger // Spok's logger, prints debug messages to stderr if --verbose is used
+	printer msg.Printer   // Spok's printer, prints user messages to stdout
 }
 
 // Options holds all the flag options for spok, these will be at their zero values
@@ -69,7 +69,7 @@ func (a *App) Run(tasks []string) error {
 	// Flush the logger
 	defer a.logger.Sync() // nolint: errcheck
 
-	a.logger.Debugf("Parsing spokfile at %s", a.Options.Spokfile)
+	a.logger.Debug("Parsing spokfile at %s", a.Options.Spokfile)
 	contents, err := os.ReadFile(a.Options.Spokfile)
 	if err != nil {
 		return err
@@ -104,7 +104,7 @@ func (a *App) Run(tasks []string) error {
 			return a.showTasks(spokfile)
 		}
 
-		a.logger.Debugf("Running requested tasks: %v", tasks)
+		a.logger.Debug("Running requested tasks: %v", tasks)
 
 		results, err := spokfile.Run(a.stdout, runner, a.Options.Force, tasks...)
 		if err != nil {
@@ -113,7 +113,7 @@ func (a *App) Run(tasks []string) error {
 
 		for _, result := range results {
 			if !result.Ok() {
-				a.logger.Debugf("Command in task %q exited with non-zero status", result.Task)
+				a.logger.Debug("Command in task %q exited with non-zero status", result.Task)
 				for _, cmd := range result.CommandResults {
 					if !cmd.Ok() {
 						// We've found the one
@@ -150,25 +150,16 @@ func (a *App) setup() error {
 		return err
 	}
 
-	// Set up the logger
-	level := zap.InfoLevel
-	if a.Options.Verbose {
-		level = zap.DebugLevel
-	}
-
-	cfg := zap.NewDevelopmentConfig()
-	cfg.DisableCaller = true
-	logger, err := cfg.Build(zap.IncreaseLevel(level))
+	log, err := logger.NewZapLogger(a.Options.Verbose)
 	if err != nil {
 		return err
 	}
-	sugar := logger.Sugar()
-	a.logger = sugar
+	a.logger = log
 
 	if a.Options.Spokfile == "" {
 		// The --spokfile flag has not been set, find the default
 		// findErr to avoid shadowing Getwd err
-		a.logger.Debugln("Looking for spokfile")
+		a.logger.Debug("Looking for spokfile")
 		spokfilePath, findErr := file.Find(cwd, home)
 		if findErr != nil {
 			return findErr
@@ -187,21 +178,21 @@ func (a *App) setup() error {
 		return fmt.Errorf("Invalid spokfile file name. Got %s, Expected %s", filepath.Base(a.Options.Spokfile), file.NAME)
 	}
 
-	a.logger.Debugf("Found spokfile at %s", a.Options.Spokfile)
+	a.logger.Debug("Found spokfile at %s", a.Options.Spokfile)
 
 	// Auto load .env file (if present) to be present in os.Environ
-	a.logger.Debugln("Looking for .env file")
+	a.logger.Debug("Looking for .env file")
 	dotenvPath := filepath.Join(filepath.Dir(a.Options.Spokfile), ".env")
 
 	if !exists(dotenvPath) {
-		a.logger.Debugln("No .env file found")
+		a.logger.Debug("No .env file found")
 		return nil
 	}
 
 	if err := godotenv.Load(dotenvPath); err != nil {
 		return fmt.Errorf("Could not load .env file: %w", err)
 	}
-	a.logger.Debugf("Loaded .env file at %s", dotenvPath)
+	a.logger.Debug("Loaded .env file at %s", dotenvPath)
 
 	return nil
 }
