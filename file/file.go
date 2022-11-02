@@ -72,7 +72,6 @@ func (s *SpokFile) expandGlobs(logger logger.Logger) error {
 				if err != nil {
 					return err
 				}
-				logger.Debug("Task %s glob dependencies %q expanded to %d files", task.Name, pattern, len(matches))
 				s.Globs[pattern] = matches
 			}
 		}
@@ -83,7 +82,6 @@ func (s *SpokFile) expandGlobs(logger logger.Logger) error {
 				if err != nil {
 					return err
 				}
-				logger.Debug("Task %s glob outputs %q expanded to %d files", task.Name, pattern, len(matches))
 				s.Globs[pattern] = matches
 			}
 		}
@@ -207,11 +205,15 @@ func (s *SpokFile) run(logger logger.Logger, echo io.Writer, runner shell.Runner
 		// First, any glob file dependencies need their expanded files retrieving from
 		// the s.Globs map of pattern -> slice
 		for _, pattern := range vertex.Task.GlobDependencies {
-			toHash = append(toHash, s.Globs[pattern]...)
+			globs := s.Globs[pattern]
+			toHash = append(toHash, globs...)
+			logger.Debug("Task %s glob dependency pattern %q expanded to %d files", vertex.Task.Name, pattern, len(globs))
 		}
 
 		// Second, any non-glob file dependencies
 		toHash = append(toHash, vertex.Task.FileDependencies...)
+
+		logger.Debug("Task %s depends on %d files", vertex.Task.Name, len(toHash))
 
 		// If the task did not declare any file dependencies, let's not
 		// update the cache, this way it will always run
