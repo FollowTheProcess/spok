@@ -159,8 +159,7 @@ func (a *App) setup() error {
 	if a.Options.Spokfile == "" {
 		// The --spokfile flag has not been set, find the default
 		// findErr to avoid shadowing Getwd err
-		a.logger.Debug("Looking for spokfile")
-		spokfilePath, findErr := file.Find(cwd, home)
+		spokfilePath, findErr := file.Find(a.logger, cwd, home)
 		if findErr != nil {
 			return findErr
 		}

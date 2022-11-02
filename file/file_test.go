@@ -38,7 +38,7 @@ func TestFind(t *testing.T) {
 			t.Fatal("could not resolve want")
 		}
 
-		path, err := Find(start, stop)
+		path, err := Find(noOpLogger, start, stop)
 		if err != nil {
 			t.Fatalf("find returned an error: %v", err)
 		}
@@ -53,7 +53,7 @@ func TestFind(t *testing.T) {
 		start := filepath.Join(testdata, "missing", "deep", "down", "here")
 		stop := testdata
 
-		_, err := Find(start, stop)
+		_, err := Find(noOpLogger, start, stop)
 		if err == nil {
 			t.Fatal("expected No spokfile found, got nil")
 		}
@@ -146,7 +146,7 @@ func TestExpandGlobs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.file.expandGlobs(); err != nil {
+			if err := tt.file.expandGlobs(noOpLogger); err != nil {
 				t.Fatalf("ExpandGlobs returned an error: %v", err)
 			}
 
@@ -1133,7 +1133,7 @@ func TestBuildGraph(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dag, err := spokfile.buildGraph(tt.requested...)
+			dag, err := spokfile.buildGraph(noOpLogger, tt.requested...)
 			if err != nil {
 				t.Fatalf("buildGraph returned an error: %v", err)
 			}
