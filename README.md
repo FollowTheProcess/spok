@@ -185,6 +185,27 @@ task clean() {
 }
 ```
 
+## Benchmarks
+
+Although still in early development, I've benchmarked spok against some very large repos and it performs very well!
+
+For example on the [golang/go] repo itself with 8865 `.go` files and the following benchmark task:
+
+```python
+# Benchmark hashing all go files
+task test("**/*.go") {
+    echo "I depend on all go files"
+}
+```
+
+![go_files](https://github.com/FollowTheProcess/spok/raw/main/docs/img/go_files.png)
+
+Spok is able to hash all 8865 files in just 300ms!
+
+![benchmark](https://github.com/FollowTheProcess/spok/raw/main/docs/img/benchmark.png)
+
+Does that mean I can call spok **"Blazingly Fast!"**? 🤔
+
 ## Editor Support
 
 There is a [VSCode Extension] available that provides basic syntax highlighting for spokfiles. It's still in active development so more features TBC!
@@ -194,3 +215,4 @@ There is a [VSCode Extension] available that provides basic syntax highlighting 
 [GitHub releases]: https://github.com/FollowTheProcess/spok/releases
 [homebrew]: https://brew.sh
 [VSCode Extension]: https://marketplace.visualstudio.com/items?itemName=FollowTheProcess.spok
+[golang/go]: https://github.com/golang/go
