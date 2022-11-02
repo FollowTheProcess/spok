@@ -238,7 +238,7 @@ func (s *SpokFile) run(logger logger.Logger, echo io.Writer, runner shell.Runner
 			return nil, fmt.Errorf("Task %q not present in cache", vertex.Task.Name)
 		}
 
-		logger.Debug("Task %s current checksum: %s cached checksum: %s", vertex.Task.Name, currentDigest, cachedDigest)
+		logger.Debug("Task %s current checksum: %.15s cached checksum: %.15s", vertex.Task.Name, currentDigest, cachedDigest)
 
 		var result []shell.Result
 		skipped := false
@@ -259,6 +259,7 @@ func (s *SpokFile) run(logger logger.Logger, echo io.Writer, runner shell.Runner
 			// This task has been run before and its digest has not changed, therefore
 			// we don't need to run it again
 			skipped = true
+			updateCache = false
 		}
 
 		// Gather up all the task results
