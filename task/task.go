@@ -11,7 +11,6 @@ import (
 	"text/template"
 
 	"github.com/FollowTheProcess/spok/ast"
-	"github.com/FollowTheProcess/spok/hash"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/fatih/color"
 )
@@ -49,19 +48,6 @@ func (t *Task) Run(runner shell.Runner, out io.Writer, env []string) ([]shell.Re
 		results = append(results, result)
 	}
 	return results, nil
-}
-
-// ShouldRun hashes the tasks expanded dependencies and compares against a
-// previously cached value to determine whether or not the task should be run
-// (i.e. if any dependency has changed). ShouldRun must be called after the glob
-// patterns have been expanded, to do otherwise will return an error.
-func (t *Task) ShouldRun(files []string, hasher hash.Hasher, cached string) (bool, error) {
-	digest, err := hasher.Hash(files)
-	if err != nil {
-		return false, err
-	}
-
-	return digest != cached, nil
 }
 
 // Result encodes the overall result of running a task which

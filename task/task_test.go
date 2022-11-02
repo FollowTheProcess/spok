@@ -2,32 +2,15 @@ package task
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
-	"github.com/FollowTheProcess/spok/hash"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/google/go-cmp/cmp"
 )
-
-// neverHasher is a type that implements hash.Hasher but always returns the same thing
-// so we can test what happens when no tasks run.
-type neverHasher struct{}
-
-func (n neverHasher) Hash(files []string) (string, error) {
-	return "NEVER", nil
-}
-
-// errorHasher is a type that implements hash.Hasher but always returns an error.
-type errorHasher struct{}
-
-func (e errorHasher) Hash(files []string) (string, error) {
-	return "", errors.New("Uh oh")
-}
 
 func TestExpandVars(t *testing.T) {
 	t.Parallel()
@@ -479,56 +462,6 @@ func TestTaskRun(t *testing.T) {
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("Result mismatch (-want +got):\n%s", diff)
-			}
-		})
-	}
-}
-
-func TestShouldRun(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		hasher  hash.Hasher
-		name    string
-		cached  string
-		task    Task
-		want    bool
-		wantErr bool
-	}{
-		{
-			name:    "yes",
-			task:    Task{},
-			hasher:  hash.AlwaysRun{},
-			cached:  hash.ALWAYS,
-			want:    true,
-			wantErr: false,
-		},
-		{
-			name:    "no",
-			task:    Task{},
-			hasher:  neverHasher{},
-			cached:  "NEVER",
-			want:    false,
-			wantErr: false,
-		},
-		{
-			name:    "hash error",
-			task:    Task{},
-			hasher:  errorHasher{},
-			cached:  "NEVER",
-			want:    false,
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.task.ShouldRun([]string{"doesn't", "matter"}, tt.hasher, tt.cached)
-			if (err != nil) != tt.wantErr {
-				t.Fatalf("ShouldRun() err = %v, wantErr = %v", err, tt.wantErr)
-			}
-
-			if got != tt.want {
-				t.Errorf("got %v, wanted %v", got, tt.want)
 			}
 		})
 	}
