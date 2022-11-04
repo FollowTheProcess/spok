@@ -421,7 +421,16 @@ func expandGlob(root, pattern string) ([]string, error) {
 		if err != nil {
 			return nil, fmt.Errorf("could not resolve path '%s' to absolute: %w", match, err)
 		}
-		absMatches = append(absMatches, abs)
+		// We only want files to be returned, not directories
+		// it's possible for a directory to end in a file extension, which will
+		// cause problems when we try to open it (for hashing)
+		info, err := os.Stat(abs)
+		if err != nil {
+			return nil, fmt.Errorf("could not retrieve filesystem info for '%s': %w", abs, err)
+		}
+		if !info.IsDir() {
+			absMatches = append(absMatches, abs)
+		}
 	}
 
 	return absMatches, nil
