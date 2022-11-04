@@ -544,6 +544,46 @@ func TestRun(t *testing.T) {
 			},
 		},
 		{
+			name: "simple with glob dependencies",
+			spokfile: &SpokFile{
+				Tasks: map[string]task.Task{
+					"test": {
+						Name: "test",
+						Commands: []string{
+							"echo hello",
+						},
+						GlobDependencies: []string{"**/*.txt"},
+					},
+				},
+				Path: filepath.Join(testdata, "spokfile"),
+				Globs: map[string][]string{
+					"**/*.txt": {
+						mustAbs(testdata, "top.txt"),
+						mustAbs(testdata, "deps/sub1/sub2/blah.txt"),
+						mustAbs(testdata, "deps/sub1/sub2/sub3/hello.txt"),
+						mustAbs(testdata, "deps/suba/subb/stuff.txt"),
+						mustAbs(testdata, "deps/suba/subb/subc/something.txt"),
+					},
+				},
+			},
+			force:   false,
+			tasks:   []string{"test"},
+			wantErr: false,
+			want: task.Results{
+				{
+					CommandResults: []shell.Result{
+						{
+							Cmd:    "echo hello",
+							Stdout: "hello\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+					Task: "test",
+				},
+			},
+		},
+		{
 			name: "simple with env vars",
 			spokfile: &SpokFile{
 				Tasks: map[string]task.Task{
