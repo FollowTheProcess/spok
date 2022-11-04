@@ -64,7 +64,7 @@ func (s *SpokFile) env() []string {
 
 // expandGlobs gathers up all the glob patterns in every task in the spokfile and expands them
 // saving the results to the Globs map as e.g. {"**/*.go": ["file1.go", "file2.go"]}.
-func (s *SpokFile) expandGlobs(logger logger.Logger) error {
+func (s *SpokFile) expandGlobs() error {
 	for _, task := range s.Tasks {
 		for _, pattern := range task.GlobDependencies {
 			if !s.hasGlob(pattern) {
@@ -148,7 +148,7 @@ func (s *SpokFile) buildGraph(logger logger.Logger, requested ...string) (*graph
 func (s *SpokFile) Run(logger logger.Logger, echo io.Writer, runner shell.Runner, force bool, tasks ...string) (task.Results, error) {
 	// Perform glob expansion for every glob pattern in the whole file and save
 	// the list of filepaths to the Globs map
-	if err := s.expandGlobs(logger); err != nil {
+	if err := s.expandGlobs(); err != nil {
 		return nil, err
 	}
 
