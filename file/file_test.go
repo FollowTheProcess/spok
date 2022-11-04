@@ -108,35 +108,6 @@ func TestExpandGlobs(t *testing.T) {
 			},
 		},
 		{
-			name: "ignores directories",
-			file: &SpokFile{
-				Path:  filepath.Join(testdata, "spokfile"),
-				Vars:  make(map[string]string),
-				Globs: make(map[string][]string),
-				Tasks: map[string]task.Task{
-					"test": {
-						Doc:              "A simple test task",
-						Name:             "test",
-						GlobDependencies: []string{"**/*.dir"},
-					},
-				},
-			},
-			want: &SpokFile{
-				Path: filepath.Join(testdata, "spokfile"),
-				Vars: make(map[string]string),
-				Globs: map[string][]string{
-					"**/*.dir": {},
-				},
-				Tasks: map[string]task.Task{
-					"test": {
-						Doc:              "A simple test task",
-						Name:             "test",
-						GlobDependencies: []string{"**/*.dir"},
-					},
-				},
-			},
-		},
-		{
 			name: "outputs",
 			file: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),

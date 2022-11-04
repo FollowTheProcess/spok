@@ -147,6 +147,11 @@ func worker(results chan<- result, files <-chan string, wg *sync.WaitGroup) {
 		if err != nil {
 			res.err = err
 		}
+		info, _ := f.Stat()
+		// Skip directories
+		if info.IsDir() {
+			continue
+		}
 		hash := sha256.New()
 		_, err = io.Copy(hash, f)
 		f.Close()
