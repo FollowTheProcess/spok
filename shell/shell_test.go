@@ -3,6 +3,7 @@ package shell_test
 import (
 	"testing"
 
+	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/google/go-cmp/cmp"
 )
@@ -126,7 +127,7 @@ func TestRun(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			runner := shell.NewIntegratedRunner()
-			got, err := runner.Run(tt.cmd, tt.name, tt.env)
+			got, err := runner.Run(tt.cmd, iostream.Null(), tt.name, tt.env)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
 			}

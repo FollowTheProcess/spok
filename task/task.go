@@ -41,7 +41,7 @@ func (t *Task) Run(runner shell.Runner, stream iostream.IOStream, env []string) 
 	var results []shell.Result
 	for _, cmd := range t.Commands {
 		echoStyle.Fprintln(stream.Stdout, cmd)
-		result, err := runner.Run(cmd, t.Name, env)
+		result, err := runner.Run(cmd, stream, t.Name, env)
 		if err != nil {
 			return nil, err
 		}

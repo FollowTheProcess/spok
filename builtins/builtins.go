@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/FollowTheProcess/spok/shell"
 )
 
@@ -37,7 +38,7 @@ func execute(command ...string) (string, error) {
 	}
 	cmd := command[0]
 	runner := shell.NewIntegratedRunner()
-	result, err := runner.Run(cmd, "", nil)
+	result, err := runner.Run(cmd, iostream.Null(), "", nil)
 	if err != nil {
 		return "", err
 	}

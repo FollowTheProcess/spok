@@ -122,6 +122,10 @@ func (a *App) Run(tasks []string) error {
 			return a.showTasks(spokfile)
 		}
 
+		if a.Options.Quiet {
+			a.stream = iostream.Null()
+		}
+
 		a.logger.Debug("Running requested tasks: %v", tasks)
 
 		results, err := spokfile.Run(a.logger, a.stream, runner, a.Options.Force, tasks...)
@@ -142,12 +146,8 @@ func (a *App) Run(tasks []string) error {
 			if result.Skipped {
 				skipStyle := color.New(color.FgYellow, color.Bold)
 				skipStyle.Fprintf(a.stream.Stdout, "- Task %q skipped as none of its dependencies have changed\n", result.Task)
-			}
-			if !a.Options.Quiet {
-				for _, cmd := range result.CommandResults {
-					fmt.Fprint(a.stream.Stdout, cmd.Stdout)
-					a.printer.Goodf("Task %q completed successfully", result.Task)
-				}
+			} else {
+				a.printer.Goodf("Task %q completed successfully", result.Task)
 			}
 		}
 	}

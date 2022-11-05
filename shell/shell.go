@@ -11,10 +11,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/FollowTheProcess/spok/iostream"
 	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
@@ -27,7 +29,7 @@ const timeout = 15 * time.Second
 // and returning Results.
 type Runner interface {
 	// Run runs the shell command belonging to task with environment variables set.
-	Run(cmd, task string, env []string) (Result, error)
+	Run(cmd string, stream iostream.IOStream, task string, env []string) (Result, error)
 }
 
 // Result holds the result of running a shell command.
@@ -53,9 +55,11 @@ func NewIntegratedRunner() IntegratedRunner {
 	return IntegratedRunner{}
 }
 
-// Run implements Runner for an IntegratedRunner, using a 100% go implementation
-// of a shell interpreter.
-func (i IntegratedRunner) Run(cmd, task string, env []string) (Result, error) {
+// Run implements Runner for an IntegratedRunner, using a 100% go implementation of a shell interpreter.
+//
+// Command stdout and stderr will be collected into the returned Result and optionally also printed to
+// the writers in the IOStream, this allows output to be captured or discarded easily.
+func (i IntegratedRunner) Run(cmd string, stream iostream.IOStream, task string, env []string) (Result, error) {
 	prog, err := syntax.NewParser().Parse(strings.NewReader(cmd), "")
 	if err != nil {
 		return Result{}, fmt.Errorf("Command %q in task %q not valid shell syntax: %w", cmd, task, err)
@@ -71,12 +75,16 @@ func (i IntegratedRunner) Run(cmd, task string, env []string) (Result, error) {
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
+	// Multi write to the stream as well as capture in above buffer
+	stdoutMultiWriter := io.MultiWriter(stdout, stream.Stdout)
+	stderrMultiWriter := io.MultiWriter(stderr, stream.Stderr)
+
 	runner, err := interp.New(
 		interp.Params("-e"),
 		interp.Env(expand.ListEnviron(env...)),
 		interp.ExecHandler(interp.DefaultExecHandler(timeout)),
 		interp.OpenHandler(interp.DefaultOpenHandler()),
-		interp.StdIO(nil, stdout, stderr),
+		interp.StdIO(nil, stdoutMultiWriter, stderrMultiWriter),
 		interp.Dir(""),
 	)
 	if err != nil {
