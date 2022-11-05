@@ -37,6 +37,11 @@ task version() {
 }
 `
 
+const gitIgnoreText string = `
+# Ignore the spok cache directory
+.spok/
+`
+
 // App represents the spok program.
 type App struct {
 	stdout  io.Writer     // Where to write to
@@ -218,12 +223,25 @@ func initialise() error {
 		return err
 	}
 	path := filepath.Join(cwd, "spokfile")
+	gitIgnorePath := filepath.Join(cwd, ".gitignore")
+
 	if exists(path) {
 		return fmt.Errorf("spokfile already exists at %s", path)
 	}
-	if err := os.WriteFile(path, []byte(demoSpokfile), 0666); err != nil {
+	if err = os.WriteFile(path, []byte(demoSpokfile), 0666); err != nil {
 		return err
 	}
+
+	file, err := os.OpenFile(gitIgnorePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = file.WriteString(gitIgnoreText)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
