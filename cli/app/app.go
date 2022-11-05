@@ -3,7 +3,6 @@
 package app
 
 import (
-	_ "embed"
 	"errors"
 	"fmt"
 	"io"
@@ -23,8 +22,20 @@ import (
 	"github.com/juju/ansiterm/tabwriter"
 )
 
-//go:embed demo.txt
-var demoSpokfile []byte
+const demoSpokfile string = `# This is a spokfile example
+
+VERSION := "0.3.0"
+
+# Run the unit tests
+task test("**/*.go") {
+    go test ./...
+}
+
+# Which version am I
+task version() {
+    echo {{.VERSION}}
+}
+`
 
 // App represents the spok program.
 type App struct {
@@ -210,7 +221,7 @@ func initialise() error {
 	if exists(path) {
 		return fmt.Errorf("spokfile already exists at %s", path)
 	}
-	if err := os.WriteFile(path, demoSpokfile, 0666); err != nil {
+	if err := os.WriteFile(path, []byte(demoSpokfile), 0666); err != nil {
 		return err
 	}
 	return nil
