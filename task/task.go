@@ -5,12 +5,12 @@ package task
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"path/filepath"
 	"strings"
 	"text/template"
 
 	"github.com/FollowTheProcess/spok/ast"
+	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/fatih/color"
 )
@@ -31,7 +31,7 @@ type Task struct {
 // Run runs a task commands in order, echoing each one to out and
 // returning the list of results containing the exit status,
 // stdout and stderr of each command.
-func (t *Task) Run(runner shell.Runner, out io.Writer, env []string) ([]shell.Result, error) {
+func (t *Task) Run(runner shell.Runner, stream iostream.IOStream, env []string) ([]shell.Result, error) {
 	if len(t.Commands) == 0 {
 		return nil, fmt.Errorf("Task %q has no commands", t.Name)
 	}
@@ -40,7 +40,7 @@ func (t *Task) Run(runner shell.Runner, out io.Writer, env []string) ([]shell.Re
 
 	var results []shell.Result
 	for _, cmd := range t.Commands {
-		echoStyle.Fprintln(out, cmd)
+		echoStyle.Fprintln(stream.Stdout, cmd)
 		result, err := runner.Run(cmd, t.Name, env)
 		if err != nil {
 			return nil, err

@@ -1,13 +1,13 @@
 package task
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
+	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/google/go-cmp/cmp"
 )
@@ -455,7 +455,7 @@ func TestTaskRun(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			runner := shell.NewIntegratedRunner()
-			got, err := tt.task.Run(runner, &bytes.Buffer{}, nil)
+			got, err := tt.task.Run(runner, iostream.Null(), nil)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
 			}

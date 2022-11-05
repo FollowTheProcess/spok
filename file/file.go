@@ -4,7 +4,6 @@ package file
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -14,6 +13,7 @@ import (
 	"github.com/FollowTheProcess/spok/cache"
 	"github.com/FollowTheProcess/spok/graph"
 	"github.com/FollowTheProcess/spok/hash"
+	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/FollowTheProcess/spok/logger"
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
@@ -145,7 +145,7 @@ func (s *SpokFile) buildGraph(logger logger.Logger, requested ...string) (*graph
 // Run runs the specified tasks, it takes force which is a boolean flag set by the CLI which
 // always reruns tasks and an io.Writer which is used only to echo the commands being run, the command's stdout and stderr
 // is stored in the result.
-func (s *SpokFile) Run(logger logger.Logger, echo io.Writer, runner shell.Runner, force bool, tasks ...string) (task.Results, error) {
+func (s *SpokFile) Run(logger logger.Logger, stream iostream.IOStream, runner shell.Runner, force bool, tasks ...string) (task.Results, error) {
 	// Perform glob expansion for every glob pattern in the whole file and save
 	// the list of filepaths to the Globs map
 	if err := s.expandGlobs(); err != nil {
@@ -166,7 +166,7 @@ func (s *SpokFile) Run(logger logger.Logger, echo io.Writer, runner shell.Runner
 	}
 
 	// Submit the run order to be executed and gather up the results
-	results, err := s.run(logger, echo, runner, force, runOrder)
+	results, err := s.run(logger, stream, runner, force, runOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,7 @@ func (s *SpokFile) Run(logger logger.Logger, echo io.Writer, runner shell.Runner
 }
 
 // run is the implementation of the public Run method.
-func (s *SpokFile) run(logger logger.Logger, echo io.Writer, runner shell.Runner, force bool, runOrder []*graph.Vertex) (task.Results, error) {
+func (s *SpokFile) run(logger logger.Logger, stream iostream.IOStream, runner shell.Runner, force bool, runOrder []*graph.Vertex) (task.Results, error) {
 	results := make(task.Results, 0, len(runOrder))
 
 	cachePath := filepath.Join(s.Dir, cache.Path)
@@ -252,7 +252,7 @@ func (s *SpokFile) run(logger logger.Logger, echo io.Writer, runner shell.Runner
 			if updateCache {
 				cachedState.Set(vertex.Task.Name, currentDigest)
 			}
-			result, err = vertex.Task.Run(runner, echo, s.env())
+			result, err = vertex.Task.Run(runner, stream, s.env())
 			if err != nil {
 				return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
 			}
