@@ -53,9 +53,8 @@ type App struct {
 // Options holds all the flag options for spok, these will be at their zero values
 // if the flags were not set and the value of the flag otherwise.
 type Options struct {
-	Show      string // The --show flag
 	Spokfile  string // The path to the spokfile (defaults to find, overridden by --spokfile)
-	Variables bool   // The --variables flag
+	Variables bool   // The --vars flag
 	Fmt       bool   // The --fmt flag
 	Init      bool   // The --init flag
 	Clean     bool   // The --clean flag
@@ -63,6 +62,7 @@ type Options struct {
 	Verbose   bool   // The --verbose flag
 	Quiet     bool   // The --quiet flag
 	JSON      bool   // The --json flag
+	Show      bool   // The --show flag
 }
 
 // New creates and returns a new App.
@@ -122,6 +122,8 @@ func (a *App) Run(tasks []string) error {
 		return a.showVariables(spokfile)
 	case a.Options.Clean:
 		return a.handleClean(spokfile, runner)
+	case a.Options.Show:
+		return a.showTasks(spokfile)
 	default:
 		if len(tasks) == 0 {
 			// No tasks provided, handle default actions
