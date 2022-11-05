@@ -1,0 +1,13 @@
+# This is a spokfile example
+
+VERSION := "0.3.0"
+
+# Run the unit tests
+task test("**/*.go") {
+    go test ./...
+}
+
+# Which version am I
+task version() {
+    echo {{.VERSION}}
+}

@@ -3,6 +3,7 @@
 package app
 
 import (
+	_ "embed"
 	"errors"
 	"fmt"
 	"io"
@@ -21,6 +22,9 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/juju/ansiterm/tabwriter"
 )
+
+//go:embed demo.txt
+var demoSpokfile []byte
 
 // App represents the spok program.
 type App struct {
@@ -63,6 +67,9 @@ func New(stdout, stderr io.Writer) *App {
 // Run is the entry point to the spok program, the only arguments spok accepts are names
 // of tasks, all other logic is handled via flags.
 func (a *App) Run(tasks []string) error {
+	if a.Options.Init {
+		return initialise()
+	}
 	if err := a.setup(); err != nil {
 		return err
 	}
@@ -95,9 +102,6 @@ func (a *App) Run(tasks []string) error {
 		return a.showVariables(spokfile)
 	case a.Options.Clean:
 		return a.clean(spokfile)
-	case a.Options.Init:
-		// TODO: Implement --init
-		fmt.Fprintf(a.stdout, "Create a new spokfile at %s\n", a.Options.Spokfile)
 	default:
 		if len(tasks) == 0 {
 			// No tasks provided, show defined tasks and exit
@@ -193,6 +197,22 @@ func (a *App) setup() error {
 	}
 	a.logger.Debug("Loaded .env file at %s", dotenvPath)
 
+	return nil
+}
+
+// Initialise writes the demo spokfile to the cwd.
+func initialise() error {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	path := filepath.Join(cwd, "spokfile")
+	if exists(path) {
+		return fmt.Errorf("spokfile already exists at %s", path)
+	}
+	if err := os.WriteFile(path, demoSpokfile, 0666); err != nil {
+		return err
+	}
 	return nil
 }
 
