@@ -85,11 +85,16 @@ func (a *App) Run(tasks []string) error {
 	if a.Options.Init {
 		return initialise()
 	}
+
 	if err := a.setup(); err != nil {
 		return err
 	}
 	// Flush the logger
 	defer a.logger.Sync() // nolint: errcheck
+
+	if a.Options.Quiet {
+		a.stream = iostream.Null()
+	}
 
 	a.logger.Debug("Parsing spokfile at %s", a.Options.Spokfile)
 	contents, err := os.ReadFile(a.Options.Spokfile)
@@ -116,43 +121,17 @@ func (a *App) Run(tasks []string) error {
 	case a.Options.Variables:
 		return a.showVariables(spokfile)
 	case a.Options.Clean:
-		return a.clean(spokfile)
+		return a.handleClean(spokfile, runner)
 	default:
 		if len(tasks) == 0 {
-			// No tasks provided, show defined tasks and exit
-			return a.showTasks(spokfile)
-		}
-
-		if a.Options.Quiet {
-			a.stream = iostream.Null()
+			// No tasks provided, handle default actions
+			return a.handleDefault(spokfile, runner)
 		}
 
 		a.logger.Debug("Running requested tasks: %v", tasks)
 
-		results, err := spokfile.Run(a.logger, a.stream, runner, a.Options.Force, tasks...)
-		if err != nil {
-			return err
-		}
-
-		for _, result := range results {
-			if !result.Ok() {
-				for _, cmd := range result.CommandResults {
-					if !cmd.Ok() {
-						// We've found the one
-						return fmt.Errorf("Command %q in task %q exited with status %d", cmd.Cmd, result.Task, cmd.Status)
-					}
-				}
-			}
-			if result.Skipped {
-				skipStyle := color.New(color.FgYellow, color.Bold)
-				skipStyle.Fprintf(a.stream.Stdout, "- Task %q skipped as none of its dependencies have changed\n", result.Task)
-			} else {
-				a.printer.Goodf("Task %q completed successfully", result.Task)
-			}
-		}
+		return a.runTasks(spokfile, runner, tasks...)
 	}
-
-	return nil
 }
 
 // setup performs one time initialise actions like finding the cwd and $HOME
@@ -243,6 +222,32 @@ func initialise() error {
 	return nil
 }
 
+// runTasks is a helper that runs the request spokfile tasks.
+func (a *App) runTasks(spokfile *file.SpokFile, runner shell.Runner, tasks ...string) error {
+	results, err := spokfile.Run(a.logger, a.stream, runner, a.Options.Force, tasks...)
+	if err != nil {
+		return err
+	}
+
+	for _, result := range results {
+		if !result.Ok() {
+			for _, cmd := range result.CommandResults {
+				if !cmd.Ok() {
+					// We've found the one
+					return fmt.Errorf("Command %q in task %q exited with status %d", cmd.Cmd, result.Task, cmd.Status)
+				}
+			}
+		}
+		if result.Skipped {
+			skipStyle := color.New(color.FgYellow, color.Bold)
+			skipStyle.Fprintf(a.stream.Stdout, "- Task %q skipped as none of its dependencies have changed\n", result.Task)
+		} else {
+			a.printer.Goodf("Task %q completed successfully", result.Task)
+		}
+	}
+	return nil
+}
+
 // show Tasks shows a pretty representation of the defined tasks and their
 // docstrings in alphabetical order.
 func (a *App) showTasks(spokfile *file.SpokFile) error {
@@ -292,7 +297,28 @@ func (a *App) showVariables(spokfile *file.SpokFile) error {
 	return writer.Flush()
 }
 
-// clean removes all declared outputs in the spokfile.
+// handleClean removes all declared outputs in the spokfile, either by using spok's own
+// cleaning of all declared outputs and it's own cache, or by a custom task written
+// by the user.
+func (a *App) handleClean(spokfile *file.SpokFile, runner shell.Runner) error {
+	if spokfile.HasTask("clean") {
+		return a.runTasks(spokfile, runner, "clean")
+	}
+	return a.clean(spokfile)
+}
+
+// handleDefault implements the default actions for spok, this defaults to
+// showing all the defined tasks but if the user has a task named "default"
+// this will be run instead.
+func (a *App) handleDefault(spokfile *file.SpokFile, runner shell.Runner) error {
+	if spokfile.HasTask("default") {
+		return a.runTasks(spokfile, runner, "default")
+	}
+	return a.showTasks(spokfile)
+}
+
+// clean is the default implementation of --clean if the user has
+// not defined a clean task in the spokfile itself.
 func (a *App) clean(spokfile *file.SpokFile) error {
 	var toRemove []string
 	for _, task := range spokfile.Tasks {

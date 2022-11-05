@@ -34,8 +34,8 @@ type SpokFile struct {
 	Dir   string               // The directory under which the spokfile sits
 }
 
-// hasTask returns whether or not the SpokFile has a task with the given name.
-func (s *SpokFile) hasTask(name string) bool {
+// HasTask returns whether or not the SpokFile has a task with the given name.
+func (s *SpokFile) HasTask(name string) bool {
 	_, ok := s.Tasks[name]
 	return ok
 }
@@ -52,9 +52,9 @@ func (s *SpokFile) hasGlob(pattern string) bool {
 	return true
 }
 
-// env returns the spokfile Vars as a string slice of KEY=VALUE format
+// Env returns the spokfile Vars as a string slice of KEY=VALUE format
 // so it may be passed to running task commands.
-func (s *SpokFile) env() []string {
+func (s *SpokFile) Env() []string {
 	results := make([]string, 0, len(s.Vars))
 	for key, val := range s.Vars {
 		results = append(results, key+"="+val)
@@ -234,10 +234,11 @@ func (s *SpokFile) run(logger logger.Logger, stream iostream.IOStream, runner sh
 		}
 
 		// By the time we get here, we know the cache file will exist (even if it has no digests)
-		// so we can go ahead and load as normal
+		// so we can go ahead and load as normal. If a task is not in the cache, it means it was
+		// added to the spokfile since we last ran a cache, so add it to the current cachedState
 		cachedDigest, ok := cachedState.Get(vertex.Task.Name)
 		if !ok {
-			return nil, fmt.Errorf("Task %q not present in cache", vertex.Task.Name)
+			cachedState.Set(vertex.Task.Name, "")
 		}
 
 		logger.Debug("Task %s current checksum: %.15s cached checksum: %.15s", vertex.Task.Name, currentDigest, cachedDigest)
@@ -252,7 +253,7 @@ func (s *SpokFile) run(logger logger.Logger, stream iostream.IOStream, runner sh
 			if updateCache {
 				cachedState.Set(vertex.Task.Name, currentDigest)
 			}
-			result, err = vertex.Task.Run(runner, stream, s.env())
+			result, err = vertex.Task.Run(runner, stream, s.Env())
 			if err != nil {
 				return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
 			}
@@ -384,7 +385,7 @@ func New(tree ast.Tree, root string) (*SpokFile, error) {
 				return nil, err
 			}
 
-			if file.hasTask(task.Name) {
+			if file.HasTask(task.Name) {
 				return nil, fmt.Errorf("Duplicate task: spokfile already contains task named %q, duplicate tasks not allowed", task.Name)
 			}
 
