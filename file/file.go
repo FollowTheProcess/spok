@@ -176,7 +176,7 @@ func (s *SpokFile) Run(logger logger.Logger, echo io.Writer, runner shell.Runner
 
 // run is the implementation of the public Run method.
 func (s *SpokFile) run(logger logger.Logger, echo io.Writer, runner shell.Runner, force bool, runOrder []*graph.Vertex) (task.Results, error) {
-	var results task.Results
+	results := make(task.Results, 0, len(runOrder))
 
 	cachePath := filepath.Join(s.Dir, cache.Path)
 	if !cache.Exists(cachePath) {
