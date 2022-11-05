@@ -3,9 +3,9 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/FollowTheProcess/spok/cli/app"
+	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -19,7 +19,7 @@ var (
 
 // BuildRootCmd builds and returns the root spok CLI command.
 func BuildRootCmd() *cobra.Command {
-	spok := app.New(os.Stdout, os.Stderr)
+	spok := app.New(iostream.OS())
 
 	rootCmd := &cobra.Command{
 		Use:           "spok [tasks]...",

@@ -3,3 +3,4 @@ ignore:
   - "cli/cmd" # Nothing here but the cobra command declaration which calls app.Run
   - "**/*_string.go" # Stringer generated stuff
   - "logger" # Literally just a wrapper around Zap
+  - "iostream" # Mainly used for testing

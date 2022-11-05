@@ -5,7 +5,6 @@ package app
 import (
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -14,6 +13,7 @@ import (
 	"github.com/FollowTheProcess/msg"
 	"github.com/FollowTheProcess/spok/cache"
 	"github.com/FollowTheProcess/spok/file"
+	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/FollowTheProcess/spok/logger"
 	"github.com/FollowTheProcess/spok/parser"
 	"github.com/FollowTheProcess/spok/shell"
@@ -44,11 +44,10 @@ const gitIgnoreText string = `
 
 // App represents the spok program.
 type App struct {
-	stdout  io.Writer     // Where to write to
-	stderr  io.Writer     // Where to write errors to
-	Options *Options      // All the CLI options
-	logger  logger.Logger // Spok's logger, prints debug messages to stderr if --verbose is used
-	printer msg.Printer   // Spok's printer, prints user messages to stdout
+	stream  iostream.IOStream // Where spok writes output to
+	Options *Options          // All the CLI options
+	logger  logger.Logger     // Spok's logger, prints debug messages to stderr if --verbose is used
+	printer msg.Printer       // Spok's printer, prints user messages to stdout
 }
 
 // Options holds all the flag options for spok, these will be at their zero values
@@ -66,14 +65,13 @@ type Options struct {
 }
 
 // New creates and returns a new App.
-func New(stdout, stderr io.Writer) *App {
+func New(stream iostream.IOStream) *App {
 	options := &Options{}
 	printer := msg.Default()
-	printer.Stdout = stdout
-	printer.Stderr = stderr
+	printer.Stdout = stream.Stdout
+	printer.Stderr = stream.Stderr
 	spok := &App{
-		stdout:  stdout,
-		stderr:  stderr,
+		stream:  stream,
 		Options: options,
 		printer: printer,
 	}
@@ -126,7 +124,7 @@ func (a *App) Run(tasks []string) error {
 
 		a.logger.Debug("Running requested tasks: %v", tasks)
 
-		results, err := spokfile.Run(a.logger, a.stdout, runner, a.Options.Force, tasks...)
+		results, err := spokfile.Run(a.logger, a.stream.Stdout, runner, a.Options.Force, tasks...)
 		if err != nil {
 			return err
 		}
@@ -143,11 +141,11 @@ func (a *App) Run(tasks []string) error {
 			}
 			if result.Skipped {
 				skipStyle := color.New(color.FgYellow, color.Bold)
-				skipStyle.Fprintf(a.stdout, "- Task %q skipped as none of its dependencies have changed\n", result.Task)
+				skipStyle.Fprintf(a.stream.Stdout, "- Task %q skipped as none of its dependencies have changed\n", result.Task)
 			}
 			if !a.Options.Quiet {
 				for _, cmd := range result.CommandResults {
-					fmt.Fprint(a.stdout, cmd.Stdout)
+					fmt.Fprint(a.stream.Stdout, cmd.Stdout)
 					a.printer.Goodf("Task %q completed successfully", result.Task)
 				}
 			}
@@ -248,14 +246,14 @@ func initialise() error {
 // show Tasks shows a pretty representation of the defined tasks and their
 // docstrings in alphabetical order.
 func (a *App) showTasks(spokfile *file.SpokFile) error {
-	writer := tabwriter.NewWriter(a.stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
+	writer := tabwriter.NewWriter(a.stream.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
 
 	titleStyle := color.New(color.FgHiWhite, color.Bold)
 	taskStyle := color.New(color.FgHiCyan, color.Bold)
 	descStyle := color.New(color.FgHiBlack, color.Italic)
 
 	// sort.Sort(task.ByName(spokfile.Tasks))
-	fmt.Fprintf(a.stdout, "Tasks defined in %s:\n", spokfile.Path)
+	fmt.Fprintf(a.stream.Stdout, "Tasks defined in %s:\n", spokfile.Path)
 	titleStyle.Fprintln(writer, "Name\tDescription")
 
 	names := make([]string, 0, len(spokfile.Tasks))
@@ -274,11 +272,11 @@ func (a *App) showTasks(spokfile *file.SpokFile) error {
 
 // showVariables shows all the defined spokfile variables and their set values.
 func (a *App) showVariables(spokfile *file.SpokFile) error {
-	writer := tabwriter.NewWriter(a.stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
+	writer := tabwriter.NewWriter(a.stream.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
 
 	titleStyle := color.New(color.FgHiWhite, color.Bold)
 
-	fmt.Fprintf(a.stdout, "Variables defined in %s:\n", spokfile.Path)
+	fmt.Fprintf(a.stream.Stdout, "Variables defined in %s:\n", spokfile.Path)
 	titleStyle.Fprintln(writer, "Name\tValue")
 
 	names := make([]string, 0, len(spokfile.Vars))
