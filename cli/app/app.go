@@ -42,34 +42,6 @@ const gitIgnoreText string = `
 .spok/
 `
 
-const (
-	ShellGo     ShellEnum = "go"     // Use the cross-compatible go shell intepreter
-	ShellNative ShellEnum = "native" // Use `sh -c` (doesn't work on Windows)
-)
-
-// ShellEnum is the enum for the --shell flag's allowed values
-// we implemented the flag.Value interface so cobra knows how to parse
-// and validate when it's not one of the allowed options.
-type ShellEnum string
-
-func (s *ShellEnum) String() string {
-	return string(*s)
-}
-
-func (s *ShellEnum) Set(v string) error {
-	switch v {
-	case "go", "native":
-		*s = ShellEnum(v)
-	default:
-		return errors.New("must be one of 'go' or 'native'")
-	}
-	return nil
-}
-
-func (s *ShellEnum) Type() string {
-	return "string"
-}
-
 // App represents the spok program.
 type App struct {
 	stream  iostream.IOStream // Where spok writes output to
@@ -81,17 +53,16 @@ type App struct {
 // Options holds all the flag options for spok, these will be at their zero values
 // if the flags were not set and the value of the flag otherwise.
 type Options struct {
-	Show      string    // The --show flag
-	Spokfile  string    // The path to the spokfile (defaults to find, overridden by --spokfile)
-	Shell     ShellEnum // The --shell flag
-	Variables bool      // The --variables flag
-	Fmt       bool      // The --fmt flag
-	Init      bool      // The --init flag
-	Clean     bool      // The --clean flag
-	Force     bool      // The --force flag
-	Verbose   bool      // The --verbose flag
-	Quiet     bool      // The --quiet flag
-	JSON      bool      // The --json flag
+	Show      string // The --show flag
+	Spokfile  string // The path to the spokfile (defaults to find, overridden by --spokfile)
+	Variables bool   // The --variables flag
+	Fmt       bool   // The --fmt flag
+	Init      bool   // The --init flag
+	Clean     bool   // The --clean flag
+	Force     bool   // The --force flag
+	Verbose   bool   // The --verbose flag
+	Quiet     bool   // The --quiet flag
+	JSON      bool   // The --json flag
 }
 
 // New creates and returns a new App.
