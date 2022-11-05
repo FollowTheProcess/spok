@@ -62,6 +62,7 @@ type Options struct {
 	Force     bool   // The --force flag
 	Verbose   bool   // The --verbose flag
 	Quiet     bool   // The --quiet flag
+	JSON      bool   // The --json flag
 }
 
 // New creates and returns a new App.

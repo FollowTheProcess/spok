@@ -1,6 +1,12 @@
 package cmd
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/fatih/color"
+)
+
+var headerStyle = color.New(color.FgWhite, color.Bold) // Setting header style to use in usage message (usage.go)
 
 var (
 	// Custom usage template with the header style applied, here by itself because it looks kind of messy.

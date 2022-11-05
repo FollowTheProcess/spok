@@ -2,19 +2,15 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/FollowTheProcess/spok/cli/app"
 	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/MakeNowJust/heredoc/v2"
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
 var (
-	version     = "dev"                                // spok version, set at compile time by ldflags
-	commit      = ""                                   // spok version's commit hash, set at compile time by ldflags
-	headerStyle = color.New(color.FgWhite, color.Bold) // Setting header style to use in usage message (usage.go)
+	version = "dev" // spok version, set at compile time by ldflags
+	commit  = ""    // spok version's commit hash, set at compile time by ldflags
 )
 
 // BuildRootCmd builds and returns the root spok CLI command.
@@ -64,18 +60,19 @@ func BuildRootCmd() *cobra.Command {
 
 	// Attach the flags
 	flags := rootCmd.Flags()
-	flags.BoolVar(&spok.Options.Variables, "vars", false, "Show all defined variables in spokfile.")
+	flags.BoolVarP(&spok.Options.Variables, "vars", "V", false, "Show all defined variables in spokfile.")
 	flags.BoolVar(&spok.Options.Fmt, "fmt", false, "Format the spokfile.")
 	flags.StringVar(&spok.Options.Spokfile, "spokfile", "", "The path to the spokfile (defaults to '$CWD/spokfile').")
 	flags.BoolVar(&spok.Options.Init, "init", false, "Initialise a new spokfile in $CWD.")
-	flags.BoolVar(&spok.Options.Clean, "clean", false, "Remove all build artifacts.")
-	flags.BoolVar(&spok.Options.Force, "force", false, "Bypass file hash checks and force running.")
-	flags.BoolVar(&spok.Options.Verbose, "verbose", false, "Show verbose logging output.")
-	flags.BoolVar(&spok.Options.Quiet, "quiet", false, "Silence all CLI output.")
+	flags.BoolVarP(&spok.Options.Clean, "clean", "c", false, "Remove all build artifacts.")
+	flags.BoolVarP(&spok.Options.Force, "force", "f", false, "Bypass file hash checks and force running.")
+	flags.BoolVarP(&spok.Options.Verbose, "verbose", "v", false, "Show verbose logging output.")
+	flags.BoolVarP(&spok.Options.Quiet, "quiet", "q", false, "Silence all CLI output.")
+	flags.BoolVarP(&spok.Options.JSON, "json", "j", false, "Output task results as JSON.")
 
 	// Set our custom version and usage templates
 	rootCmd.SetUsageTemplate(usageTemplate)
-	rootCmd.SetVersionTemplate(fmt.Sprintf(`{{printf "%s %s\n%s %s\n"}}`, headerStyle.Sprint("Version:"), version, headerStyle.Sprint("Commit:"), commit))
+	rootCmd.SetVersionTemplate(versionTemplate)
 
 	return rootCmd
 }
