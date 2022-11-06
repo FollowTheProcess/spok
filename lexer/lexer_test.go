@@ -343,6 +343,23 @@ var lexTests = []lexTest{
 		},
 	},
 	{
+		name: "task with word task in it",
+		input: `task test("**/*.go") {
+			echo "hello I'm a task"
+		}`,
+		tokens: []token.Token{
+			tTask,
+			newToken(token.IDENT, "test"),
+			tLParen,
+			newToken(token.STRING, `"**/*.go"`),
+			tRParen,
+			tLBrace,
+			newToken(token.COMMAND, `echo "hello I'm a task"`),
+			tRBrace,
+			tEOF,
+		},
+	},
+	{
 		name:  "task empty body",
 		input: `task test() {}`,
 		tokens: []token.Token{
@@ -441,24 +458,6 @@ var lexTests = []lexTest{
 			tLBrace,
 			newToken(token.COMMAND, "go test ./..."),
 			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 4). \n\n4 |\t# I'm a comment"),
-		},
-	},
-	{
-		name: "task unterminated body with another task below with no comment",
-		input: `task test() {
-			go test ./...
-
-		task build() {
-			go build ./...
-		}
-		`,
-		tokens: []token.Token{
-			tTask,
-			newToken(token.IDENT, "test"),
-			tLParen,
-			tRParen,
-			tLBrace,
-			newToken(token.ERROR, "SyntaxError: Unterminated task body (Line 2). \n\n2 |\tgo test ./..."),
 		},
 	},
 	{

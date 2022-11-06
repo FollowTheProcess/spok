@@ -414,7 +414,7 @@ func lexTaskCommands(l *Lexer) lexFn {
 			}
 			l.skipWhitespace()
 			return lexRightBrace
-		case l.atEOF(), r == '#', strings.HasPrefix(strings.TrimSpace(l.rest()), token.TASK.String()):
+		case l.atEOF(), r == '#':
 			l.error(syntaxError{
 				message: "Unterminated task body",
 				context: l.getLine(),
