@@ -1,45 +1,32 @@
-package cache_test
+package cache
 
 import (
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
-
-	"github.com/FollowTheProcess/spok/cache"
 )
 
 const cacheText string = `
-[
-	{
-		"name": "testtask",
-		"digest": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537"
-	},
-	{
-		"name": "another",
-		"digest": "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b"
-	}
-]
-`
+{
+	"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
+	"another": "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b"
+}`
 
 func TestLoad(t *testing.T) {
 	t.Run("valid", func(t *testing.T) {
 		file, cleanup := makeCache(t, cacheText)
 		defer cleanup()
 
-		cached, err := cache.Load(file.Name())
+		cached, err := Load(file.Name())
 		if err != nil {
 			t.Fatalf("cache.Load returned an error: %v", err)
 		}
 
-		want := cache.Cache{
-			{
-				Name:   "testtask",
-				Digest: "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-			},
-			{
-				Name:   "another",
-				Digest: "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
+		want := &Cache{
+			inner: map[string]string{
+				"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
+				"another":  "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
 			},
 		}
 
@@ -49,7 +36,7 @@ func TestLoad(t *testing.T) {
 	})
 
 	t.Run("missing file", func(t *testing.T) {
-		_, err := cache.Load("missing.json")
+		_, err := Load("missing.json")
 		if err == nil {
 			t.Fatal("Expected an error but got nil")
 		}
@@ -59,7 +46,7 @@ func TestLoad(t *testing.T) {
 		file, cleanup := makeCache(t, "I'm not JSON")
 		defer cleanup()
 
-		_, err := cache.Load(file.Name())
+		_, err := Load(file.Name())
 		if err == nil {
 			t.Fatal("Expected an error but got nil")
 		}
@@ -67,14 +54,10 @@ func TestLoad(t *testing.T) {
 }
 
 func TestDump(t *testing.T) {
-	cached := cache.Cache{
-		{
-			Name:   "testtask",
-			Digest: "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-		},
-		{
-			Name:   "another",
-			Digest: "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
+	cached := &Cache{
+		inner: map[string]string{
+			"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
+			"another":  "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
 		},
 	}
 
@@ -88,7 +71,7 @@ func TestDump(t *testing.T) {
 		t.Fatalf("cache.Dump returned an error: %v", err)
 	}
 
-	loaded, err := cache.Load(file.Name())
+	loaded, err := Load(file.Name())
 	if err != nil {
 		t.Fatalf("cache.Load return an error: %v", err)
 	}
@@ -118,7 +101,7 @@ func TestExists(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := cache.Exists(tt.path); got != tt.want {
+			if got := Exists(tt.path); got != tt.want {
 				t.Errorf("got %v, wanted %v", got, tt.want)
 			}
 		})
@@ -126,29 +109,23 @@ func TestExists(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	cached := cache.Cache{
-		{
-			Name:   "testtask",
-			Digest: "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-		},
-		{
-			Name:   "another",
-			Digest: "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
+	cached := &Cache{
+		inner: map[string]string{
+			"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
+			"another":  "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
 		},
 	}
 
-	want := cache.Cache{
-		{
-			Name:   "testtask",
-			Digest: "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-		},
-		{
-			Name:   "another",
-			Digest: "somethingelse",
+	want := &Cache{
+		inner: map[string]string{
+			"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
+			"another":  "something else",
+			"new":      "I'm new here",
 		},
 	}
 
-	cached.Set("another", "somethingelse")
+	cached.Set("another", "something else")
+	cached.Set("new", "I'm new here")
 
 	if !reflect.DeepEqual(cached, want) {
 		t.Errorf("got %#v, wanted %#v", cached, want)
@@ -156,14 +133,10 @@ func TestSet(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	cached := cache.Cache{
-		{
-			Name:   "testtask",
-			Digest: "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-		},
-		{
-			Name:   "another",
-			Digest: "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
+	cached := &Cache{
+		inner: map[string]string{
+			"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
+			"another":  "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
 		},
 	}
 
@@ -183,16 +156,16 @@ func TestInit(t *testing.T) {
 	}
 	defer os.RemoveAll(tmp)
 
-	if err := cache.Init(filepath.Join(tmp, cache.Dir, cache.File)); err != nil {
+	if err := Init(filepath.Join(tmp, Dir, File)); err != nil {
 		t.Fatalf("cache.Init returned an error: %v", err)
 	}
 
-	gitIgnorePath := filepath.Join(tmp, cache.Dir, ".gitignore")
+	gitIgnorePath := filepath.Join(tmp, Dir, ".gitignore")
 	if !exists(gitIgnorePath) {
 		t.Errorf(".gitignore not found at %s", gitIgnorePath)
 	}
 
-	cachePath := filepath.Join(tmp, cache.Dir, cache.File)
+	cachePath := filepath.Join(tmp, Dir, File)
 	if !exists(cachePath) {
 		t.Errorf("cache.json not found at %s", cachePath)
 	}

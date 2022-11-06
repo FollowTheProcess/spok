@@ -9,32 +9,36 @@ import (
 	"path/filepath"
 )
 
+const (
+	Dir  string = ".spok"      // Dir is the directory under which the spok cache is kept
+	File string = "cache.json" // File is filename of the spok cache file
+)
+
 var (
-	Dir  = ".spok"                  // Dir is the directory under which the spok cache is kept
-	File = "cache.json"             // File is filename of the spok cache file
 	Path = filepath.Join(Dir, File) // Path is the whole filepath to the spok cache file
 )
 
-// Entry represents a single cache entry.
-type Entry struct {
-	Name   string `json:"name"`   // Name of the entry (e.g. task name)
-	Digest string `json:"digest"` // The SHA256 digest
+// Cache represents the entire spok cache.
+type Cache struct {
+	inner map[string]string
 }
 
-// Cache represents the entire spok cache.
-type Cache []Entry
+// New creates and returns an empty cache.
+func New() *Cache {
+	return &Cache{inner: make(map[string]string)}
+}
 
 // Load reads in the current cache state from file.
-func Load(path string) (Cache, error) {
+func Load(path string) (*Cache, error) {
 	contents, err := os.ReadFile(path)
 	if err != nil {
-		return Cache{}, err
+		return nil, err
 	}
 
-	cache := Cache{}
-	err = json.Unmarshal(contents, &cache)
+	cache := &Cache{}
+	err = json.Unmarshal(contents, &cache.inner)
 	if err != nil {
-		return Cache{}, err
+		return nil, err
 	}
 
 	return cache, nil
@@ -50,9 +54,9 @@ func Exists(path string) bool {
 // Init populates the entire .spok cache directory and writes a placeholder
 // cache file containing the names of all the tasks but no digests.
 func Init(path string, names ...string) error {
-	cache := make(Cache, 0, len(names))
+	cache := New()
 	for _, name := range names {
-		cache = append(cache, Entry{Name: name})
+		cache.inner[name] = ""
 	}
 
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
@@ -71,8 +75,8 @@ func Init(path string, names ...string) error {
 }
 
 // Dump saves the cache to disk.
-func (c Cache) Dump(path string) error {
-	contents, err := json.MarshalIndent(c, "", "  ")
+func (c *Cache) Dump(path string) error {
+	contents, err := json.MarshalIndent(c.inner, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -86,31 +90,14 @@ func (c Cache) Dump(path string) error {
 
 // Get retrieves the digest value for a given name as well as
 // a bool `ok` for whether or not it was found.
-func (c Cache) Get(name string) (string, bool) {
-	// In general not a huge fan of this because we have to loop over the whole
-	// list of entries in order to find one but we don't know what the user's tasks
-	// will be called ahead of time and using a map here is clunky and error prone
-
-	// Range is okay here as we only want to read the variable, not modify it
-	for _, entry := range c {
-		if entry.Name == name {
-			return entry.Digest, true
-		}
-	}
-	return "", false
+func (c *Cache) Get(name string) (string, bool) {
+	digest, ok := c.inner[name]
+	return digest, ok
 }
 
 // Set sets the digest value for a given name.
-func (c Cache) Set(name, digest string) {
-	// Same comment as above re. O(n) time required to lookup/set a value
-
-	// Can't use range here as values are copied into a range statement preventing
-	// modification in-place
-	for i := 0; i < len(c); i++ {
-		if c[i].Name == name {
-			c[i].Digest = digest
-		}
-	}
+func (c *Cache) Set(name, digest string) {
+	c.inner[name] = digest
 }
 
 // makeGitIgnore puts a .gitignore file in the .spok directory.
