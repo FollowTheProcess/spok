@@ -156,7 +156,7 @@ func TestInit(t *testing.T) {
 	}
 	defer os.RemoveAll(tmp)
 
-	if err := Init(filepath.Join(tmp, Dir, File)); err != nil {
+	if err = Init(filepath.Join(tmp, Dir, File), "one", "two", "three"); err != nil {
 		t.Fatalf("cache.Init returned an error: %v", err)
 	}
 
@@ -168,6 +168,23 @@ func TestInit(t *testing.T) {
 	cachePath := filepath.Join(tmp, Dir, File)
 	if !exists(cachePath) {
 		t.Errorf("cache.json not found at %s", cachePath)
+	}
+
+	loaded, err := Load(cachePath)
+	if err != nil {
+		t.Fatalf("Could not load cache: %v", err)
+	}
+
+	want := &Cache{
+		inner: map[string]string{
+			"one":   "",
+			"two":   "",
+			"three": "",
+		},
+	}
+
+	if !reflect.DeepEqual(loaded, want) {
+		t.Errorf("Got %#v, wanted %#v", loaded, want)
 	}
 }
 
