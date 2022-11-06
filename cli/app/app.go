@@ -83,7 +83,14 @@ func New(stream iostream.IOStream) *App {
 // of tasks, all other logic is handled via flags.
 func (a *App) Run(tasks []string) error {
 	if a.Options.Init {
-		return initialise()
+		return a.initialise()
+	}
+
+	if a.Options.Quiet {
+		if a.Options.Verbose {
+			return errors.New("--verbose cannot be used with --quiet")
+		}
+		a.stream = iostream.Null()
 	}
 
 	if err := a.setup(); err != nil {
@@ -91,10 +98,6 @@ func (a *App) Run(tasks []string) error {
 	}
 	// Flush the logger
 	defer a.logger.Sync() // nolint: errcheck
-
-	if a.Options.Quiet {
-		a.stream = iostream.Null()
-	}
 
 	a.logger.Debug("Parsing spokfile at %s", a.Options.Spokfile)
 	contents, err := os.ReadFile(a.Options.Spokfile)
@@ -196,7 +199,7 @@ func (a *App) setup() error {
 }
 
 // Initialise writes the demo spokfile to the cwd.
-func initialise() error {
+func (a *App) initialise() error {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return err

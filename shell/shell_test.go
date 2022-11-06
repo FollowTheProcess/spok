@@ -8,7 +8,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestOk(t *testing.T) {
+func TestResultOk(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name   string
@@ -24,6 +24,74 @@ func TestOk(t *testing.T) {
 			name:   "no",
 			result: shell.Result{Status: 1},
 			want:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.result.Ok(); got != tt.want {
+				t.Errorf("got %v, wanted %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestResultsOk(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		result shell.Results
+		want   bool
+	}{
+		{
+			name: "all ok",
+			result: shell.Results{
+				{Status: 0},
+				{Status: 0},
+				{Status: 0},
+				{Status: 0},
+			},
+			want: true,
+		},
+		{
+			name: "first bad",
+			result: shell.Results{
+				{Status: 1},
+				{Status: 0},
+				{Status: 0},
+				{Status: 0},
+			},
+			want: false,
+		},
+		{
+			name: "last bad",
+			result: shell.Results{
+				{Status: 0},
+				{Status: 0},
+				{Status: 0},
+				{Status: 3},
+			},
+			want: false,
+		},
+		{
+			name: "middle bad",
+			result: shell.Results{
+				{Status: 0},
+				{Status: 2},
+				{Status: 0},
+				{Status: 0},
+			},
+			want: false,
+		},
+		{
+			name: "several bad",
+			result: shell.Results{
+				{Status: 0},
+				{Status: 2},
+				{Status: 1},
+				{Status: 3},
+			},
+			want: false,
 		},
 	}
 

@@ -45,6 +45,19 @@ func (r Result) Ok() bool {
 	return r.Status == 0
 }
 
+// Results is a collection of shell results.
+type Results []Result
+
+// Ok reports whether all results in the collection were ok.
+func (r Results) Ok() bool {
+	for _, result := range r {
+		if !result.Ok() {
+			return false
+		}
+	}
+	return true
+}
+
 // IntegratedRunner implements Runner by using a 100% go implementation
 // of a shell interpreter, this is the most cross-compatible version of a shell
 // runner possible as it does not depend on any external shell.

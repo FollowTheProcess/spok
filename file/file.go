@@ -243,7 +243,7 @@ func (s *SpokFile) run(logger logger.Logger, stream iostream.IOStream, runner sh
 
 		logger.Debug("Task %s current checksum: %.15s cached checksum: %.15s", vertex.Task.Name, currentDigest, cachedDigest)
 
-		var result []shell.Result
+		var result shell.Results
 		skipped := false
 
 		switch {

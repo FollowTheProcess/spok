@@ -502,7 +502,7 @@ func TestRun(t *testing.T) {
 			wantErr: false,
 			want: task.Results{
 				{
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{
 							Cmd:    "echo hello",
 							Stdout: "hello\n",
@@ -542,7 +542,7 @@ func TestRun(t *testing.T) {
 			wantErr: false,
 			want: task.Results{
 				{
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{
 							Cmd:    "echo hello",
 							Stdout: "hello\n",
@@ -574,7 +574,7 @@ func TestRun(t *testing.T) {
 			wantErr: false,
 			want: task.Results{
 				{
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{
 							Cmd:    "echo $GLOBAL_VARIABLE",
 							Stdout: "Hello from a global\n",
@@ -620,7 +620,7 @@ func TestRun(t *testing.T) {
 			wantErr: false,
 			want: task.Results{
 				{
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{
 							Cmd:    "false",
 							Stdout: "",
@@ -652,7 +652,7 @@ func TestRun(t *testing.T) {
 			wantErr: false,
 			want: task.Results{
 				{
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{
 							Cmd:    "echo hello",
 							Stdout: "hello\n",
@@ -705,7 +705,7 @@ func TestRun(t *testing.T) {
 			wantErr: false,
 			want: task.Results{
 				{
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{
 							Cmd:    "echo task1",
 							Stdout: "task1\n",
@@ -740,7 +740,7 @@ func TestRun(t *testing.T) {
 			wantErr: false,
 			want: task.Results{
 				{
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{
 							Cmd:    "echo task2",
 							Stdout: "task2\n",
@@ -776,7 +776,7 @@ func TestRun(t *testing.T) {
 			wantErr: false,
 			want: task.Results{
 				{
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{
 							Cmd:    "false",
 							Stdout: "",
@@ -787,7 +787,7 @@ func TestRun(t *testing.T) {
 					Task: "lint",
 				},
 				{
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{
 							Cmd:    "echo task1",
 							Stdout: "task1\n",

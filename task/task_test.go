@@ -375,7 +375,7 @@ func TestTaskRun(t *testing.T) {
 	tests := []struct {
 		name    string
 		task    Task
-		want    []shell.Result
+		want    shell.Results
 		wantErr bool
 	}{
 		{
@@ -389,7 +389,7 @@ func TestTaskRun(t *testing.T) {
 			task: Task{Name: "simple", Commands: []string{
 				"echo hello",
 			}},
-			want: []shell.Result{{
+			want: shell.Results{{
 				Stdout: "hello\n",
 				Stderr: "",
 				Status: 0,
@@ -402,7 +402,7 @@ func TestTaskRun(t *testing.T) {
 			task: Task{Name: "stderr", Commands: []string{
 				"echo hello stderr >&2",
 			}},
-			want: []shell.Result{{
+			want: shell.Results{{
 				Stdout: "",
 				Stderr: "hello stderr\n",
 				Status: 0,
@@ -418,7 +418,7 @@ func TestTaskRun(t *testing.T) {
 				"true",
 				"false",
 			}},
-			want: []shell.Result{
+			want: shell.Results{
 				{Stdout: "hello\n", Stderr: "", Status: 0, Cmd: "echo hello"},
 				{Stdout: "", Stderr: "hello stderr\n", Status: 0, Cmd: "echo hello stderr >&2"},
 				{Stdout: "", Stderr: "", Status: 0, Cmd: "true"},
@@ -434,7 +434,7 @@ func TestTaskRun(t *testing.T) {
 				"echo hello stderr >&2", // Should still see these
 				"true",
 			}},
-			want: []shell.Result{
+			want: shell.Results{
 				{Stdout: "hello\n", Stderr: "", Status: 0, Cmd: "echo hello"},
 				{Stdout: "", Stderr: "", Status: 1, Cmd: "false"},
 				{Stdout: "", Stderr: "hello stderr\n", Status: 0, Cmd: "echo hello stderr >&2"},
@@ -477,7 +477,7 @@ func TestResultOk(t *testing.T) {
 		{
 			name: "one success",
 			result: Result{
-				CommandResults: []shell.Result{
+				CommandResults: shell.Results{
 					{Stdout: "Hello", Stderr: "", Status: 0},
 				},
 			},
@@ -486,7 +486,7 @@ func TestResultOk(t *testing.T) {
 		{
 			name: "one failure",
 			result: Result{
-				CommandResults: []shell.Result{
+				CommandResults: shell.Results{
 					{Stdout: "", Stderr: "Hello", Status: 1},
 				},
 			},
@@ -495,7 +495,7 @@ func TestResultOk(t *testing.T) {
 		{
 			name: "multiple successes",
 			result: Result{
-				CommandResults: []shell.Result{
+				CommandResults: shell.Results{
 					{Stdout: "Hello", Stderr: "", Status: 0},
 					{Stdout: "There", Stderr: "", Status: 0},
 					{Stdout: "General", Stderr: "", Status: 0},
@@ -507,7 +507,7 @@ func TestResultOk(t *testing.T) {
 		{
 			name: "multiple failures",
 			result: Result{
-				CommandResults: []shell.Result{
+				CommandResults: shell.Results{
 					{Stdout: "Hello", Stderr: "", Status: 1},
 					{Stdout: "There", Stderr: "", Status: 1},
 					{Stdout: "General", Stderr: "", Status: 1},
@@ -519,7 +519,7 @@ func TestResultOk(t *testing.T) {
 		{
 			name: "failure in the middle",
 			result: Result{
-				CommandResults: []shell.Result{
+				CommandResults: shell.Results{
 					{Stdout: "Hello", Stderr: "", Status: 0},
 					{Stdout: "There", Stderr: "", Status: 1},
 					{Stdout: "General", Stderr: "", Status: 0},
@@ -551,7 +551,7 @@ func TestResultsOk(t *testing.T) {
 			results: []Result{
 				{
 					Task: "test",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 0},
 					},
 					Skipped: false,
@@ -564,7 +564,7 @@ func TestResultsOk(t *testing.T) {
 			results: []Result{
 				{
 					Task: "test",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 1},
 					},
 					Skipped: false,
@@ -577,21 +577,21 @@ func TestResultsOk(t *testing.T) {
 			results: []Result{
 				{
 					Task: "test",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 0},
 					},
 					Skipped: false,
 				},
 				{
 					Task: "test2",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 0},
 					},
 					Skipped: false,
 				},
 				{
 					Task: "test3",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 0},
 					},
 					Skipped: false,
@@ -604,21 +604,21 @@ func TestResultsOk(t *testing.T) {
 			results: []Result{
 				{
 					Task: "test",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 1},
 					},
 					Skipped: false,
 				},
 				{
 					Task: "test2",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 3},
 					},
 					Skipped: false,
 				},
 				{
 					Task: "test3",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 1},
 					},
 					Skipped: false,
@@ -631,28 +631,28 @@ func TestResultsOk(t *testing.T) {
 			results: []Result{
 				{
 					Task: "test",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 0},
 					},
 					Skipped: false,
 				},
 				{
 					Task: "test2",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 3},
 					},
 					Skipped: false,
 				},
 				{
 					Task: "test3",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 0},
 					},
 					Skipped: false,
 				},
 				{
 					Task: "test4",
-					CommandResults: []shell.Result{
+					CommandResults: shell.Results{
 						{Status: 1},
 					},
 					Skipped: false,

@@ -31,14 +31,14 @@ type Task struct {
 // Run runs a task commands in order, echoing each one to out and
 // returning the list of results containing the exit status,
 // stdout and stderr of each command.
-func (t *Task) Run(runner shell.Runner, stream iostream.IOStream, env []string) ([]shell.Result, error) {
+func (t *Task) Run(runner shell.Runner, stream iostream.IOStream, env []string) (shell.Results, error) {
 	if len(t.Commands) == 0 {
 		return nil, fmt.Errorf("Task %q has no commands", t.Name)
 	}
 
 	echoStyle := color.New(color.FgHiWhite, color.Bold)
 
-	var results []shell.Result
+	var results shell.Results
 	for _, cmd := range t.Commands {
 		echoStyle.Fprintln(stream.Stdout, cmd)
 		result, err := runner.Run(cmd, stream, t.Name, env)
@@ -53,20 +53,15 @@ func (t *Task) Run(runner shell.Runner, stream iostream.IOStream, env []string) 
 // Result encodes the overall result of running a task which
 // may involve any number of shell commands.
 type Result struct {
-	Task           string         // The name of the task
-	CommandResults []shell.Result // The results of running the tasks commands
-	Skipped        bool           // Whether the task was skipped or run
+	Task           string        // The name of the task
+	CommandResults shell.Results // The results of running the tasks commands
+	Skipped        bool          // Whether the task was skipped or run
 }
 
 // Ok returns whether or not the task was successful, true if
 // all commands exited with 0, else false.
 func (r Result) Ok() bool {
-	for _, result := range r.CommandResults {
-		if !result.Ok() {
-			return false
-		}
-	}
-	return true
+	return r.CommandResults.Ok()
 }
 
 // Results is a collection of task results.
