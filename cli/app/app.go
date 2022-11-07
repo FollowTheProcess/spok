@@ -90,19 +90,13 @@ func (a *App) Run(tasks []string) error {
 		if a.Options.Verbose {
 			return errors.New("--verbose cannot be used with --quiet")
 		}
-		// TODO: Make this all a single call
-		a.stream = iostream.Null()
-		a.printer.Stdout = a.stream.Stdout
-		a.printer.Stderr = a.stream.Stderr
+		a.setStream(iostream.Null())
 	}
 
 	// If we want task output as json, we don't want it printing
 	// to stdout too
 	if a.Options.JSON {
-		// TODO: This too
-		a.stream = iostream.Null()
-		a.printer.Stdout = a.stream.Stdout
-		a.printer.Stderr = a.stream.Stderr
+		a.setStream(iostream.Null())
 	}
 
 	if err := a.setup(); err != nil {
@@ -404,6 +398,13 @@ func (a *App) clean(spokfile *file.SpokFile) error {
 	}
 	a.printer.Good("Done")
 	return nil
+}
+
+// setStream reassigns all the app's IO streams to match the one passed in.
+func (a *App) setStream(stream iostream.IOStream) {
+	a.stream = stream
+	a.printer.Stdout = stream.Stdout
+	a.printer.Stderr = stream.Stderr
 }
 
 func exists(path string) bool {
