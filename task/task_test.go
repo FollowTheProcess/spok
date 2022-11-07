@@ -548,7 +548,7 @@ func TestResultsOk(t *testing.T) {
 	}{
 		{
 			name: "one success",
-			results: []Result{
+			results: Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -561,7 +561,7 @@ func TestResultsOk(t *testing.T) {
 		},
 		{
 			name: "one failure",
-			results: []Result{
+			results: Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -574,7 +574,7 @@ func TestResultsOk(t *testing.T) {
 		},
 		{
 			name: "multiple successes",
-			results: []Result{
+			results: Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -601,7 +601,7 @@ func TestResultsOk(t *testing.T) {
 		},
 		{
 			name: "multiple failures",
-			results: []Result{
+			results: Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -628,7 +628,7 @@ func TestResultsOk(t *testing.T) {
 		},
 		{
 			name: "multiple both",
-			results: []Result{
+			results: Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -666,6 +666,45 @@ func TestResultsOk(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.results.Ok(); got != tt.want {
 				t.Errorf("got %v, wanted %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestResultsJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		want    string
+		results Results
+	}{
+		{
+			name: "single result",
+			results: Results{
+				{
+					Task: "test",
+					CommandResults: shell.Results{
+						{
+							Cmd:    "echo hello",
+							Stdout: "hello\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+					Skipped: false,
+				},
+			},
+			want: `[{"task":"test","command_results":[{"cmd":"echo hello","stdout":"hello\n","stderr":"","status":0}],"skipped":false}]`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.results.JSON()
+			if err != nil {
+				t.Fatalf("Could not marshal results to JSON: %v", err)
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("JSON mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

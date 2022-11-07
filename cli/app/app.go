@@ -90,7 +90,19 @@ func (a *App) Run(tasks []string) error {
 		if a.Options.Verbose {
 			return errors.New("--verbose cannot be used with --quiet")
 		}
+		// TODO: Make this all a single call
 		a.stream = iostream.Null()
+		a.printer.Stdout = a.stream.Stdout
+		a.printer.Stderr = a.stream.Stderr
+	}
+
+	// If we want task output as json, we don't want it printing
+	// to stdout too
+	if a.Options.JSON {
+		// TODO: This too
+		a.stream = iostream.Null()
+		a.printer.Stdout = a.stream.Stdout
+		a.printer.Stderr = a.stream.Stderr
 	}
 
 	if err := a.setup(); err != nil {
@@ -250,6 +262,15 @@ func (a *App) runTasks(spokfile *file.SpokFile, runner shell.Runner, tasks ...st
 			a.printer.Goodf("Task %q completed successfully", result.Task)
 		}
 	}
+
+	if a.Options.JSON {
+		text, err := results.JSON()
+		if err != nil {
+			return err
+		}
+		fmt.Println(text)
+	}
+
 	return nil
 }
 

@@ -34,10 +34,10 @@ type Runner interface {
 
 // Result holds the result of running a shell command.
 type Result struct {
-	Cmd    string // The command that was run
-	Stdout string // The stdout of the command
-	Stderr string // The stderr of the command
-	Status int    // The exit status of the command
+	Cmd    string `json:"cmd"`    // The command that was run
+	Stdout string `json:"stdout"` // The stdout of the command
+	Stderr string `json:"stderr"` // The stderr of the command
+	Status int    `json:"status"` // The exit status of the command
 }
 
 // Ok returns whether the result was successful or not.

@@ -4,6 +4,7 @@ package task
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -53,9 +54,9 @@ func (t *Task) Run(runner shell.Runner, stream iostream.IOStream, env []string) 
 // Result encodes the overall result of running a task which
 // may involve any number of shell commands.
 type Result struct {
-	Task           string        // The name of the task
-	CommandResults shell.Results // The results of running the tasks commands
-	Skipped        bool          // Whether the task was skipped or run
+	Task           string        `json:"task"`            // The name of the task
+	CommandResults shell.Results `json:"command_results"` // The results of running the tasks commands
+	Skipped        bool          `json:"skipped"`         // Whether the task was skipped or run
 }
 
 // Ok returns whether or not the task was successful, true if
@@ -75,6 +76,15 @@ func (r Results) Ok() bool {
 		}
 	}
 	return true
+}
+
+// JSON returns the Results as JSON.
+func (r Results) JSON() (string, error) {
+	data, err := json.Marshal(r)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
 }
 
 // New parses a task AST node into a concrete task,
