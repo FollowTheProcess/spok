@@ -204,10 +204,6 @@ func (s *SpokFile) run(logger logger.Logger, stream iostream.IOStream, runner sh
 
 		// First, any glob file dependencies need their expanded files retrieving from
 		// the s.Globs map of pattern -> slice
-		// TODO: If a task is part of a dependency chain and only specifies it's parent task
-		// which depends on a glob/file, the child task's glob dependencies will be empty
-		// but it "depends" on a glob via it's parent task. Need to figure out how to
-		// include that here
 		for _, pattern := range vertex.Task.GlobDependencies {
 			globs := s.Globs[pattern]
 			toHash = append(toHash, globs...)

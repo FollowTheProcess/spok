@@ -151,12 +151,12 @@ task fmt("**/*.go") {
 
 # Compile the program (depends on fmt, fmt will run first)
 # also outputs a build binary
-task build(fmt) -> "./bin/main" {
+task build(fmt, "**/*.go") -> "./bin/main" {
     go build
 }
 
 # Can also use global variables as outputs
-task build2(fmt) -> BIN {
+task build2(fmt, "**/*.go") -> BIN {
     go build
 }
 

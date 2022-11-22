@@ -39,12 +39,12 @@ task test("**/*.go") {
 }
 
 # Run all project benchmarks
-task bench(fmt) {
+task bench(fmt, "**/*.go") {
     go test ./... -run=None -benchmem -bench .
 }
 
 # Lint the project and auto-fix errors if possible
-task lint(fmt) {
+task lint(fmt, "**/*.go") {
     golangci-lint run --fix
 }
 
