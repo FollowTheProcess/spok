@@ -178,11 +178,6 @@ func (s *SpokFile) Run(logger logger.Logger, stream iostream.IOStream, runner sh
 func (s *SpokFile) run(logger logger.Logger, stream iostream.IOStream, runner shell.Runner, force bool, runOrder []*graph.Vertex) (task.Results, error) {
 	results := make(task.Results, 0, len(runOrder))
 
-	// TODO: If it's the first run (no cache exists), populate the cache with the hash state
-	// of absolutely everything but run the requested tasks anyway (as if --force was passed)
-	// this way every task has a digest from square one.
-	// Then dump the cache to disk after the requested tasks have been run
-
 	cachePath := filepath.Join(s.Dir, cache.Path)
 	if !cache.Exists(cachePath) {
 		// Spok has not run at all before and the cache does not exist
