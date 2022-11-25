@@ -9,6 +9,7 @@ site_dir: docs/build
 strict: true
 nav:
   - Home: index.md
+  - Contribution Guide: contributing.md
 plugins:
   - search
   - include-markdown
