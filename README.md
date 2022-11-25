@@ -9,6 +9,7 @@
 [![GitHub](https://img.shields.io/github/v/release/FollowTheProcess/spok?logo=github&sort=semver)](https://github.com/FollowTheProcess/spok)
 [![CI](https://github.com/FollowTheProcess/spok/workflows/CI/badge.svg)](https://github.com/FollowTheProcess/spok/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/FollowTheProcess/spok/branch/main/graph/badge.svg?token=Q8Y5KFA9ZK)](https://codecov.io/gh/FollowTheProcess/spok)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/FollowTheProcess/spok/main.svg)](https://results.pre-commit.ci/latest/github/FollowTheProcess/spok/main)
 
 ***It's a build system Jim, but not as we know it! 🖖🏻***
 
