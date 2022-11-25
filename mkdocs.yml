@@ -1,0 +1,53 @@
+site_name: spok
+repo_url: https://github.com/FollowTheProcess/spok
+site_url: https://FollowTheProcess.github.io/spok/
+site_description: CLI to automate the development workflow.
+site_author: Tom Fleet
+use_directory_urls: false
+docs_dir: docs/src
+site_dir: docs/build
+strict: true
+nav:
+  - Home: index.md
+plugins:
+  - search
+  - include-markdown
+theme:
+  name: material
+  font:
+    text: Roboto
+    code: SF Mono
+  feature:
+    tabs: true
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: blue
+      toggle:
+        icon: material/lightbulb-outline
+        name: Dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: blue
+      toggle:
+        icon: material/lightbulb-outline
+        name: Light mode
+markdown_extensions:
+  - codehilite
+  - pymdownx.highlight:
+      use_pygments: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.inlinehilite
+  - admonition
+  - extra
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_div_format
+  - pymdownx.details
+  - pymdownx.tabbed
+  - toc:
+      permalink: true
