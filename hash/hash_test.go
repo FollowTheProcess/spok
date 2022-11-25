@@ -11,7 +11,7 @@ import (
 func TestAlwaysHasher(t *testing.T) {
 	t.Parallel()
 	hasher := AlwaysRun{}
-	got, _ := hasher.Hash([]string{"doesnt", "matter"})
+	got, _ := hasher.Hash([]string{"doesn't", "matter"})
 	if got != "DIFFERENT" {
 		t.Errorf("got %s, wanted %s", got, "DIFFERENT")
 	}

@@ -25,7 +25,7 @@ func BuildRootCmd() *cobra.Command {
 		SilenceErrors: true,
 		Short:         "It's a build system Jim, but not as we know it!",
 		Long: heredoc.Doc(`
-		
+
 		It's a build system Jim, but not as we know it!
 
 		Spok is a lightweight build system and command runner, inspired by things like

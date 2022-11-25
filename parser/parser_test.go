@@ -1020,7 +1020,7 @@ func TestParseTask(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "illegal token in mutli output",
+			name: "illegal token in multi output",
 			stream: []token.Token{
 				tTask,
 				newToken(token.IDENT, "build"),
@@ -1882,9 +1882,9 @@ func TestGetContext(t *testing.T) {
 		{
 			name: "first line",
 			input: `# Top level comment
-			
+
 			GLOBAL := "hello"
-			
+
 			# Run the tests
 			task test("**/*.go") {
 				go test ./...
@@ -1900,9 +1900,9 @@ func TestGetContext(t *testing.T) {
 		{
 			name: "variable declaration IDENT",
 			input: `# Top level comment
-			
+
 			GLOBAL := "hello"
-			
+
 			# Run the tests
 			task test("**/*.go") {
 				go test ./...

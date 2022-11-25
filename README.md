@@ -105,7 +105,7 @@ A `spokfile` looks like this...
 
 <!-- Ignore the python syntax highlighting, it's obviously not python. It's just what looked best when rendered on GitHub -->
 ```python
-# Comments are preceeded by a hash
+# Comments are preceded by a hash
 
 # You can store global variables like this (caps are optional)
 # these will also be exported as environment variables available for use

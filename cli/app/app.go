@@ -174,7 +174,7 @@ func (a *App) setup() error {
 		a.Options.Spokfile = spokfilePath
 	}
 
-	// Ensure we make the spokfile path absolute incase the user
+	// Ensure we make the spokfile path absolute in case the user
 	// provided --spokfile with a relative path
 	a.Options.Spokfile, err = filepath.Abs(a.Options.Spokfile)
 	if err != nil {
