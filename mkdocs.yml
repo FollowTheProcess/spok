@@ -9,6 +9,8 @@ site_dir: docs/build
 strict: true
 nav:
   - Home: index.md
+  - Quickstart: quickstart.md
+  - Syntax: syntax.md
   - Contribution Guide: contributing.md
 plugins:
   - search
