@@ -46,3 +46,52 @@ FLAGS:
 ```
 
 </div>
+
+Some of this stuff we've already talked about, but let's look at some stuff we haven't touched on yet.
+
+## `--fmt`
+
+The `--fmt` flag is used to format the spokfile. Spok comes equipped with an (albeit basic) formatter that parses the spokfile
+and then dumps it back in place with the desired formatting, simple really!
+
+!!! note
+
+    Because the spokfile has to be parsed before formatting, it's not possible to format a spokfile that contains syntax errors.
+
+## `--force`
+
+If you've read the [syntax guide](syntax.md) you'll know that Spok calculates the state of the dependency graph by hashing the contents of
+all the declared files in your task declaration. This avoids unnecessary work by only running tasks who's dependencies have changed.
+
+However, sometimes you want to force a task to run regardless of whether it's dependencies have changed or not. This is where the `--force` flag comes in.
+
+<div class="termy">
+
+```console
+$ spok test
+- Task "test" skipped as none of it's dependencies have changed
+
+// Okay fine, let's force it to run
+$ spok test --force
+
+ok   github.com/FollowTheProcess/spok/ast (cached)
+ok   github.com/FollowTheProcess/spok/builtins (cached)
+ok   github.com/FollowTheProcess/spok/cache (cached)
+?    github.com/FollowTheProcess/spok/cli/app [no test files]
+?    github.com/FollowTheProcess/spok/cli/cmd [no test files]
+ok   github.com/FollowTheProcess/spok/cmd/spok (cached)
+ok   github.com/FollowTheProcess/spok/file (cached)
+ok   github.com/FollowTheProcess/spok/graph (cached)
+ok   github.com/FollowTheProcess/spok/hash (cached)
+?    github.com/FollowTheProcess/spok/iostream [no test files]
+ok   github.com/FollowTheProcess/spok/lexer (cached)
+?    github.com/FollowTheProcess/spok/logger [no test files]
+ok   github.com/FollowTheProcess/spok/parser (cached)
+ok   github.com/FollowTheProcess/spok/shell (cached)
+ok   github.com/FollowTheProcess/spok/task (cached)
+ok   github.com/FollowTheProcess/spok/token (cached)
+
+✅ Task "test" completed successfully
+```
+
+</div>
