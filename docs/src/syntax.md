@@ -55,6 +55,20 @@ task test() {
 
 Now that you have a task defined, you can run it with `spok test` and your tests will run, how cool is that! 🎉
 
+### Task Documentation
+
+If you want to document your tasks, you can do so by adding a comment above the task definition. For example:
+
+```python
+# Run all project unit tests
+task test() {
+    go test ./...
+}
+```
+
+Spok will parse this as the task's docstring and it will be output when the tasks are listed, either by the default action
+or the `--show` flag. But we'll get to that later in the [CLI](cli.md) section 👍
+
 ### Tasks that Depend on Files
 
 This is fine, and might be enough for you if your test suite is fast and/or the language tooling you're using caches results (like Go!). But what
