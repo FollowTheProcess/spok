@@ -11,6 +11,7 @@ nav:
   - Home: index.md
   - Quickstart: quickstart.md
   - Syntax: syntax.md
+  - CLI: cli.md
   - Contribution Guide: contributing.md
 plugins:
   - search
@@ -54,3 +55,12 @@ markdown_extensions:
   - pymdownx.tabbed
   - toc:
       permalink: true
+
+extra_css:
+  - "css/termynal.css"
+  - "css/custom.css"
+
+extra_javascript:
+  - "https://unpkg.com/mermaid@8.4.6/dist/mermaid.min.js"
+  - "js/termynal.js"
+  - "js/custom.js"
