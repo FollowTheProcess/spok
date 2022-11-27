@@ -24,15 +24,15 @@ task version() {
 
 Sometimes you need to do more than just run a test, or you need to do something that is not supported by the shell. Spok has a few builtin functions that you can use in your tasks. These functions are:
 
-- `join` - Joins a list of path parts with an OS specific path separator (relative to the spokfile)
+- `join` - Joins a list of path parts with an OS specific path separator and returns the absolute path
 - `exec` - Executes a shell command and captures the output (stripped of leading/trailing whitespace) in the variable it's assigned to
 
 You use them like this:
 
 ```python
-DOCS_SRC := join("docs", "src")
+DOCS_SRC := join(".", "docs", "src") # => "/Users/you/project/docs/src"
 
-GIT_COMMIT := exec("git rev-parse HEAD")
+GIT_COMMIT := exec("git rev-parse HEAD") # => "a1b2c3d4e5f6"
 ```
 
 ## Tasks

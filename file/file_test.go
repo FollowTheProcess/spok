@@ -72,43 +72,6 @@ func TestExpandGlobs(t *testing.T) {
 		want *SpokFile
 		name string
 	}{
-		// {
-		// 	name: "dependencies",
-		// 	file: &SpokFile{
-		// 		Path:  filepath.Join(testdata, "spokfile"),
-		// 		Dir:   testdata,
-		// 		Vars:  make(map[string]string),
-		// 		Globs: make(map[string][]string),
-		// 		Tasks: map[string]task.Task{
-		// 			"test": {
-		// 				Doc:              "A simple test task",
-		// 				Name:             "test",
-		// 				GlobDependencies: []string{"**/*.txt"},
-		// 			},
-		// 		},
-		// 	},
-		// 	want: &SpokFile{
-		// 		Path: filepath.Join(testdata, "spokfile"),
-		// 		Dir:  testdata,
-		// 		Vars: make(map[string]string),
-		// 		Globs: map[string][]string{
-		// 			"**/*.txt": {
-		// 				mustAbs(testdata, "top.txt"),
-		// 				mustAbs(testdata, "deps/sub1/sub2/blah.txt"),
-		// 				mustAbs(testdata, "deps/sub1/sub2/sub3/hello.txt"),
-		// 				mustAbs(testdata, "deps/suba/subb/stuff.txt"),
-		// 				mustAbs(testdata, "deps/suba/subb/subc/something.txt"),
-		// 			},
-		// 		},
-		// 		Tasks: map[string]task.Task{
-		// 			"test": {
-		// 				Doc:              "A simple test task",
-		// 				Name:             "test",
-		// 				GlobDependencies: []string{"**/*.txt"},
-		// 			},
-		// 		},
-		// 	},
-		// },
 		{
 			name: "outputs",
 			file: &SpokFile{
@@ -348,7 +311,7 @@ func TestFromAST(t *testing.T) {
 			want: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
 				Dir:   testdata,
-				Vars:  map[string]string{"global1": filepath.Join("path", "parts", "more")},
+				Vars:  map[string]string{"global1": abs(filepath.Join("path", "parts", "more"))},
 				Globs: make(map[string][]string),
 				Tasks: make(map[string]task.Task),
 			},
@@ -1539,6 +1502,16 @@ func mustAbs(root, path string) string {
 	abs, err := filepath.Abs(filepath.Join(root, path))
 	if err != nil {
 		panic(fmt.Sprintf("mustAbs could not resolve '%s'", filepath.Join(root, path)))
+	}
+	return abs
+}
+
+// abs returns the absolute path of the given path, panicking
+// if it cannot do so for whatever reason.
+func abs(path string) string {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		panic(err)
 	}
 	return abs
 }

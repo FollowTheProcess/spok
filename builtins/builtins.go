@@ -23,9 +23,15 @@ var builtins = map[string]Builtin{
 	"exec": execute,
 }
 
-// join joins up filepath parts with an OS specific separator.
+// join joins up filepath parts with an OS specific separator, returning
+// the absolute joined path.
 func join(parts ...string) (string, error) {
-	return filepath.Join(parts...), nil
+	joined := filepath.Join(parts...)
+	abs, err := filepath.Abs(joined)
+	if err != nil {
+		return "", fmt.Errorf("could not resolve path '%s' to absolute: %w", joined, err)
+	}
+	return abs, nil
 }
 
 // execute executes an external command and returns the stdout to the caller

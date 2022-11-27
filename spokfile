@@ -4,11 +4,11 @@
 
 PROJECT_NAME := "spok"
 PROJECT_PATH := "github.com/FollowTheProcess/spok"
-PROJECT_BIN := "./bin"
-PROJECT_ENTRY_POINT := "./cmd/spok"
-COVERAGE_DATA := "coverage.out"
-COVERAGE_HTML := "coverage.html"
-GORELEASER_DIST := "dist"
+PROJECT_BIN := join(".", "bin")
+PROJECT_ENTRY_POINT := join(".", "cmd", "spok")
+COVERAGE_DATA := join(".", "coverage.out")
+COVERAGE_HTML := join(".", "coverage.html")
+GORELEASER_DIST := join(".", "dist")
 COMMIT_SHA := exec("git rev-parse HEAD")
 VERSION_LDFLAG := "github.com/FollowTheProcess/spok/cli/cmd.version"
 COMMIT_LDFLAG := "github.com/FollowTheProcess/spok/cli/cmd.commit"

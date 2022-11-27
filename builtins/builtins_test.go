@@ -17,7 +17,7 @@ func TestBuiltins(t *testing.T) {
 		{
 			fn:      join,
 			name:    "join",
-			want:    filepath.Join("hello", "filepath", "parts"),
+			want:    abs(filepath.Join("hello", "filepath", "parts")),
 			args:    []string{"hello", "filepath", "parts"},
 			wantErr: false,
 		},
@@ -84,4 +84,14 @@ func TestGet(t *testing.T) {
 	if ok {
 		t.Fatal("Get returned true for getting 'dingle' which doesn't exist")
 	}
+}
+
+// abs returns the absolute path of the given path, panicking
+// if it cannot do so for whatever reason.
+func abs(path string) string {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		panic(err)
+	}
+	return abs
 }
