@@ -1,5 +1,6 @@
 site_name: spok
 repo_url: https://github.com/FollowTheProcess/spok
+repo_name: FollowTheProcess/spok
 site_url: https://FollowTheProcess.github.io/spok/
 site_description: CLI to automate the development workflow.
 site_author: Tom Fleet
@@ -55,6 +56,7 @@ markdown_extensions:
   - pymdownx.tabbed
   - toc:
       permalink: true
+  - sane_lists
 
 extra_css:
   - "css/termynal.css"
