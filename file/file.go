@@ -4,6 +4,7 @@ package file
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
@@ -413,22 +414,25 @@ func New(tree ast.Tree, root string) (*SpokFile, error) {
 // expandGlob expands out the glob pattern from root and returns all the matches,
 // the matches are made absolute before returning, root should be absolute.
 func expandGlob(root, pattern string) ([]string, error) {
-	matches, err := doublestar.FilepathGlob(filepath.Join(root, pattern))
-	if err != nil {
-		return nil, fmt.Errorf("could not expand glob pattern '%s': %w", filepath.Join(root, pattern), err)
-	}
-	var results []string
-	for _, match := range matches {
-		// Find relative to root so we can tell if it's a hidden file/dir easily
-		// simply by looking at whether or not it starts with a dot
-		// If we were dealing with an absolute path here we'd have to traverse all the parts
-		relative, err := filepath.Rel(root, match)
+	var matches []string
+	ignoreHiddenGlobFn := func(path string, d fs.DirEntry) error {
+		if strings.HasPrefix(path, ".") {
+			return filepath.SkipDir
+		}
+
+		abs, err := filepath.Abs(filepath.Join(root, path))
 		if err != nil {
-			return nil, fmt.Errorf("could not determine relative path for '%s': %w", match, err)
+			return fmt.Errorf("could not resolve path '%s': %w", filepath.Join(root, path), err)
 		}
-		if !strings.HasPrefix(relative, ".") {
-			results = append(results, match)
-		}
+
+		matches = append(matches, abs)
+		return nil
 	}
-	return results, nil
+
+	err := doublestar.GlobWalk(os.DirFS(root), pattern, ignoreHiddenGlobFn)
+	if err != nil {
+		return nil, fmt.Errorf("could not expand glob pattern %q: %w", pattern, err)
+	}
+
+	return matches, nil
 }

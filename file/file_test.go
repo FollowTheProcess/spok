@@ -72,43 +72,43 @@ func TestExpandGlobs(t *testing.T) {
 		want *SpokFile
 		name string
 	}{
-		{
-			name: "dependencies",
-			file: &SpokFile{
-				Path:  filepath.Join(testdata, "spokfile"),
-				Dir:   testdata,
-				Vars:  make(map[string]string),
-				Globs: make(map[string][]string),
-				Tasks: map[string]task.Task{
-					"test": {
-						Doc:              "A simple test task",
-						Name:             "test",
-						GlobDependencies: []string{"**/*.txt"},
-					},
-				},
-			},
-			want: &SpokFile{
-				Path: filepath.Join(testdata, "spokfile"),
-				Dir:  testdata,
-				Vars: make(map[string]string),
-				Globs: map[string][]string{
-					"**/*.txt": {
-						mustAbs(testdata, "top.txt"),
-						mustAbs(testdata, "deps/sub1/sub2/blah.txt"),
-						mustAbs(testdata, "deps/sub1/sub2/sub3/hello.txt"),
-						mustAbs(testdata, "deps/suba/subb/stuff.txt"),
-						mustAbs(testdata, "deps/suba/subb/subc/something.txt"),
-					},
-				},
-				Tasks: map[string]task.Task{
-					"test": {
-						Doc:              "A simple test task",
-						Name:             "test",
-						GlobDependencies: []string{"**/*.txt"},
-					},
-				},
-			},
-		},
+		// {
+		// 	name: "dependencies",
+		// 	file: &SpokFile{
+		// 		Path:  filepath.Join(testdata, "spokfile"),
+		// 		Dir:   testdata,
+		// 		Vars:  make(map[string]string),
+		// 		Globs: make(map[string][]string),
+		// 		Tasks: map[string]task.Task{
+		// 			"test": {
+		// 				Doc:              "A simple test task",
+		// 				Name:             "test",
+		// 				GlobDependencies: []string{"**/*.txt"},
+		// 			},
+		// 		},
+		// 	},
+		// 	want: &SpokFile{
+		// 		Path: filepath.Join(testdata, "spokfile"),
+		// 		Dir:  testdata,
+		// 		Vars: make(map[string]string),
+		// 		Globs: map[string][]string{
+		// 			"**/*.txt": {
+		// 				mustAbs(testdata, "top.txt"),
+		// 				mustAbs(testdata, "deps/sub1/sub2/blah.txt"),
+		// 				mustAbs(testdata, "deps/sub1/sub2/sub3/hello.txt"),
+		// 				mustAbs(testdata, "deps/suba/subb/stuff.txt"),
+		// 				mustAbs(testdata, "deps/suba/subb/subc/something.txt"),
+		// 			},
+		// 		},
+		// 		Tasks: map[string]task.Task{
+		// 			"test": {
+		// 				Doc:              "A simple test task",
+		// 				Name:             "test",
+		// 				GlobDependencies: []string{"**/*.txt"},
+		// 			},
+		// 		},
+		// 	},
+		// },
 		{
 			name: "outputs",
 			file: &SpokFile{
