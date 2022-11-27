@@ -1,0 +1,933 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="CLI to automate the development workflow.">
+      
+      
+        <meta name="author" content="Tom Fleet">
+      
+      
+        <link rel="canonical" href="https://FollowTheProcess.github.io/spok/syntax.html">
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>Syntax - spok</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.472b142f.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.08040f6c.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CSF+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"SF Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="css/termynal.css">
+    
+      <link rel="stylesheet" href="css/custom.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="blue">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#syntax" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="spok" class="md-header__button md-logo" aria-label="spok" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            spok
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Syntax
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="blue"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5Z"/></svg>
+            </label>
+          
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="blue"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/FollowTheProcess/spok" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="spok" class="md-nav__button md-logo" aria-label="spok" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    spok
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/FollowTheProcess/spok" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="quickstart.html" class="md-nav__link">
+        Quickstart
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Syntax
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="syntax.html" class="md-nav__link md-nav__link--active">
+        Syntax
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-variables" class="md-nav__link">
+    Global Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#builtin-functions" class="md-nav__link">
+    Builtin Functions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    Tasks
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-documentation" class="md-nav__link">
+    Task Documentation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks-that-depend-on-files" class="md-nav__link">
+    Tasks that Depend on Files
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks that Depend on Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-note-on-performance" class="md-nav__link">
+    A Note on Performance
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks-that-depend-on-other-tasks" class="md-nav__link">
+    Tasks that Depend on Other Tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-outputs" class="md-nav__link">
+    Task Outputs
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-tasks" class="md-nav__link">
+    Default Tasks
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-clean-operation" class="md-nav__link">
+    Custom Clean Operation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dotenv-support" class="md-nav__link">
+    Dotenv Support
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cli.html" class="md-nav__link">
+        CLI
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="contributing.html" class="md-nav__link">
+        Contribution Guide
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-variables" class="md-nav__link">
+    Global Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#builtin-functions" class="md-nav__link">
+    Builtin Functions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    Tasks
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-documentation" class="md-nav__link">
+    Task Documentation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks-that-depend-on-files" class="md-nav__link">
+    Tasks that Depend on Files
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks that Depend on Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-note-on-performance" class="md-nav__link">
+    A Note on Performance
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks-that-depend-on-other-tasks" class="md-nav__link">
+    Tasks that Depend on Other Tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-outputs" class="md-nav__link">
+    Task Outputs
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-tasks" class="md-nav__link">
+    Default Tasks
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-clean-operation" class="md-nav__link">
+    Custom Clean Operation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dotenv-support" class="md-nav__link">
+    Dotenv Support
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/FollowTheProcess/spok/edit/master/docs/syntax.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="syntax">Syntax<a class="headerlink" href="#syntax" title="Permanent link">&para;</a></h1>
+<p>When spok runs, it parses the syntax in your spokfile, extracts tasks, variables, and dependencies, and then runs the tasks you specify. In this
+section we'll take a look at the syntax and how to use it</p>
+<h2 id="global-variables">Global Variables<a class="headerlink" href="#global-variables" title="Permanent link">&para;</a></h2>
+<p>Let's start simple, Spok lets you define variables in the global scope. These variables can be used in any task. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="n">VERSION</span> <span class="o">:=</span> <span class="s2">&quot;0.3.0&quot;</span>
+
+<span class="c1"># Show the version</span>
+<span class="n">task</span> <span class="n">version</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">echo</span> <span class="p">{{</span><span class="o">.</span><span class="n">VERSION</span><span class="p">}}</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Global variables are also exported as environment variables to the tasks, so if your tasks invoke other scripts that depend on
+environment variables you can just declare them globally in spok.</p>
+</div>
+<h2 id="builtin-functions">Builtin Functions<a class="headerlink" href="#builtin-functions" title="Permanent link">&para;</a></h2>
+<p>Sometimes you need to do more than just run a test, or you need to do something that is not supported by the shell. Spok has a few builtin functions that you can use in your tasks. These functions are:</p>
+<ul>
+<li><code>join</code> - Joins a list of path parts with an OS specific path separator (relative to the spokfile)</li>
+<li><code>exec</code> - Executes a shell command and captures the output (stripped of leading/trailing whitespace) in the variable it's assigned to</li>
+</ul>
+<p>You use them like this:</p>
+<div class="highlight"><pre><span></span><code><span class="n">DOCS_SRC</span> <span class="o">:=</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;docs&quot;</span><span class="p">,</span> <span class="s2">&quot;src&quot;</span><span class="p">)</span>
+
+<span class="n">GIT_COMMIT</span> <span class="o">:=</span> <span class="n">exec</span><span class="p">(</span><span class="s2">&quot;git rev-parse HEAD&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h2>
+<p>Tasks are the main point of Spok and are most likely where you'll spend most of your time. Tasks are preceded with the <code>task</code> keyword followed by
+the task definition.</p>
+<p>For example, a simple task that runs unit tests might look like:</p>
+<div class="highlight"><pre><span></span><code><span class="n">task</span> <span class="n">test</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">test</span> <span class="o">./...</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Just like functions in most programming languages, tasks must have opening and closing parentheses, omitting them is
+grounds for a syntax error.</p>
+</div>
+<p>Now that you have a task defined, you can run it with <code>spok test</code> and your tests will run, how cool is that! 🎉</p>
+<h3 id="task-documentation">Task Documentation<a class="headerlink" href="#task-documentation" title="Permanent link">&para;</a></h3>
+<p>If you want to document your tasks, you can do so by adding a comment above the task definition. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Run all project unit tests</span>
+<span class="n">task</span> <span class="n">test</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">test</span> <span class="o">./...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Spok will parse this as the task's docstring and it will be output when the tasks are listed, either by the default action
+or the <code>--show</code> flag. But we'll get to that later in the <a href="cli.html">CLI</a> section 👍</p>
+<h3 id="tasks-that-depend-on-files">Tasks that Depend on Files<a class="headerlink" href="#tasks-that-depend-on-files" title="Permanent link">&para;</a></h3>
+<p>This is fine, and might be enough for you if your test suite is fast and/or the language tooling you're using caches results (like Go!). But what
+if you have a large test suite and only want to re-run the tests if the source code has changed? Or what if you have a task that depends on another?</p>
+<p>Luckily, Spok supports both of these types of dependencies!</p>
+<p>Let's say you're working in a very large python project and the tests take a while to run. You don't want to run the tests if the source code hasn't
+changed since you last ran them. You can do this by adding a dependency to the <code>test</code> task:</p>
+<div class="highlight"><pre><span></span><code><span class="n">task</span> <span class="n">test</span><span class="p">(</span><span class="s2">&quot;**/*.py&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>By including the <code>"**/*.py"</code>, Spok will now know that the <code>test</code> task depends on all python files in the project, and that (after the initial run)
+it should only be <em>re-run</em> if any of those files have changed.</p>
+<p>So now if you run <code>spok test</code>, your tests will run as before. But try running it again! Spok will notice that none of the python files have changed
+and you will see:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok <span class="nb">test</span>
+<span class="go">- Task &quot;test&quot; skipped as none of its dependencies have changed</span>
+</code></pre></div>
+
+</div>
+
+<p>You can do this with as many files or glob patterns as you want, if any of them have changed, the task will be re-run, e.g. this is
+completely allowed:</p>
+<div class="highlight"><pre><span></span><code><span class="n">task</span> <span class="n">lots</span><span class="p">(</span><span class="s2">&quot;**/*.go&quot;</span><span class="p">,</span> <span class="s2">&quot;**/*.py&quot;</span><span class="p">,</span> <span class="s2">&quot;some/specific/file.txt&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>When you declare file dependencies like this, behind the scenes Spok will expand the glob patterns to their concrete, absolute filepaths,
+open and read the contents of each one, and then generate a SHA256 hash of the contents, summing it all up into a final digest and
+caching this digest against the name of the task.</p>
+<p>When you run the task again, Spok will do the same procedure, and compare the newly calculated digest against the cached one to determine
+if the task should be re run. This type of content checking is more accurate than e.g. <a href="https://www.gnu.org/software/make/">make</a> which
+looks at file modification timestamps.</p>
+</div>
+<h4 id="a-note-on-performance">A Note on Performance<a class="headerlink" href="#a-note-on-performance" title="Permanent link">&para;</a></h4>
+<blockquote>
+<p>"But if you open and read the contents of every single file every time you run the task, isn't this really slow?"</p>
+</blockquote>
+<p>In a word... no! Spok is designed to be <em>fast</em>:</p>
+<ul>
+<li>The expansion of glob patterns happens once, when the spokfile is parsed, and the results are cached in memory for re-use</li>
+<li>The opening, reading and hashing of file contents happens concurrently across all your cores</li>
+<li>It's written in Go so it's naturally pretty fast anyway!</li>
+</ul>
+<p>All this means that, even on very large projects, Spok can perform this check in a few hundred milliseconds 🚀</p>
+<p>For example on the <a href="https://github.com/golang/go">golang/go</a> repo itself with 8872 <code>.go</code> files (at the time of writing) and the following benchmark task:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Benchmark hashing all go files</span>
+<span class="n">task</span> <span class="n">test</span><span class="p">(</span><span class="s2">&quot;**/*.go&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">echo</span> <span class="s2">&quot;I depend on all go files&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><img alt="go_files" src="https://github.com/FollowTheProcess/spok/raw/main/docs/img/go_files.png" /></p>
+<p><img alt="benchmark" src="https://github.com/FollowTheProcess/spok/raw/main/docs/img/benchmark.png" /></p>
+<p>Spok is able to detect that nothing has changed in any of the 8872 files in just 300ms on my laptop! Don't forget, this also includes the time it takes to:</p>
+<ul>
+<li>Launch the program itself</li>
+<li>Read and parse the spokfile</li>
+<li>Expand the glob pattern <code>"**/*.go"</code> and collect the results</li>
+</ul>
+<p>So hopefully it's plenty fast enough!</p>
+<h3 id="tasks-that-depend-on-other-tasks">Tasks that Depend on Other Tasks<a class="headerlink" href="#tasks-that-depend-on-other-tasks" title="Permanent link">&para;</a></h3>
+<p>Not only can you depend on files, you can also depend on other tasks, or a mix of both! If you put the name of another task in the task arguments,
+Spok will recognise this as a task dependency and will ensure that the declared task will always run before the one you want.</p>
+<p>For example, let's say you want a Spok task to compile your project, but before that you have to run some sort of code generation, or
+you want to run the linter or formatter first. You can do this by declaring a dependency in your build task on whatever you want
+to run before it:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Run the formatter</span>
+<span class="n">task</span> <span class="n">fmt</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">fmt</span> <span class="o">./...</span>
+<span class="p">}</span>
+
+<span class="c1"># Run the linter</span>
+<span class="n">task</span> <span class="n">lint</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">golangci</span><span class="o">-</span><span class="n">lint</span> <span class="n">run</span>
+<span class="p">}</span>
+
+<span class="c1"># Compile the project</span>
+<span class="n">task</span> <span class="n">build</span><span class="p">(</span><span class="n">lint</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">build</span> <span class="o">./...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>In this example, the <code>build</code> task depends on the <code>lint</code> task, which in-turn depends on the <code>fmt</code> task. So when you run <code>spok build</code>, Spok will
+construct the dependency graph of the requested tasks, and then run them in the correct order, so you should see something like:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok build
+
+<span class="go">✅ Task &quot;fmt&quot; completed successfully</span>
+<span class="go">✅ Task &quot;lint&quot; completed successfully</span>
+<span class="go">✅ Task &quot;build&quot; completed successfully</span>
+</code></pre></div>
+
+</div>
+
+<p>You can also mix and match tasks depending on files and each other, as in the following example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Generate the API schema from swagger</span>
+<span class="n">task</span> <span class="n">generate</span><span class="p">(</span><span class="s2">&quot;api/swagger.yaml&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">swagger</span> <span class="n">generate</span> <span class="n">spec</span> <span class="o">-</span><span class="n">o</span> <span class="n">api</span><span class="o">/</span><span class="n">schema</span><span class="o">.</span><span class="n">json</span>
+<span class="p">}</span>
+
+<span class="c1"># Compile the project</span>
+<span class="n">task</span> <span class="n">build</span><span class="p">(</span><span class="n">generate</span><span class="p">,</span> <span class="s2">&quot;**/*.go&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">build</span> <span class="o">./...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Here we want to generate an API schema from a swagger file, but only if the swagger file has changed. We also want to compile the project
+which may include or embed this swagger schema, so <code>generate</code> will always run first, and then <code>build</code> will run, but only if any of the
+go files have changed since the last run.</p>
+<p>Hopefully you can see how powerful this is! Using a very simple and expressive syntax, you can build up complex dependency graphs of tasks
+that will only run when they need to, so no time is wasted doing unnecessary work.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>At the moment, spok will not recurse down the dependency graph and so will not look at dependencies of dependencies. For example if you
+had the following spokfile:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Run the linter</span>
+<span class="n">task</span> <span class="n">lint</span><span class="p">(</span><span class="s2">&quot;**/*.go&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">golangci</span><span class="o">-</span><span class="n">lint</span> <span class="n">run</span>
+<span class="p">}</span>
+
+<span class="c1"># Run the tests</span>
+<span class="n">task</span> <span class="n">test</span><span class="p">(</span><span class="n">lint</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">test</span> <span class="o">./...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Task <code>test</code> would always run after <code>lint</code>, but it would run <strong>even if no go files had changed.</strong> To declare that <code>test</code> should also only
+run if any of the go files have changed, you would need to add the dependency to <code>test</code> as well:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Run the tests</span>
+<span class="n">task</span> <span class="n">test</span><span class="p">(</span><span class="n">lint</span><span class="p">,</span> <span class="s2">&quot;**/*.go&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">test</span> <span class="o">./...</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<h3 id="task-outputs">Task Outputs<a class="headerlink" href="#task-outputs" title="Permanent link">&para;</a></h3>
+<p>Some tasks generate external artifacts, such as compiled binaries, or generated code. In Spok, you can explicitly declare this by using
+the output operator <code>-&gt;</code>. For example, here's a task that compiles a Go binary and saves it under the <code>bin</code> directory:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build the project</span>
+<span class="n">task</span> <span class="n">build</span><span class="p">(</span><span class="s2">&quot;**/*.go&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;bin/myproject&quot;</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">build</span> <span class="o">-</span><span class="n">o</span> <span class="nb">bin</span><span class="o">/</span><span class="n">myproject</span> <span class="o">./...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Declaring an output like this is optional, but it has a pretty cool benefit!</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok --clean
+
+<span class="go">Removed /Users/you/myproject/bin/myproject</span>
+</code></pre></div>
+
+</div>
+
+<p>Yep, Spok can automatically clean up after you! 🎉</p>
+<p>This is useful if you generate a lot of stuff and want to easily clean up after yourself e.g. if your tasks generate
+profiles, coverage reports, flamegraphs or other artifacts that you don't want to commit to your repo.</p>
+<p>You can also declare multiple outputs by separating them with commas inside parentheses, like so:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Output lots of stuff</span>
+<span class="n">task</span> <span class="n">build</span><span class="p">(</span><span class="s2">&quot;**/*.go&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="s2">&quot;bin/myproject&quot;</span><span class="p">,</span> <span class="s2">&quot;bin/myproject2&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">build</span> <span class="o">-</span><span class="n">o</span> <span class="nb">bin</span><span class="o">/</span><span class="n">myproject</span> <span class="o">./...</span>
+    <span class="n">go</span> <span class="n">build</span> <span class="o">-</span><span class="n">o</span> <span class="nb">bin</span><span class="o">/</span><span class="n">myproject2</span> <span class="o">./...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Or even glob patterns of outputs! For example if your task is to convert markdown to html docs pages, you could do something like:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build the docs html from source</span>
+<span class="n">task</span> <span class="n">docs</span><span class="p">(</span><span class="s2">&quot;docs/src/*.md&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;docs/build/*.html&quot;</span> <span class="p">{</span>
+    <span class="n">mkdocs</span> <span class="n">build</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Just like with file dependencies, these globs will be expanded to their concrete filepaths and each one would be deleted
+by <code>spok --clean</code></p>
+<p>That's really it for the syntax! Let's move on and talk about what you can do with the <a href="cli.html">CLI</a></p>
+<h2 id="default-tasks">Default Tasks<a class="headerlink" href="#default-tasks" title="Permanent link">&para;</a></h2>
+<p>We saw earlier that if you run <code>spok</code> without any arguments, it will show the list of all tasks in your spokfile. But what if you wanted
+to do something else instead? Well... you can!</p>
+<p>All you need to do is declare a task called <code>default</code> and then when you run <code>spok</code> without any arguments, it will run that task instead:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Do this by default</span>
+<span class="n">task</span> <span class="n">default</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">echo</span> <span class="s2">&quot;Hello from the default task&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok
+<span class="go">Hello from the default task</span>
+</code></pre></div>
+
+</div>
+
+<h2 id="custom-clean-operation">Custom Clean Operation<a class="headerlink" href="#custom-clean-operation" title="Permanent link">&para;</a></h2>
+<p>Spok automatically keeps track of task <a href="#Task Outputs">outputs</a> and will delete them when you run <code>spok --clean</code>. But like declaring
+<a href="#Default Tasks">default tasks</a>, you can also declare a custom clean operation by writing a task called <code>clean</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Do custom cleany things</span>
+<span class="n">task</span> <span class="n">clean</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">echo</span> <span class="s2">&quot;Cleaning up...&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok --clean
+<span class="go">Cleaning up...</span>
+</code></pre></div>
+
+</div>
+
+<h2 id="dotenv-support">Dotenv Support<a class="headerlink" href="#dotenv-support" title="Permanent link">&para;</a></h2>
+<p>If Spok finds a file called <code>.env</code> in the same directory as your spokfile, it will automatically load it and make the variables available
+to all it's tasks.</p>
+<p>For example, if you had a <code>.env</code> file like this:</p>
+<div class="highlight"><pre><span></span><code>VALUE=&quot;hello from .env&quot;
+</code></pre></div>
+<p>And a spokfile like this:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Use a variable from .env</span>
+<span class="n">task</span> <span class="n">dotenv</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">echo</span> <span class="err">$</span><span class="n">VALUE</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>When you run <code>spok dotenv</code>, you'll get:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok dotenv
+<span class="go">hello from .env</span>
+</code></pre></div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="quickstart.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Quickstart" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Quickstart
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="cli.html" class="md-footer__link md-footer__link--next" aria-label="Next: CLI" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              CLI
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.d6c3db9e.min.js"></script>
+      
+        <script src="https://unpkg.com/mermaid@8.4.6/dist/mermaid.min.js"></script>
+      
+        <script src="js/termynal.js"></script>
+      
+        <script src="js/custom.js"></script>
+      
+    
+  </body>
+</html>

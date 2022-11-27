@@ -1,0 +1,818 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="CLI to automate the development workflow.">
+      
+      
+        <meta name="author" content="Tom Fleet">
+      
+      
+        <link rel="canonical" href="https://FollowTheProcess.github.io/spok/cli.html">
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>CLI - spok</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.472b142f.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.08040f6c.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CSF+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"SF Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="css/termynal.css">
+    
+      <link rel="stylesheet" href="css/custom.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="blue">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cli" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="spok" class="md-header__button md-logo" aria-label="spok" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            spok
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CLI
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="blue"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5Z"/></svg>
+            </label>
+          
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="blue"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/FollowTheProcess/spok" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="spok" class="md-nav__button md-logo" aria-label="spok" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    spok
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/FollowTheProcess/spok" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="quickstart.html" class="md-nav__link">
+        Quickstart
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="syntax.html" class="md-nav__link">
+        Syntax
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          CLI
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="cli.html" class="md-nav__link md-nav__link--active">
+        CLI
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-fmt" class="md-nav__link">
+    --fmt
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-force" class="md-nav__link">
+    --force
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-json" class="md-nav__link">
+    --json
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-quiet" class="md-nav__link">
+    --quiet
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-show" class="md-nav__link">
+    --show
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-spokfile" class="md-nav__link">
+    --spokfile
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-vars" class="md-nav__link">
+    --vars
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-verbose" class="md-nav__link">
+    --verbose
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="contributing.html" class="md-nav__link">
+        Contribution Guide
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-fmt" class="md-nav__link">
+    --fmt
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-force" class="md-nav__link">
+    --force
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-json" class="md-nav__link">
+    --json
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-quiet" class="md-nav__link">
+    --quiet
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-show" class="md-nav__link">
+    --show
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-spokfile" class="md-nav__link">
+    --spokfile
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-vars" class="md-nav__link">
+    --vars
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-verbose" class="md-nav__link">
+    --verbose
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/FollowTheProcess/spok/edit/master/docs/cli.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h1>
+<p>Aside from what you can with the spokfile syntax itself, there's also a bunch of stuff you can
+do from the CLI.</p>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<p>Let's start by showing the help:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok --help
+
+<span class="go">It&#39;s a build system Jim, but not as we know it!</span>
+
+<span class="go">Spok is a lightweight build system and command runner, inspired by things like</span>
+<span class="go">make, just etc.</span>
+
+<span class="go">However, spok offers a number of additional features such as:</span>
+
+<span class="go">- Cleaner, more developer-friendly syntax</span>
+<span class="go">- Full cross compatibility</span>
+<span class="go">- No dependency on any form of shell</span>
+<span class="go">- Load .env files by default</span>
+<span class="go">- Incremental runs based on file hashing and sum checks</span>
+
+<span class="go">USAGE:</span>
+<span class="go">  spok [tasks]... [flags]</span>
+
+<span class="go">FLAGS:</span>
+<span class="go">  -c, --clean             Remove all build artifacts.</span>
+<span class="go">      --fmt               Format the spokfile.</span>
+<span class="go">  -f, --force             Bypass file hash checks and force running.</span>
+<span class="go">  -h, --help              help for spok</span>
+<span class="go">      --init              Initialise a new spokfile in $CWD.</span>
+<span class="go">  -j, --json              Output task results as JSON.</span>
+<span class="go">  -q, --quiet             Silence all CLI output.</span>
+<span class="go">  -s, --show              Show all tasks defined in the spokfile.</span>
+<span class="go">      --spokfile string   The path to the spokfile (defaults to &#39;$CWD/spokfile&#39;).</span>
+<span class="go">  -V, --vars              Show all defined variables in spokfile.</span>
+<span class="go">  -v, --verbose           Show verbose logging output.</span>
+<span class="go">      --version           version for spok</span>
+</code></pre></div>
+
+</div>
+
+<p>Some of this stuff we've already talked about, but let's look at some stuff we haven't touched on yet.</p>
+<h2 id="-fmt"><code>--fmt</code><a class="headerlink" href="#-fmt" title="Permanent link">&para;</a></h2>
+<p>The <code>--fmt</code> flag is used to format the spokfile. Spok comes equipped with an (albeit basic) formatter that parses the spokfile
+and then dumps it back in place with the desired formatting, simple really!</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Because the spokfile has to be parsed before formatting, it's not possible to format a spokfile that contains syntax errors.</p>
+</div>
+<h2 id="-force"><code>--force</code><a class="headerlink" href="#-force" title="Permanent link">&para;</a></h2>
+<p>If you've read the <a href="syntax.html">syntax guide</a> you'll know that Spok calculates the state of the task dependency graph by hashing the contents of
+all the declared files in your task definition. This avoids unnecessary work by only running tasks who's dependencies have changed.</p>
+<p>However, sometimes you want to force a task to run regardless of whether it's dependencies have changed or not. This is where the <code>--force</code> flag comes in.</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok <span class="nb">test</span>
+<span class="go">- Task &quot;test&quot; skipped as none of it&#39;s dependencies have changed</span>
+
+<span class="go">// Okay fine, let&#39;s force it to run</span>
+<span class="gp">$ </span>spok <span class="nb">test</span> --force
+
+<span class="go">ok   github.com/FollowTheProcess/spok/ast (cached)</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/builtins (cached)</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/cache (cached)</span>
+<span class="go">?    github.com/FollowTheProcess/spok/cli/app [no test files]</span>
+<span class="go">?    github.com/FollowTheProcess/spok/cli/cmd [no test files]</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/cmd/spok (cached)</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/file (cached)</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/graph (cached)</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/hash (cached)</span>
+<span class="go">?    github.com/FollowTheProcess/spok/iostream [no test files]</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/lexer (cached)</span>
+<span class="go">?    github.com/FollowTheProcess/spok/logger [no test files]</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/parser (cached)</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/shell (cached)</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/task (cached)</span>
+<span class="go">ok   github.com/FollowTheProcess/spok/token (cached)</span>
+
+<span class="go">✅ Task &quot;test&quot; completed successfully</span>
+</code></pre></div>
+
+</div>
+
+<h2 id="-json"><code>--json</code><a class="headerlink" href="#-json" title="Permanent link">&para;</a></h2>
+<p>By default, spok outputs the results of the running tasks in their original format straight to the terminal. This is great for humans, but not so great for machines.</p>
+<p>If you want to programmatically access the results of a spok run, you can use the <code>--json</code> flag to output the results as JSON, which can then be queried
+by external programs e.g. <a href="https://stedolan.github.io/jq/">jq</a>.</p>
+<p>For example, let's run a sample task and pipe the output to <code>jq</code>:</p>
+<p>Here's the spokfile:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Do some things with JSON</span>
+<span class="n">task</span> <span class="n">echo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">echo</span> <span class="s2">&quot;I succeeded&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Running <code>spok echo --json</code> will get you:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok <span class="nb">echo</span> --json <span class="p">|</span> jq
+
+<span class="go">[</span>
+<span class="go">  {</span>
+<span class="go">    &quot;task&quot;: &quot;echo&quot;,</span>
+<span class="go">    &quot;command_results&quot;: [</span>
+<span class="go">      {</span>
+<span class="go">        &quot;cmd&quot;: &quot;echo I succeeded&quot;,</span>
+<span class="go">        &quot;stdout&quot;: &quot;I succeeded\n&quot;,</span>
+<span class="go">        &quot;stderr&quot;: &quot;&quot;,</span>
+<span class="go">        &quot;status&quot;: 0</span>
+<span class="go">      }</span>
+<span class="go">    ],</span>
+<span class="go">    &quot;skipped&quot;: false</span>
+<span class="go">  }</span>
+<span class="go">]</span>
+</code></pre></div>
+
+</div>
+
+<p>Spok's output JSON is a list of objects, each object representing a task. Each task object contains the following fields:</p>
+<ul>
+<li><code>task</code>: The name of the task</li>
+<li><code>command_results</code>: A list of objects, each object representing a command run by the task. Each command object contains the following fields:</li>
+<li><code>cmd</code>: The command that was run</li>
+<li><code>stdout</code>: The stdout of the command</li>
+<li><code>stderr</code>: The stderr of the command</li>
+<li><code>status</code>: The exit status of the command</li>
+</ul>
+<p>You can imagine how this could be useful for things like CI/CD pipelines where tasks are more complicated and you may need
+to query or parse the results of a task or a whole run.</p>
+<h2 id="-quiet"><code>--quiet</code><a class="headerlink" href="#-quiet" title="Permanent link">&para;</a></h2>
+<p>The <code>--quiet</code> flag does exactly what it says on the tin, shuts Spok up!</p>
+<p>When using the <code>--quiet</code> flag, Spok will not show any of the task results or any other output at all, simply exit with a zero status
+code if the run was successful or a non-zero status code if it wasn't.</p>
+<p>I'd include an example here, but by definition it would be empty! 🤓</p>
+<h2 id="-show"><code>--show</code><a class="headerlink" href="#-show" title="Permanent link">&para;</a></h2>
+<p>The <code>--show</code> flag simply displays all the tasks and their docstrings if present. By default, Spok will do this when it
+is invoked with no arguments, unless you have declared a task called <code>default</code>, see <a href="syntax.html">the syntax guide</a> for more info on that!</p>
+<p>To show you what this looks like, consider a simple spokfile:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Run the unit tests</span>
+<span class="n">task</span> <span class="n">test</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">test</span> <span class="o">./...</span>
+<span class="p">}</span>
+
+<span class="c1"># Format the source code</span>
+<span class="n">task</span> <span class="n">fmt</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">go</span> <span class="n">fmt</span> <span class="o">./...</span>
+<span class="p">}</span>
+
+<span class="c1"># Run the linter</span>
+<span class="n">task</span> <span class="n">lint</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">golangci</span><span class="o">-</span><span class="n">lint</span> <span class="n">run</span> <span class="o">--</span><span class="n">fix</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Running <code>spok</code> with no arguments, or <code>spok --show</code> will get you:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok --show
+<span class="go">Tasks defined in /Users/you/yourproject/spokfile:</span>
+<span class="go">Name    Description</span>
+<span class="go">fmt     Run go fmt on all project files</span>
+<span class="go">lint    Lint the project and auto-fix errors if possible</span>
+<span class="go">test    Run all project tests</span>
+</code></pre></div>
+
+</div>
+
+<h2 id="-spokfile"><code>--spokfile</code><a class="headerlink" href="#-spokfile" title="Permanent link">&para;</a></h2>
+<p>The <code>--spokfile</code> flag is used to specify the path to the spokfile. By default, Spok will look for a spokfile in the current working directory.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The path doesn't have to be absolute, if you use a relative path, Spok will assume you meant relative to the current working directory.</p>
+</div>
+<h2 id="-vars"><code>--vars</code><a class="headerlink" href="#-vars" title="Permanent link">&para;</a></h2>
+<p>The <code>--vars</code> flag tells Spok simply to print all the global variables in the spokfile and exit, this is useful for checking whether
+the outputs of spok's builtin functions are what you expect.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="n">TAG</span> <span class="o">:=</span> <span class="n">exec</span><span class="p">(</span><span class="s2">&quot;git describe --tags --abbrev=0&quot;</span><span class="p">)</span>
+<span class="n">COMMIT</span> <span class="o">:=</span> <span class="n">exec</span><span class="p">(</span><span class="s2">&quot;git rev-parse HEAD&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Will get you:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok --vars
+<span class="go">Variables defined in /Users/you/yourproject/spokfile:</span>
+<span class="go">Name      Value</span>
+<span class="go">TAG       0.3.0</span>
+<span class="go">COMMIT    3f2a1c2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f</span>
+</code></pre></div>
+
+</div>
+
+<h2 id="-verbose"><code>--verbose</code><a class="headerlink" href="#-verbose" title="Permanent link">&para;</a></h2>
+<p>If you're ever curious what's going on under the hood, you can use the <code>--verbose</code> flag to get a more detailed output of what Spok is doing during
+any other CLI operation:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>spok <span class="nb">test</span> --verbose
+
+<span class="go">2022-11-27T10:10:26.441Z DEBUG Looking in /Users/tomfleet/Development/spok for spokfile</span>
+<span class="go">2022-11-27T10:10:26.442Z DEBUG Found spokfile at /Users/tomfleet/Development/spok/spokfile</span>
+<span class="go">2022-11-27T10:10:26.442Z DEBUG Looking for .env file</span>
+<span class="go">2022-11-27T10:10:26.442Z DEBUG No .env file found</span>
+<span class="go">2022-11-27T10:10:26.442Z DEBUG Parsing spokfile at /Users/tomfleet/Development/spok/spokfile</span>
+<span class="go">2022-11-27T10:10:26.459Z DEBUG Running requested tasks: [test]</span>
+<span class="go">2022-11-27T10:10:26.760Z DEBUG Building dependency graph for requested tasks: [test]</span>
+<span class="go">2022-11-27T10:10:26.760Z DEBUG Calculating topological sort of dependency graph</span>
+<span class="go">2022-11-27T10:10:26.761Z DEBUG Task test glob dependency pattern &quot;**/*.go&quot; expanded to 34 files</span>
+<span class="go">2022-11-27T10:10:26.761Z DEBUG Task test depends on 34 files</span>
+<span class="go">2022-11-27T10:10:26.765Z DEBUG Task test current checksum: 670d2ef1c36f6e1 cached checksum: 670d2ef1c36f6e1</span>
+<span class="go">- Task &quot;test&quot; skipped as none of its dependencies have changed</span>
+</code></pre></div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="syntax.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Syntax" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Syntax
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="contributing.html" class="md-footer__link md-footer__link--next" aria-label="Next: Contribution Guide" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Contribution Guide
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.d6c3db9e.min.js"></script>
+      
+        <script src="https://unpkg.com/mermaid@8.4.6/dist/mermaid.min.js"></script>
+      
+        <script src="js/termynal.js"></script>
+      
+        <script src="js/custom.js"></script>
+      
+    
+  </body>
+</html>
