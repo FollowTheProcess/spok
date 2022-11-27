@@ -76,6 +76,7 @@ func TestExpandGlobs(t *testing.T) {
 			name: "dependencies",
 			file: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
+				Dir:   testdata,
 				Vars:  make(map[string]string),
 				Globs: make(map[string][]string),
 				Tasks: map[string]task.Task{
@@ -88,6 +89,7 @@ func TestExpandGlobs(t *testing.T) {
 			},
 			want: &SpokFile{
 				Path: filepath.Join(testdata, "spokfile"),
+				Dir:  testdata,
 				Vars: make(map[string]string),
 				Globs: map[string][]string{
 					"**/*.txt": {
@@ -111,6 +113,7 @@ func TestExpandGlobs(t *testing.T) {
 			name: "outputs",
 			file: &SpokFile{
 				Path:  filepath.Join(testdata, "spokfile"),
+				Dir:   testdata,
 				Vars:  make(map[string]string),
 				Globs: make(map[string][]string),
 				Tasks: map[string]task.Task{
@@ -123,6 +126,7 @@ func TestExpandGlobs(t *testing.T) {
 			},
 			want: &SpokFile{
 				Path: filepath.Join(testdata, "spokfile"),
+				Dir:  testdata,
 				Vars: make(map[string]string),
 				Globs: map[string][]string{
 					"**/*.test": {

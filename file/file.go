@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
@@ -416,13 +417,18 @@ func expandGlob(root, pattern string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not expand glob pattern '%s': %w", filepath.Join(root, pattern), err)
 	}
-	absMatches := make([]string, 0, len(matches))
+	var results []string
 	for _, match := range matches {
-		abs, err := filepath.Abs(match)
+		// Find relative to root so we can tell if it's a hidden file/dir easily
+		// simply by looking at whether or not it starts with a dot
+		// If we were dealing with an absolute path here we'd have to traverse all the parts
+		relative, err := filepath.Rel(root, match)
 		if err != nil {
-			return nil, fmt.Errorf("could not resolve path '%s' to absolute: %w", match, err)
+			return nil, fmt.Errorf("could not determine relative path for '%s': %w", match, err)
 		}
-		absMatches = append(absMatches, abs)
+		if !strings.HasPrefix(relative, ".") {
+			results = append(results, match)
+		}
 	}
-	return absMatches, nil
+	return results, nil
 }
