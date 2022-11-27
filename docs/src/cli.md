@@ -165,7 +165,7 @@ I'd include an example here, but by definition it would be empty! 🤓
 ## `--show`
 
 The `--show` flag simply displays all the tasks and their docstrings if present. By default, Spok will do this when it
-is invoked with no arguments, unless you have declared a task called `default`, but more on that later! TODO
+is invoked with no arguments, unless you have declared a task called `default`, see [the syntax guide](syntax.md) for more info on that!
 
 To show you what this looks like, consider a simple spokfile:
 
@@ -199,6 +199,66 @@ fmt     Run go fmt on all project files
 lint    Lint the project and auto-fix errors if possible
 test    Run all project tests
 
+```
+
+</div>
+
+## `--spokfile`
+
+The `--spokfile` flag is used to specify the path to the spokfile. By default, Spok will look for a spokfile in the current working directory.
+
+!!! note
+
+      The path doesn't have to be absolute, if you use a relative path, Spok will assume you meant relative to the current working directory.
+
+## `--vars`
+
+The `--vars` flag tells Spok simply to print all the global variables in the spokfile and exit, this is useful for checking whether
+the outputs of spok's builtin functions are what you expect.
+
+For example:
+
+```python
+TAG := exec("git describe --tags --abbrev=0")
+COMMIT := exec("git rev-parse HEAD")
+```
+
+Will get you:
+
+<div class="termy">
+
+```console
+$ spok --vars
+Variables defined in /Users/you/yourproject/spokfile:
+Name      Value
+TAG       0.3.0
+COMMIT    3f2a1c2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f
+```
+
+</div>
+
+## `--verbose`
+
+If you're ever curious what's going on under the hood, you can use the `--verbose` flag to get a more detailed output of what Spok is doing during
+any other CLI operation:
+
+<div class="termy">
+
+```console
+$ spok test --verbose
+
+2022-11-27T10:10:26.441Z DEBUG Looking in /Users/tomfleet/Development/spok for spokfile
+2022-11-27T10:10:26.442Z DEBUG Found spokfile at /Users/tomfleet/Development/spok/spokfile
+2022-11-27T10:10:26.442Z DEBUG Looking for .env file
+2022-11-27T10:10:26.442Z DEBUG No .env file found
+2022-11-27T10:10:26.442Z DEBUG Parsing spokfile at /Users/tomfleet/Development/spok/spokfile
+2022-11-27T10:10:26.459Z DEBUG Running requested tasks: [test]
+2022-11-27T10:10:26.760Z DEBUG Building dependency graph for requested tasks: [test]
+2022-11-27T10:10:26.760Z DEBUG Calculating topological sort of dependency graph
+2022-11-27T10:10:26.761Z DEBUG Task test glob dependency pattern "**/*.go" expanded to 34 files
+2022-11-27T10:10:26.761Z DEBUG Task test depends on 34 files
+2022-11-27T10:10:26.765Z DEBUG Task test current checksum: 670d2ef1c36f6e1 cached checksum: 670d2ef1c36f6e1
+- Task "test" skipped as none of its dependencies have changed
 ```
 
 </div>

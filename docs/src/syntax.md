@@ -293,3 +293,79 @@ Just like with file dependencies, these globs will be expanded to their concrete
 by `spok --clean`
 
 That's really it for the syntax! Let's move on and talk about what you can do with the [CLI](cli.md)
+
+## Default Tasks
+
+We saw earlier that if you run `spok` without any arguments, it will show the list of all tasks in your spokfile. But what if you wanted
+to do something else instead? Well... you can!
+
+All you need to do is declare a task called `default` and then when you run `spok` without any arguments, it will run that task instead:
+
+```python
+# Do this by default
+task default() {
+    echo "Hello from the default task"
+}
+
+```
+
+<div class="termy">
+
+```console
+$ spok
+Hello from the default task
+```
+
+</div>
+
+## Custom Clean Operation
+
+Spok automatically keeps track of task [outputs](#Task Outputs) and will delete them when you run `spok --clean`. But like declaring
+[default tasks](#Default Tasks), you can also declare a custom clean operation by writing a task called `clean`:
+
+```python
+# Do custom cleany things
+task clean() {
+    echo "Cleaning up..."
+}
+```
+
+<div class="termy">
+
+```console
+$ spok --clean
+Cleaning up...
+```
+
+</div>
+
+## Dotenv Support
+
+If Spok finds a file called `.env` in the same directory as your spokfile, it will automatically load it and make the variables available
+to all it's tasks.
+
+For example, if you had a `.env` file like this:
+
+```dotenv
+VALUE="hello from .env"
+```
+
+And a spokfile like this:
+
+```python
+# Use a variable from .env
+task dotenv() {
+    echo $VALUE
+}
+```
+
+When you run `spok dotenv`, you'll get:
+
+<div class="termy">
+
+```console
+$ spok dotenv
+hello from .env
+```
+
+</div>
