@@ -24,7 +24,7 @@ task generate("**/*.go") {
 }
 
 # Compile the project binary
-task build("**/*.go", tidy, generate, fmt) -> "./bin" {
+task build(tidy, generate, fmt, "**/*.go") -> "./bin" {
     go build -ldflags="-X {{.VERSION_LDFLAG}}=dev -X {{.COMMIT_LDFLAG}}={{.COMMIT_SHA}}" -o {{.PROJECT_BIN}}/{{.PROJECT_NAME}} {{.PROJECT_ENTRY_POINT}}
 }
 
@@ -39,7 +39,7 @@ task test("**/*.go") {
 }
 
 # Run all project benchmarks
-task bench(fmt, "**/*.go") {
+task bench("**/*.go") {
     go test ./... -run=None -benchmem -bench .
 }
 
