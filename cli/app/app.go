@@ -126,7 +126,7 @@ func (a *App) Run(tasks []string) error {
 	switch {
 	case a.Options.Fmt:
 		a.printer.Infof("Formatting spokfile at %q", a.Options.Spokfile)
-		return os.WriteFile(a.Options.Spokfile, []byte(tree.String()), 0666)
+		return os.WriteFile(a.Options.Spokfile, []byte(tree.String()), 0o666)
 	case a.Options.Variables:
 		return a.showVariables(spokfile)
 	case a.Options.Clean:
@@ -216,11 +216,11 @@ func (a *App) initialise() error {
 	if exists(path) {
 		return fmt.Errorf("spokfile already exists at %s", path)
 	}
-	if err = os.WriteFile(path, []byte(demoSpokfile), 0666); err != nil {
+	if err = os.WriteFile(path, []byte(demoSpokfile), 0o666); err != nil {
 		return err
 	}
 
-	file, err := os.OpenFile(gitIgnorePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(gitIgnorePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return err
 	}

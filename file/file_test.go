@@ -1223,204 +1223,206 @@ func TestBuildGraph(t *testing.T) {
 // that it's designed to hit the testdata directory so all globs point to .txt files
 // and commands that would otherwise return different things each time e.g. git rev-parse HEAD
 // have been changed to be consistent over time e.g. echo "hello".
-var testdata = getTestdata()
-var fullSpokfileAST = ast.Tree{
-	Nodes: []ast.Node{
-		ast.Comment{
-			Text:     " This is a top level comment",
-			NodeType: ast.NodeComment,
-		},
-		ast.Comment{
-			Text:     " This variable is presumably important later",
-			NodeType: ast.NodeComment,
-		},
-		ast.Assign{
-			Name: ast.Ident{
-				Name:     "GLOBAL",
-				NodeType: ast.NodeIdent,
-			},
-			Value: ast.String{
-				Text:     "very important stuff here",
-				NodeType: ast.NodeString,
-			},
-			NodeType: ast.NodeAssign,
-		},
-		ast.Assign{
-			Value: ast.Function{
-				Name: ast.Ident{
-					Name:     "exec",
-					NodeType: ast.NodeIdent,
-				},
-				Arguments: []ast.Node{
-					ast.String{
-						Text:     "echo hello",
-						NodeType: ast.NodeString,
-					},
-				}, NodeType: ast.NodeFunction,
-			},
-			Name: ast.Ident{
-				Name:     "GIT_COMMIT",
-				NodeType: ast.NodeIdent,
-			},
-			NodeType: ast.NodeAssign,
-		},
-		ast.Task{
-			Name: ast.Ident{
-				Name:     "test",
-				NodeType: ast.NodeIdent,
-			},
-			Docstring: ast.Comment{
-				Text:     " Run the project unit tests",
+var (
+	testdata        = getTestdata()
+	fullSpokfileAST = ast.Tree{
+		Nodes: []ast.Node{
+			ast.Comment{
+				Text:     " This is a top level comment",
 				NodeType: ast.NodeComment,
 			},
-			Dependencies: []ast.Node{
-				ast.Ident{
+			ast.Comment{
+				Text:     " This variable is presumably important later",
+				NodeType: ast.NodeComment,
+			},
+			ast.Assign{
+				Name: ast.Ident{
+					Name:     "GLOBAL",
+					NodeType: ast.NodeIdent,
+				},
+				Value: ast.String{
+					Text:     "very important stuff here",
+					NodeType: ast.NodeString,
+				},
+				NodeType: ast.NodeAssign,
+			},
+			ast.Assign{
+				Value: ast.Function{
+					Name: ast.Ident{
+						Name:     "exec",
+						NodeType: ast.NodeIdent,
+					},
+					Arguments: []ast.Node{
+						ast.String{
+							Text:     "echo hello",
+							NodeType: ast.NodeString,
+						},
+					}, NodeType: ast.NodeFunction,
+				},
+				Name: ast.Ident{
+					Name:     "GIT_COMMIT",
+					NodeType: ast.NodeIdent,
+				},
+				NodeType: ast.NodeAssign,
+			},
+			ast.Task{
+				Name: ast.Ident{
+					Name:     "test",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring: ast.Comment{
+					Text:     " Run the project unit tests",
+					NodeType: ast.NodeComment,
+				},
+				Dependencies: []ast.Node{
+					ast.Ident{
+						Name:     "fmt",
+						NodeType: ast.NodeIdent,
+					},
+				},
+				Outputs: []ast.Node{},
+				Commands: []ast.Command{
+					{
+						Command:  "go test -race ./...",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
+			ast.Task{
+				Name: ast.Ident{
 					Name:     "fmt",
 					NodeType: ast.NodeIdent,
 				},
-			},
-			Outputs: []ast.Node{},
-			Commands: []ast.Command{
-				{
-					Command:  "go test -race ./...",
-					NodeType: ast.NodeCommand,
+				Docstring: ast.Comment{
+					Text:     " Format the project source",
+					NodeType: ast.NodeComment,
 				},
+				Dependencies: []ast.Node{
+					ast.String{
+						Text:     "**/*.txt",
+						NodeType: ast.NodeString,
+					},
+				},
+				Outputs: []ast.Node{},
+				Commands: []ast.Command{
+					{
+						Command:  "go fmt ./...",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
 			},
-			NodeType: ast.NodeTask,
+			ast.Task{
+				Name: ast.Ident{
+					Name:     "many",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring: ast.Comment{
+					Text:     " Do many things",
+					NodeType: ast.NodeComment,
+				},
+				Dependencies: []ast.Node{},
+				Outputs:      []ast.Node{},
+				Commands: []ast.Command{
+					{
+						Command:  "line 1",
+						NodeType: ast.NodeCommand,
+					},
+					{
+						Command:  "line 2",
+						NodeType: ast.NodeCommand,
+					},
+					{
+						Command:  "line 3",
+						NodeType: ast.NodeCommand,
+					},
+					{
+						Command:  "line 4",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
+			ast.Task{
+				Name: ast.Ident{
+					Name:     "build",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring: ast.Comment{
+					Text:     " Compile the project",
+					NodeType: ast.NodeComment,
+				},
+				Dependencies: []ast.Node{
+					ast.String{
+						Text:     "**/*.txt",
+						NodeType: ast.NodeString,
+					},
+				},
+				Outputs: []ast.Node{
+					ast.String{
+						Text:     "./bin/main",
+						NodeType: ast.NodeString,
+					},
+				},
+				Commands: []ast.Command{
+					{
+						Command:  `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`,
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
+			ast.Task{
+				Name: ast.Ident{
+					Name:     "show",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring: ast.Comment{
+					Text:     " Show the global variables",
+					NodeType: ast.NodeComment,
+				},
+				Dependencies: []ast.Node{},
+				Outputs:      []ast.Node{},
+				Commands: []ast.Command{
+					{
+						Command:  "echo {{.GLOBAL}}",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
+			ast.Task{
+				Name: ast.Ident{
+					Name:     "moar_things",
+					NodeType: ast.NodeIdent,
+				},
+				Docstring: ast.Comment{
+					Text:     " Generate multiple outputs",
+					NodeType: ast.NodeComment,
+				},
+				Dependencies: []ast.Node{},
+				Outputs: []ast.Node{
+					ast.String{
+						Text:     "output1.go",
+						NodeType: ast.NodeString,
+					},
+					ast.String{
+						Text:     "output2.go",
+						NodeType: ast.NodeString,
+					},
+				},
+				Commands: []ast.Command{
+					{
+						Command:  "do some stuff here",
+						NodeType: ast.NodeCommand,
+					},
+				},
+				NodeType: ast.NodeTask,
+			},
 		},
-		ast.Task{
-			Name: ast.Ident{
-				Name:     "fmt",
-				NodeType: ast.NodeIdent,
-			},
-			Docstring: ast.Comment{
-				Text:     " Format the project source",
-				NodeType: ast.NodeComment,
-			},
-			Dependencies: []ast.Node{
-				ast.String{
-					Text:     "**/*.txt",
-					NodeType: ast.NodeString,
-				},
-			},
-			Outputs: []ast.Node{},
-			Commands: []ast.Command{
-				{
-					Command:  "go fmt ./...",
-					NodeType: ast.NodeCommand,
-				},
-			},
-			NodeType: ast.NodeTask,
-		},
-		ast.Task{
-			Name: ast.Ident{
-				Name:     "many",
-				NodeType: ast.NodeIdent,
-			},
-			Docstring: ast.Comment{
-				Text:     " Do many things",
-				NodeType: ast.NodeComment,
-			},
-			Dependencies: []ast.Node{},
-			Outputs:      []ast.Node{},
-			Commands: []ast.Command{
-				{
-					Command:  "line 1",
-					NodeType: ast.NodeCommand,
-				},
-				{
-					Command:  "line 2",
-					NodeType: ast.NodeCommand,
-				},
-				{
-					Command:  "line 3",
-					NodeType: ast.NodeCommand,
-				},
-				{
-					Command:  "line 4",
-					NodeType: ast.NodeCommand,
-				},
-			},
-			NodeType: ast.NodeTask,
-		},
-		ast.Task{
-			Name: ast.Ident{
-				Name:     "build",
-				NodeType: ast.NodeIdent,
-			},
-			Docstring: ast.Comment{
-				Text:     " Compile the project",
-				NodeType: ast.NodeComment,
-			},
-			Dependencies: []ast.Node{
-				ast.String{
-					Text:     "**/*.txt",
-					NodeType: ast.NodeString,
-				},
-			},
-			Outputs: []ast.Node{
-				ast.String{
-					Text:     "./bin/main",
-					NodeType: ast.NodeString,
-				},
-			},
-			Commands: []ast.Command{
-				{
-					Command:  `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`,
-					NodeType: ast.NodeCommand,
-				},
-			},
-			NodeType: ast.NodeTask,
-		},
-		ast.Task{
-			Name: ast.Ident{
-				Name:     "show",
-				NodeType: ast.NodeIdent,
-			},
-			Docstring: ast.Comment{
-				Text:     " Show the global variables",
-				NodeType: ast.NodeComment,
-			},
-			Dependencies: []ast.Node{},
-			Outputs:      []ast.Node{},
-			Commands: []ast.Command{
-				{
-					Command:  "echo {{.GLOBAL}}",
-					NodeType: ast.NodeCommand,
-				},
-			},
-			NodeType: ast.NodeTask,
-		},
-		ast.Task{
-			Name: ast.Ident{
-				Name:     "moar_things",
-				NodeType: ast.NodeIdent,
-			},
-			Docstring: ast.Comment{
-				Text:     " Generate multiple outputs",
-				NodeType: ast.NodeComment,
-			},
-			Dependencies: []ast.Node{},
-			Outputs: []ast.Node{
-				ast.String{
-					Text:     "output1.go",
-					NodeType: ast.NodeString,
-				},
-				ast.String{
-					Text:     "output2.go",
-					NodeType: ast.NodeString,
-				},
-			},
-			Commands: []ast.Command{
-				{
-					Command:  "do some stuff here",
-					NodeType: ast.NodeCommand,
-				},
-			},
-			NodeType: ast.NodeTask,
-		},
-	},
-}
+	}
+)
 
 // spokFileWant is the expected concrete spok.File object when the above AST is concretised.
 var spokFileWant = &SpokFile{

@@ -14,9 +14,7 @@ const (
 	File string = "cache.json" // File is filename of the spok cache file
 )
 
-var (
-	Path = filepath.Join(Dir, File) // Path is the whole filepath to the spok cache file
-)
+var Path = filepath.Join(Dir, File) // Path is the whole filepath to the spok cache file
 
 // Cache represents the entire spok cache.
 type Cache struct {
@@ -59,7 +57,7 @@ func Init(path string, names ...string) error {
 		cache.inner[name] = ""
 	}
 
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
 
@@ -81,7 +79,7 @@ func (c *Cache) Dump(path string) error {
 		return err
 	}
 
-	err = os.WriteFile(path, contents, 0666)
+	err = os.WriteFile(path, contents, 0o666)
 	if err != nil {
 		return fmt.Errorf("Could not write spok cache at %q: %s", path, err)
 	}
@@ -102,7 +100,7 @@ func (c *Cache) Set(name, digest string) {
 
 // makeGitIgnore puts a .gitignore file in the .spok directory.
 func makeGitIgnore(dir string) error {
-	err := os.WriteFile(filepath.Join(dir, ".gitignore"), []byte("*\n"), 0666)
+	err := os.WriteFile(filepath.Join(dir, ".gitignore"), []byte("*\n"), 0o666)
 	if err != nil {
 		return err
 	}

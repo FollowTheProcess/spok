@@ -202,7 +202,7 @@ func makeFiles(t *testing.T) ([]string, func()) {
 
 	tmp := os.TempDir()
 	path := filepath.Join(tmp, "hashfiles")
-	err := os.Mkdir(path, 0755)
+	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
 	}
@@ -237,7 +237,7 @@ func makeFilesDifferentContent(t *testing.T) ([]string, func()) {
 
 	tmp := os.TempDir()
 	path := filepath.Join(tmp, "hashfiles")
-	err := os.Mkdir(path, 0755)
+	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
 	}
@@ -270,7 +270,7 @@ func makeFilesWithDirectory(t *testing.T) ([]string, func()) {
 
 	tmp := os.TempDir()
 	path := filepath.Join(tmp, "hashfiles")
-	err := os.Mkdir(path, 0755)
+	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
 	}
@@ -312,7 +312,7 @@ func makeFilesDifferentName(t *testing.T) ([]string, func()) {
 
 	tmp := os.TempDir()
 	path := filepath.Join(tmp, "hashfiles")
-	err := os.Mkdir(path, 0755)
+	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
 	}
