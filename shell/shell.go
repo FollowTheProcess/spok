@@ -104,7 +104,6 @@ func (i IntegratedRunner) Run(cmd string, stream iostream.IOStream, task string,
 		return Result{}, err
 	}
 
-	// TODO: Context?
 	err = runner.Run(context.Background(), prog)
 	if err != nil {
 		// If ok then the error is an exit status, if not it's some other error

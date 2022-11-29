@@ -109,8 +109,7 @@ func (g *Graph) Sort() ([]*Vertex, error) {
 	// Bailout point: if there is not at least 1 vertex with 0 in-degree
 	// it's not a DAG and cannot be sorted
 	if zeroInDegreeQueue.IsEmpty() {
-		// TODO: Better error here
-		return nil, errors.New("Not a DAG")
+		return nil, errors.New("Task dependency graph contains a cycle and cannot be sorted")
 	}
 
 	// While queue is not empty
