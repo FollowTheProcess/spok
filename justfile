@@ -31,7 +31,8 @@ generate:
 
 # Compile the project binary
 build: tidy generate fmt
-    go build -ldflags="-X {{ VERSION_LDFLAG }}=dev -X {{ COMMIT_LDFLAG }}={{ COMMIT_SHA }} -X {{ BUILT_BY_LDFLAG }}=manual -X {{ BUILD_DATE_LDFLAG }}={{ TIMESTAMP }}" -o {{ PROJECT_BIN }}/{{ PROJECT_NAME }} {{ PROJECT_ENTRY_POINT }}
+    mkdir -p {{ PROJECT_BIN }}
+    goreleaser build --single-target --skip-before --snapshot --rm-dist --output {{ PROJECT_BIN }}/{{ PROJECT_NAME }}
 
 # Run go fmt on all project files
 fmt:
