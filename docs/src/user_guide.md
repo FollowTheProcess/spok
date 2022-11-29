@@ -1,9 +1,11 @@
-# Syntax
+# User Guide
+
+## Syntax
 
 When spok runs, it parses the syntax in your spokfile, extracts tasks, variables, and dependencies, and then runs the tasks you specify. In this
 section we'll take a look at the syntax and how to use it
 
-## Global Variables
+### Global Variables
 
 Let's start simple, Spok lets you define variables in the global scope. These variables can be used in any task. For example:
 
@@ -20,7 +22,7 @@ task version() {
     Global variables are also exported as environment variables to the tasks, so if your tasks invoke other scripts that depend on
     environment variables you can just declare them globally in spok.
 
-## Builtin Functions
+### Builtin Functions
 
 Sometimes you need to do more than just run a test, or you need to do something that is not supported by the shell. Spok has a few builtin functions that you can use in your tasks. These functions are:
 
@@ -35,7 +37,11 @@ DOCS_SRC := join(".", "docs", "src") # => "/Users/you/project/docs/src"
 GIT_COMMIT := exec("git rev-parse HEAD") # => "a1b2c3d4e5f6"
 ```
 
-## Tasks
+!!! note
+
+    More builtins TBC, spok is still in its early stages 🚀
+
+### Tasks
 
 Tasks are the main point of Spok and are most likely where you'll spend most of your time. Tasks are preceded with the `task` keyword followed by
 the task definition.
@@ -55,7 +61,7 @@ task test() {
 
 Now that you have a task defined, you can run it with `spok test` and your tests will run, how cool is that! 🎉
 
-### Task Documentation
+#### Task Documentation
 
 If you want to document your tasks, you can do so by adding a comment above the task definition. For example:
 
@@ -69,7 +75,7 @@ task test() {
 Spok will parse this as the task's docstring and it will be output when the tasks are listed, either by the default action
 or the `--show` flag. But we'll get to that later in the [CLI](cli.md) section 👍
 
-### Tasks that Depend on Files
+#### Tasks that Depend on Files
 
 This is fine, and might be enough for you if your test suite is fast and/or the language tooling you're using caches results (like Go!). But what
 if you have a large test suite and only want to re-run the tests if the source code has changed? Or what if you have a task that depends on another?
@@ -119,7 +125,7 @@ task lots("**/*.go", "**/*.py", "some/specific/file.txt") {
     if the task should be re run. This type of content checking is more accurate than e.g. [make](https://www.gnu.org/software/make/) which
     looks at file modification timestamps.
 
-#### A Note on Performance
+##### A Note on Performance
 
 > "But if you open and read the contents of every single file every time you run the task, isn't this really slow?"
 
@@ -152,7 +158,7 @@ Spok is able to detect that nothing has changed in any of the 8872 files in just
 
 So hopefully it's plenty fast enough!
 
-### Tasks that Depend on Other Tasks
+#### Tasks that Depend on Other Tasks
 
 Not only can you depend on files, you can also depend on other tasks, or a mix of both! If you put the name of another task in the task arguments,
 Spok will recognise this as a task dependency and will ensure that the declared task will always run before the one you want.
@@ -241,7 +247,7 @@ that will only run when they need to, so no time is wasted doing unnecessary wor
     }
     ```
 
-### Task Outputs
+#### Task Outputs
 
 Some tasks generate external artifacts, such as compiled binaries, or generated code. In Spok, you can explicitly declare this by using
 the output operator `->`. For example, here's a task that compiles a Go binary and saves it under the `bin` directory:
@@ -291,8 +297,6 @@ task docs("docs/src/*.md") -> "docs/build/*.html" {
 
 Just like with file dependencies, these globs will be expanded to their concrete filepaths and each one would be deleted
 by `spok --clean`
-
-That's really it for the syntax! Let's move on and talk about what you can do with the [CLI](cli.md)
 
 ## Default Tasks
 
@@ -369,3 +373,5 @@ hello from .env
 ```
 
 </div>
+
+That's really it! Let's move on and talk about what you can do with the [CLI](cli.md)

@@ -54,13 +54,13 @@ Some of this stuff we've already talked about, but let's look at some stuff we h
 The `--fmt` flag is used to format the spokfile. Spok comes equipped with an (albeit basic) formatter that parses the spokfile
 and then dumps it back in place with the desired formatting, simple really!
 
-!!! note
+!!! warning
 
     Because the spokfile has to be parsed before formatting, it's not possible to format a spokfile that contains syntax errors.
 
 ## `--force`
 
-If you've read the [syntax guide](syntax.md) you'll know that Spok calculates the state of the task dependency graph by hashing the contents of
+If you've read the [user guide](user_guide.md) you'll know that Spok calculates the state of the task dependency graph by hashing the contents of
 all the declared files in your task definition. This avoids unnecessary work by only running tasks who's dependencies have changed.
 
 However, sometimes you want to force a task to run regardless of whether it's dependencies have changed or not. This is where the `--force` flag comes in.
@@ -165,7 +165,7 @@ I'd include an example here, but by definition it would be empty! 🤓
 ## `--show`
 
 The `--show` flag simply displays all the tasks and their docstrings if present. By default, Spok will do this when it
-is invoked with no arguments, unless you have declared a task called `default`, see [the syntax guide](syntax.md) for more info on that!
+is invoked with no arguments, unless you have declared a task called `default`, see [the user guide](user_guide.md) for more info on that!
 
 To show you what this looks like, consider a simple spokfile:
 
@@ -202,6 +202,10 @@ test    Run all project tests
 ```
 
 </div>
+
+!!! tip
+
+    `--show` comes in handy when you've reassigned the default task to do something else 🧠
 
 ## `--spokfile`
 

@@ -11,7 +11,7 @@ strict: true
 nav:
   - Home: index.md
   - Quickstart: quickstart.md
-  - Syntax: syntax.md
+  - User Guide: user_guide.md
   - CLI: cli.md
   - Contribution Guide: contributing.md
 plugins:

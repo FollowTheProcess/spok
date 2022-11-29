@@ -190,7 +190,7 @@ task clean() {
 
 Although still in early development, I've benchmarked spok against some very large repos and it performs very well!
 
-For example on the [golang/go] repo itself with 8872 `.go` files and the following benchmark task:
+For example on the [golang/go] repo itself with 8872 `.go` files (at the time of writing) and the following benchmark task:
 
 ```python
 # Benchmark hashing all go files

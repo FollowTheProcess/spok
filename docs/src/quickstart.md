@@ -62,4 +62,4 @@ $ spok version
 
 </div>
 
-Next let's take a look at the spokfile [syntax](syntax.md) and how to use it.
+Next let's take a look at the spokfile [syntax](user_guide.md) and how to use it.
