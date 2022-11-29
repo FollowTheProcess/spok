@@ -8,7 +8,10 @@ GORELEASER_DIST := "dist"
 COMMIT_SHA := `git rev-parse HEAD`
 VERSION_LDFLAG := PROJECT_PATH + "/cli/cmd.version"
 COMMIT_LDFLAG := PROJECT_PATH + "/cli/cmd.commit"
+BUILD_DATE_LDFLAG := PROJECT_PATH + "/cli/cmd.buildDate"
+BUILT_BY_LDFLAG := PROJECT_PATH + "/cli/cmd.builtBy"
 SPOK_CACHE := ".spok"
+TIMESTAMP := `date -u +%Y-%m-%dT%H:%M:%SZ`
 
 # By default print the list of recipes
 _default:
@@ -28,7 +31,7 @@ generate:
 
 # Compile the project binary
 build: tidy generate fmt
-    go build -ldflags="-X {{ VERSION_LDFLAG }}=dev -X {{ COMMIT_LDFLAG }}={{ COMMIT_SHA }}" -o {{ PROJECT_BIN }}/{{ PROJECT_NAME }} {{ PROJECT_ENTRY_POINT }}
+    go build -ldflags="-X {{ VERSION_LDFLAG }}=dev -X {{ COMMIT_LDFLAG }}={{ COMMIT_SHA }} -X {{ BUILT_BY_LDFLAG }}=manual -X {{ BUILD_DATE_LDFLAG }}={{ TIMESTAMP }}" -o {{ PROJECT_BIN }}/{{ PROJECT_NAME }} {{ PROJECT_ENTRY_POINT }}
 
 # Run go fmt on all project files
 fmt:

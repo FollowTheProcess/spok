@@ -9,8 +9,10 @@ import (
 )
 
 var (
-	version = "dev" // spok version, set at compile time by ldflags
-	commit  = ""    // spok version's commit hash, set at compile time by ldflags
+	version   = "dev" // spok version, set at compile time by ldflags
+	commit    = ""    // spok version's commit hash, set at compile time by ldflags
+	buildDate = ""    // spok build date, set at compile time by ldflags
+	builtBy   = ""    // spok built by, set at compile time by ldflags
 )
 
 // BuildRootCmd builds and returns the root spok CLI command.
