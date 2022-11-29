@@ -5,13 +5,7 @@ PROJECT_ENTRY_POINT := "./cmd/spok"
 COVERAGE_DATA := "coverage.out"
 COVERAGE_HTML := "coverage.html"
 GORELEASER_DIST := "dist"
-COMMIT_SHA := `git rev-parse HEAD`
-VERSION_LDFLAG := PROJECT_PATH + "/cli/cmd.version"
-COMMIT_LDFLAG := PROJECT_PATH + "/cli/cmd.commit"
-BUILD_DATE_LDFLAG := PROJECT_PATH + "/cli/cmd.buildDate"
-BUILT_BY_LDFLAG := PROJECT_PATH + "/cli/cmd.builtBy"
 SPOK_CACHE := ".spok"
-TIMESTAMP := `date -u +%Y-%m-%dT%H:%M:%SZ`
 
 # By default print the list of recipes
 _default:
