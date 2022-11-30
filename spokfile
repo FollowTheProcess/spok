@@ -14,18 +14,16 @@ VERSION_LDFLAG := "github.com/FollowTheProcess/spok/cli/cmd.version"
 COMMIT_LDFLAG := "github.com/FollowTheProcess/spok/cli/cmd.commit"
 
 # Tidy up dependencies in go.mod and go.sum
-task tidy("**/*.go") {
+task tidy("go.mod", "go.sum", "**/*.go") {
     go mod tidy
 }
 
-# Run go generate on all packages
-task generate("**/*.go") {
-    go generate ./...
-}
-
 # Compile the project binary
-task build(tidy, generate, fmt, "**/*.go") -> "./bin" {
-    go build -ldflags="-X {{.VERSION_LDFLAG}}=dev -X {{.COMMIT_LDFLAG}}={{.COMMIT_SHA}}" -o {{.PROJECT_BIN}}/{{.PROJECT_NAME}} {{.PROJECT_ENTRY_POINT}}
+task build("**/*.go") -> "./bin" {
+    go generate ./...
+    go fmt ./...
+    mkdir -p {{.PROJECT_BIN}}
+    goreleaser build --single-target --skip-before --snapshot --rm-dist --output {{.PROJECT_BIN}}/{{.PROJECT_NAME}}
 }
 
 # Run go fmt on all project files
@@ -35,7 +33,7 @@ task fmt("**/*.go") {
 
 # Run all project tests
 task test("**/*.go") {
-    SPOK_INTEGRATION_TEST=true gotest -race ./...
+    SPOK_INTEGRATION_TEST=true go test -race ./...
 }
 
 # Run all project benchmarks
@@ -58,4 +56,14 @@ task cover("**/*.go") -> (COVERAGE_DATA, COVERAGE_HTML) {
 # Print lines of code (for fun)
 task sloc() {
     find . -name "*.go" | xargs wc -l | sort -nr | head
+}
+
+# Install the project on your machine
+task install(uninstall, build) {
+    cp {{.PROJECT_BIN}}/{{.PROJECT_NAME}} $GOBIN/
+}
+
+# Uninstall the project from your machine
+task uninstall() {
+    rm -rf $GOBIN/{{.PROJECT_NAME}}
 }
