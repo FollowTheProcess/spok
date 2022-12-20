@@ -17,8 +17,6 @@
 
 ## Project Description
 
-:warning: **Spok is still in development and is not ready for use yet!**
-
 `spok` is a lightweight build system and command runner inspired by things like [make], [just] and others.
 
 On top of this, `spok` provides:
