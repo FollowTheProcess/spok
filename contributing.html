@@ -14,8 +14,12 @@
       
         <link rel="canonical" href="https://FollowTheProcess.github.io/spok/contributing.html">
       
+      
+        <link rel="prev" href="cli.html">
+      
+      
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.3">
     
     
       
@@ -23,11 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.975780f9.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.6b71719e.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.2505c338.min.css">
-        
       
       
 
@@ -119,8 +122,6 @@
       <form class="md-header__option" data-md-component="palette">
         
           
-          
-          
           <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="blue"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_1">
           
             <label class="md-header__button md-icon" title="Dark mode" for="__palette_2" hidden>
@@ -128,8 +129,6 @@
             </label>
           
         
-          
-          
           
           <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="blue"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_2">
           
@@ -494,15 +493,14 @@
                 
                   
 
-  <a href="https://github.com/FollowTheProcess/spok/edit/master/docs/contributing.md" title="Edit this page" class="md-content__button md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
-  </a>
+  
+  
+
 
 
 <!-- BEGIN INCLUDE ../../CONTRIBUTING.md -->
 <h1 id="contributing-to-spok">Contributing to spok<a class="headerlink" href="#contributing-to-spok" title="Permanent link">&para;</a></h1>
-<p>I've tried to structure spok to make it nice and easy for people to contribute. Here's how to go about doing it! <img alt="😃" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f603.svg" title=":smiley:" /></p>
+<p>I've tried to structure spok to make it nice and easy for people to contribute. Here's how to go about doing it! <img alt="😃" class="twemoji" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f603.svg" title=":smiley:" /></p>
 <h2 id="developing">Developing<a class="headerlink" href="#developing" title="Permanent link">&para;</a></h2>
 <p>If you want to fix a bug, improve the docs, add tests, add a feature or any other type of direct contribution to spok: here's how you do it!</p>
 <h3 id="step-1-fork-spok">Step 1: Fork spok<a class="headerlink" href="#step-1-fork-spok" title="Permanent link">&para;</a></h3>
@@ -511,27 +509,27 @@
 <h3 id="step-2-clone-your-fork">Step 2: Clone your fork<a class="headerlink" href="#step-2-clone-your-fork" title="Permanent link">&para;</a></h3>
 <p>Navigate to where you do your development work on your machine and open a terminal</p>
 <p><strong>If you use HTTPS:</strong></p>
-<div class="highlight"><pre><span></span><code>git clone https://github.com/&lt;your_github_username&gt;/spok.git
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/&lt;your_github_username&gt;/spok.git
 </code></pre></div>
 <p><strong>If you use SSH:</strong></p>
-<div class="highlight"><pre><span></span><code>git clone git@github.com:&lt;your_github_username&gt;/spok.git
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:&lt;your_github_username&gt;/spok.git
 </code></pre></div>
 <p><strong>Or you can be really fancy and use the <a href="https://cli.github.com/../..">GH CLI</a></strong></p>
-<div class="highlight"><pre><span></span><code>gh repo clone &lt;your_github_username&gt;/spok
+<div class="highlight"><pre><span></span><code>gh<span class="w"> </span>repo<span class="w"> </span>clone<span class="w"> </span>&lt;your_github_username&gt;/spok
 </code></pre></div>
 <p>HTTPS is probably the one most people use!</p>
 <p>Once you've cloned the project, cd into it...</p>
-<div class="highlight"><pre><span></span><code><span class="nb">cd</span> spok
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>spok
 </code></pre></div>
 <p>This will take you into the root directory of the project.</p>
 <p>Now add the original spok repo as an upstream in your forked project:</p>
-<div class="highlight"><pre><span></span><code>git remote add upstream https://github.com/FollowTheProcess/spok.git
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span>https://github.com/FollowTheProcess/spok.git
 </code></pre></div>
 <p>This makes the original version of spok <code>upstream</code> but not <code>origin</code>. Basically, this means that if your working on it for a while and the original project has changed in the meantime, you can do:</p>
-<div class="highlight"><pre><span></span><code>git checkout main
-git fetch upstream
-git merge upstream/main
-git push origin main
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>main
+git<span class="w"> </span>fetch<span class="w"> </span>upstream
+git<span class="w"> </span>merge<span class="w"> </span>upstream/main
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
 </code></pre></div>
 <p>This will (in order):</p>
 <ul>
@@ -543,34 +541,34 @@ git push origin main
 <p>Good practice is to do this before you start doing anything every time you start work, then the chances of you getting conflicting commits later on is much lower!</p>
 <h3 id="step-3-make-your-change">Step 3: Make your Change<a class="headerlink" href="#step-3-make-your-change" title="Permanent link">&para;</a></h3>
 <p><strong>Always checkout a new branch before changing anything</strong></p>
-<div class="highlight"><pre><span></span><code>git switch --create &lt;name-of-your-bugfix-or-feature&gt;
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>switch<span class="w"> </span>--create<span class="w"> </span>&lt;name-of-your-bugfix-or-feature&gt;
 </code></pre></div>
 <p>Now you're ready to start working!</p>
 <p><em>Remember! spok aims for high test coverage. If you implement a new feature, make sure to write tests for it! Similarly, if you fix a bug, it's good practice to write a test that would have caught that bug so we can be sure it doesn't reappear in the future!</em></p>
 <p>spok uses <a href="https://github.com/casey/just">just</a> for automated testing, formatting and linting etc. So when you've made your changes, just run:</p>
-<div class="highlight"><pre><span></span><code>just check
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>check
 </code></pre></div>
 <p>And it will tell you if something's wrong!</p>
 <h3 id="step-4-commit-your-changes">Step 4: Commit your changes<a class="headerlink" href="#step-4-commit-your-changes" title="Permanent link">&para;</a></h3>
 <p>Once you're happy with what you've done, add the files you've changed:</p>
-<div class="highlight"><pre><span></span><code>git add &lt;changed-file<span class="o">(</span>s<span class="o">)</span>&gt;
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>&lt;changed-file<span class="o">(</span>s<span class="o">)</span>&gt;
 
 <span class="c1"># Might be easier to do</span>
-git add -A
+git<span class="w"> </span>add<span class="w"> </span>-A
 
 <span class="c1"># But be wary of this and check what it&#39;s added is what you wanted..</span>
-git status
+git<span class="w"> </span>status
 </code></pre></div>
 <p>Commit your changes:</p>
-<div class="highlight"><pre><span></span><code>git commit
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit
 
 <span class="c1"># Now write a good commit message explaining what you&#39;ve done and why.</span>
 </code></pre></div>
 <p>While you were working on your changes, the original project might have changed (due to other people working on it). So first, you should rebase your current branch from the upstream destination. Doing this means that when you do your PR, it's all compatible:</p>
-<div class="highlight"><pre><span></span><code>git pull --rebase upstream main
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>pull<span class="w"> </span>--rebase<span class="w"> </span>upstream<span class="w"> </span>main
 </code></pre></div>
 <p>Now push your changes to your fork:</p>
-<div class="highlight"><pre><span></span><code>git push origin &lt;your-branch-name&gt;
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>&lt;your-branch-name&gt;
 </code></pre></div>
 <h3 id="step-5-create-a-pull-request">Step 5: Create a Pull Request<a class="headerlink" href="#step-5-create-a-pull-request" title="Permanent link">&para;</a></h3>
 <p>Now go to the original spok <a href="https://github.com/FollowTheProcess/spok">repo</a> and create a Pull Request. Make sure to choose upstream repo "main" as the destination branch and your forked repo "your-branch-name" as the source.</p>
@@ -579,12 +577,12 @@ git status
 <p>Any improvements to the documentation are always appreciated! spok uses <a href="https://www.mkdocs.org/../..">mkdocs</a> with the <a href="https://squidfunk.github.io/mkdocs-material/">mkdocs-material</a> theme so the documentation is all written in markdown and can be found in the <code>docs</code> folder in the project root.</p>
 <p>Spok uses <a href="https://nox.thea.codes/en/stable/">nox</a> to build and serve the documentation, <a href="https://nox.thea.codes/en/stable/">nox</a> is a python project and can be installed with <a href="https://pypa.github.io/pipx/">pipx</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Builds the docs</span>
-nox -s build
+nox<span class="w"> </span>-s<span class="w"> </span>build
 
 <span class="c1"># Builds and serves</span>
-nox -s serve
+nox<span class="w"> </span>-s<span class="w"> </span>serve
 </code></pre></div>
-<p>If you use the <code>serve</code> option, you can navigate to the localhost IP address it gives you and as you make changes to the source files, it will automatically reload your browser! Automation is power! <img alt="🤖" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f916.svg" title=":robot:" /></p>
+<p>If you use the <code>serve</code> option, you can navigate to the localhost IP address it gives you and as you make changes to the source files, it will automatically reload your browser! Automation is power! <img alt="🤖" class="twemoji" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f916.svg" title=":robot:" /></p>
 <p>If you add pages to the docs, make sure they are placed in the nav tree in the <code>mkdocs.yml</code> file and you're good to go!</p>
 <!-- END INCLUDE -->
 
@@ -602,27 +600,6 @@ nox -s serve
       </main>
       
         <footer class="md-footer">
-  
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="cli.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: CLI" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              CLI
-            </div>
-          </div>
-        </a>
-      
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -645,10 +622,10 @@ nox -s serve
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      <script src="assets/javascripts/bundle.ba449ae6.min.js"></script>
       
         <script src="https://unpkg.com/mermaid@8.4.6/dist/mermaid.min.js"></script>
       
@@ -656,7 +633,6 @@ nox -s serve
       
         <script src="js/custom.js"></script>
       
-    
     
   </body>
 </html>
