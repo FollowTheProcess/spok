@@ -12,6 +12,8 @@ GORELEASER_DIST := join(".", "dist")
 COMMIT_SHA := exec("git rev-parse HEAD")
 VERSION_LDFLAG := "github.com/FollowTheProcess/spok/cli/cmd.version"
 COMMIT_LDFLAG := "github.com/FollowTheProcess/spok/cli/cmd.commit"
+FORCE_COLOR := "1"
+PRE_COMMIT_COLOR := "always"
 
 # Tidy up dependencies in go.mod and go.sum
 task tidy("go.mod", "go.sum", "**/*.go") {
