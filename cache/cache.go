@@ -74,7 +74,7 @@ func Init(path string, names ...string) error {
 
 // Dump saves the cache to disk.
 func (c *Cache) Dump(path string) error {
-	contents, err := json.MarshalIndent(c.inner, "", "  ")
+	contents, err := json.Marshal(c.inner)
 	if err != nil {
 		return err
 	}
