@@ -9,7 +9,7 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.0
 	github.com/fatih/color v1.14.1
 	github.com/google/go-cmp v0.5.9
-	github.com/joho/godotenv v1.4.0
+	github.com/joho/godotenv v1.5.1
 	github.com/juju/ansiterm v1.0.0
 	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/spf13/cobra v1.6.1
