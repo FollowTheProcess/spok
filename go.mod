@@ -1,6 +1,6 @@
 module github.com/FollowTheProcess/spok
 
-go 1.19
+go 1.20
 
 require (
 	github.com/FollowTheProcess/collections v0.1.0

@@ -2,10 +2,12 @@ package hash
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
+	"time"
 )
 
 func TestAlwaysHasher(t *testing.T) {
@@ -19,7 +21,6 @@ func TestAlwaysHasher(t *testing.T) {
 
 // Test that the final hash digest is repeatable.
 func TestHashFilesIsDeterministic(t *testing.T) {
-	t.Parallel()
 	files, cleanup := makeFiles(t)
 	defer cleanup()
 
@@ -201,7 +202,7 @@ func makeFiles(t *testing.T) ([]string, func()) {
 	t.Helper()
 
 	tmp := os.TempDir()
-	path := filepath.Join(tmp, "hashfiles")
+	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq(10)))
 	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
@@ -236,7 +237,7 @@ func makeFilesDifferentContent(t *testing.T) ([]string, func()) {
 	t.Helper()
 
 	tmp := os.TempDir()
-	path := filepath.Join(tmp, "hashfiles")
+	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq(10)))
 	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
@@ -269,7 +270,7 @@ func makeFilesWithDirectory(t *testing.T) ([]string, func()) {
 	t.Helper()
 
 	tmp := os.TempDir()
-	path := filepath.Join(tmp, "hashfiles")
+	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq(10)))
 	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
@@ -311,7 +312,7 @@ func makeFilesDifferentName(t *testing.T) ([]string, func()) {
 	t.Helper()
 
 	tmp := os.TempDir()
-	path := filepath.Join(tmp, "hashfiles")
+	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq(10)))
 	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
@@ -360,4 +361,16 @@ func makeFile(t *testing.T, dir string, key int, content string) string {
 		t.Fatalf("Could not write to tmp file: %v", err)
 	}
 	return file.Name()
+}
+
+// randSeq generates a random string of length n.
+func randSeq(n int) string {
+	rand.NewSource(time.Now().UnixNano())
+	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+
+	return string(b)
 }
