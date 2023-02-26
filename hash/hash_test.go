@@ -19,7 +19,6 @@ func TestAlwaysHasher(t *testing.T) {
 
 // Test that the final hash digest is repeatable.
 func TestHashFilesIsDeterministic(t *testing.T) {
-	t.Parallel()
 	files, cleanup := makeFiles(t)
 	defer cleanup()
 
