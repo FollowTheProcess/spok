@@ -35,6 +35,7 @@ brews:
       owner: "FollowTheProcess"
       name: homebrew-tap
       token: "{{.Env.HOMEBREW_TAP_TOKEN}}"
+    folder: Formula
     commit_author:
       name: "Tom Fleet"
       email: "tomfleet2018@gmail.com"
