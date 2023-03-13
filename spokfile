@@ -21,7 +21,7 @@ task tidy("go.mod", "go.sum", "**/*.go") {
 }
 
 # Compile the project binary
-task build("**/*.go") -> "./bin" {
+task build("**/*.go", "go.sum") -> "./bin" {
     go generate ./...
     go fmt ./...
     mkdir -p {{.PROJECT_BIN}}

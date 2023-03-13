@@ -1344,7 +1344,7 @@ func BenchmarkParseFullSpokfile(b *testing.B) {
 //
 // INTEGRATION TESTS START HERE
 //
-// Thar be larger, integration or coupled lexer-parser tests below. If the real lexer is changed
+// There be larger, integration or coupled lexer-parser tests below. If the real lexer is changed
 // none of the above tests will break as they stub out the lexer for our testLexer
 // the tests and benchmarks below make use of the real lexer and will break if that lexer breaks.
 //

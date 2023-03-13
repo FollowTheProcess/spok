@@ -1002,7 +1002,7 @@ func TestLexer(t *testing.T) {
 //
 // INTEGRATION TESTS START HERE
 //
-// Thar be larger, integration tests below.
+// There be larger, integration tests below.
 
 // The tests below will only run if SPOK_INTEGRATION_TEST is set, making it easy to run only isolated
 // tests while developing to limit potentially distracting failing integration test output until ready.
