@@ -21,7 +21,7 @@ func (t testLogger) Sync() error {
 	return nil
 }
 
-func (t testLogger) Debug(format string, args ...any) {}
+func (t testLogger) Debug(_ string, _ ...any) {}
 
 var noOpLogger = testLogger{}
 
