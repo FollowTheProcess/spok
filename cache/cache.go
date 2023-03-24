@@ -69,7 +69,7 @@ func Init(path string, names ...string) error {
 		return err
 	}
 
-	return nil
+	return makeCacheDirTag(filepath.Dir(path))
 }
 
 // Dump saves the cache to disk.
@@ -101,6 +101,16 @@ func (c *Cache) Set(name, digest string) {
 // makeGitIgnore puts a .gitignore file in the .spok directory.
 func makeGitIgnore(dir string) error {
 	err := os.WriteFile(filepath.Join(dir, ".gitignore"), []byte("*\n"), 0o666)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// makeCacheDirTag creates the CACHEDIR.TAG file in the .spok directory.
+func makeCacheDirTag(dir string) error {
+	contents := []byte("Signature: 8a477f597d28d172789f06886806bc55")
+	err := os.WriteFile(filepath.Join(dir, "CACHEDIR.TAG"), contents, 0o666)
 	if err != nil {
 		return err
 	}

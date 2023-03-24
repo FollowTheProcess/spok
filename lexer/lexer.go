@@ -100,13 +100,13 @@ func (l *Lexer) skipWhitespace() {
 
 // next returns, and consumes, the next rune in the input.
 func (l *Lexer) next() rune {
-	rune, width := utf8.DecodeRuneInString(l.rest())
+	r, width := utf8.DecodeRuneInString(l.rest())
 	l.width = width
 	l.pos += l.width
-	if rune == '\n' {
+	if r == '\n' {
 		l.line++
 	}
-	return rune
+	return r
 }
 
 // peek returns, but does not consume, the next rune in the input.

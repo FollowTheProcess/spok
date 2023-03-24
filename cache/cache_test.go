@@ -170,6 +170,11 @@ func TestInit(t *testing.T) {
 		t.Errorf("cache.json not found at %s", cachePath)
 	}
 
+	dirTagPath := filepath.Join(tmp, Dir, "CACHEDIR.TAG")
+	if !exists(dirTagPath) {
+		t.Errorf("CACHEDIR.TAG not found at %s", dirTagPath)
+	}
+
 	loaded, err := Load(cachePath)
 	if err != nil {
 		t.Fatalf("Could not load cache: %v", err)

@@ -42,7 +42,7 @@ type AlwaysRun struct{}
 // in place of an actual hash digest. Comparing the return of this method
 // to the "ALWAYS" constant will result in the digests never matching and therefore
 // tasks that use this will always run regardless of the state of their dependencies.
-func (a AlwaysRun) Hash(files []string) (string, error) {
+func (a AlwaysRun) Hash(_ []string) (string, error) {
 	return "DIFFERENT", nil
 }
 
