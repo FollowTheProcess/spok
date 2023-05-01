@@ -11,7 +11,7 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/joho/godotenv v1.5.1
 	github.com/juju/ansiterm v1.0.0
-	github.com/lithammer/fuzzysearch v1.1.5
+	github.com/lithammer/fuzzysearch v1.1.6
 	github.com/spf13/cobra v1.7.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/exp v0.0.0-20221106115401-f9659909a136
@@ -28,6 +28,6 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/term v0.4.0 // indirect
-	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/term v0.5.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
 )
