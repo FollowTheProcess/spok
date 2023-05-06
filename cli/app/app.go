@@ -42,6 +42,14 @@ const gitIgnoreText string = `
 .spok/
 `
 
+const (
+	filePerms = 0o666 // The permissions to use when creating the spokfile
+	tabWidth  = 8     // The width of tabs in the output (tablewriter default)
+	minWidth  = 0     // The minimum width of columns in the output (tablewriter default)
+	padding   = 1     // The padding between columns in the output (tablewriter default)
+	padChar   = '\t'  // The character to use for padding in the output (tablewriter default)
+)
+
 // App represents the spok program.
 type App struct {
 	stream  iostream.IOStream // Where spok writes output to
@@ -103,7 +111,7 @@ func (a *App) Run(tasks []string) error {
 		return err
 	}
 	// Flush the logger
-	defer a.logger.Sync() // nolint: errcheck
+	defer a.logger.Sync() //nolint: errcheck
 
 	a.logger.Debug("Parsing spokfile at %s", a.Options.Spokfile)
 	contents, err := os.ReadFile(a.Options.Spokfile)
@@ -126,7 +134,7 @@ func (a *App) Run(tasks []string) error {
 	switch {
 	case a.Options.Fmt:
 		a.printer.Infof("Formatting spokfile at %q", a.Options.Spokfile)
-		return os.WriteFile(a.Options.Spokfile, []byte(tree.String()), 0o666)
+		return os.WriteFile(a.Options.Spokfile, []byte(tree.String()), filePerms)
 	case a.Options.Variables:
 		return a.showVariables(spokfile)
 	case a.Options.Clean:
@@ -216,11 +224,11 @@ func (a *App) initialise() error {
 	if exists(path) {
 		return fmt.Errorf("spokfile already exists at %s", path)
 	}
-	if err = os.WriteFile(path, []byte(demoSpokfile), 0o666); err != nil {
+	if err = os.WriteFile(path, []byte(demoSpokfile), filePerms); err != nil {
 		return err
 	}
 
-	file, err := os.OpenFile(gitIgnorePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	file, err := os.OpenFile(gitIgnorePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, filePerms)
 	if err != nil {
 		return err
 	}
@@ -271,7 +279,7 @@ func (a *App) runTasks(spokfile *file.SpokFile, runner shell.Runner, tasks ...st
 // show Tasks shows a pretty representation of the defined tasks and their
 // docstrings in alphabetical order.
 func (a *App) showTasks(spokfile *file.SpokFile) error {
-	writer := tabwriter.NewWriter(a.stream.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
+	writer := tabwriter.NewWriter(a.stream.Stdout, 0, tabWidth, 1, '\t', tabwriter.AlignRight)
 
 	titleStyle := color.New(color.FgHiWhite, color.Bold)
 	taskStyle := color.New(color.FgHiCyan, color.Bold)
@@ -297,7 +305,7 @@ func (a *App) showTasks(spokfile *file.SpokFile) error {
 
 // showVariables shows all the defined spokfile variables and their set values.
 func (a *App) showVariables(spokfile *file.SpokFile) error {
-	writer := tabwriter.NewWriter(a.stream.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
+	writer := tabwriter.NewWriter(a.stream.Stdout, minWidth, tabWidth, padding, padChar, tabwriter.AlignRight)
 
 	titleStyle := color.New(color.FgHiWhite, color.Bold)
 

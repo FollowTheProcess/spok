@@ -10,10 +10,18 @@ import (
 	"time"
 )
 
+const (
+	darwin       = "darwin"
+	darwinDigest = "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
+	linux        = "linux"
+	linuxDigest  = "a2a890074f4edea78c7f6cb0dd2d129410e4cf9bf9897e475cbecdf6be72936c"
+	windows      = "windows"
+)
+
 func TestAlwaysHasher(t *testing.T) {
 	t.Parallel()
 	hasher := AlwaysRun{}
-	got, _ := hasher.Hash([]string{"doesn't", "matter"})
+	got, _ := hasher.Hash([]string{"doesn't", "matter"}) //nolint: errcheck // We don't care about the error here
 	if got != "DIFFERENT" {
 		t.Errorf("got %s, wanted %s", got, "DIFFERENT")
 	}
@@ -66,11 +74,11 @@ func TestHashDifferentContents(t *testing.T) {
 	// platforms, the hashes will be different for each, but repeatable on each
 	var original string
 	switch runtime.GOOS {
-	case "darwin":
-		original = "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
-	case "linux":
-		original = "a2a890074f4edea78c7f6cb0dd2d129410e4cf9bf9897e475cbecdf6be72936c"
-	case "windows":
+	case darwin:
+		original = darwinDigest
+	case linux:
+		original = linuxDigest
+	case windows:
 		// Some weirdness where the test would seemingly randomly fail despite the hash
 		// being correct
 		t.Skip("Skipped on Windows")
@@ -98,11 +106,11 @@ func TestHashSkipsDirectories(t *testing.T) {
 	// platforms, the hashes will be different for each, but repeatable on each
 	var original string
 	switch runtime.GOOS {
-	case "darwin":
-		original = "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
-	case "linux":
-		original = "a2a890074f4edea78c7f6cb0dd2d129410e4cf9bf9897e475cbecdf6be72936c"
-	case "windows":
+	case darwin:
+		original = darwinDigest
+	case linux:
+		original = linuxDigest
+	case windows:
 		// Some weirdness where the test would seemingly randomly fail despite the hash
 		// being correct
 		t.Skip("Skipped on Windows")
@@ -136,11 +144,11 @@ func TestHashDifferentName(t *testing.T) {
 	// platforms, the hashes will be different for each, but repeatable on each
 	var original string
 	switch runtime.GOOS {
-	case "darwin":
-		original = "0a9ccbd9e6c1db74e78c4c7a7b77c2d0c7853f3b046db24fdc164f4d589cd5cd"
-	case "linux":
-		original = "a2a890074f4edea78c7f6cb0dd2d129410e4cf9bf9897e475cbecdf6be72936c"
-	case "windows":
+	case darwin:
+		original = darwinDigest
+	case linux:
+		original = linuxDigest
+	case windows:
 		// Some weirdness where the test would seemingly randomly fail despite the hash
 		// being correct
 		t.Skip("Skipped on Windows")
@@ -202,7 +210,7 @@ func makeFiles(t *testing.T) ([]string, func()) {
 	t.Helper()
 
 	tmp := os.TempDir()
-	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq(10)))
+	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq()))
 	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
@@ -237,7 +245,7 @@ func makeFilesDifferentContent(t *testing.T) ([]string, func()) {
 	t.Helper()
 
 	tmp := os.TempDir()
-	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq(10)))
+	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq()))
 	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
@@ -270,7 +278,7 @@ func makeFilesWithDirectory(t *testing.T) ([]string, func()) {
 	t.Helper()
 
 	tmp := os.TempDir()
-	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq(10)))
+	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq()))
 	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
@@ -312,7 +320,7 @@ func makeFilesDifferentName(t *testing.T) ([]string, func()) {
 	t.Helper()
 
 	tmp := os.TempDir()
-	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq(10)))
+	path := filepath.Join(tmp, fmt.Sprintf("hashfiles-%s", randSeq()))
 	err := os.Mkdir(path, 0o755)
 	if err != nil {
 		t.Fatalf("Could not create hashfiles dir under /tmp: %v", err)
@@ -349,6 +357,7 @@ func makeFilesDifferentName(t *testing.T) ([]string, func()) {
 // makeFile is a helper that creates a single temporary file with a key
 // with some content written to it returning it's path.
 func makeFile(t *testing.T, dir string, key int, content string) string {
+	t.Helper()
 	path := filepath.Join(dir, fmt.Sprintf("%d.txt", key))
 	file, err := os.Create(path)
 	if err != nil {
@@ -364,10 +373,10 @@ func makeFile(t *testing.T, dir string, key int, content string) string {
 }
 
 // randSeq generates a random string of length n.
-func randSeq(n int) string {
+func randSeq() string {
 	rand.NewSource(time.Now().UnixNano())
 	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	b := make([]rune, n)
+	b := make([]rune, 10)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}

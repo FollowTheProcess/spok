@@ -9,7 +9,7 @@ import (
 
 // illegalToken is an error that handles an unexpected token encounter during the parse
 // it shows a nice message with a list of expected tokens.
-type illegalToken struct {
+type illegalToken struct { //nolint: errname // In the context of tokens, this makes sense
 	line        string
 	expected    []token.Type
 	encountered token.Token

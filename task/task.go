@@ -54,9 +54,9 @@ func (t *Task) Run(runner shell.Runner, stream iostream.IOStream, env []string) 
 // Result encodes the overall result of running a task which
 // may involve any number of shell commands.
 type Result struct {
-	Task           string        `json:"task"`            // The name of the task
-	CommandResults shell.Results `json:"command_results"` // The results of running the tasks commands
-	Skipped        bool          `json:"skipped"`         // Whether the task was skipped or run
+	Task           string        `json:"task"`    // The name of the task
+	CommandResults shell.Results `json:"results"` // The results of running the tasks commands
+	Skipped        bool          `json:"skipped"` // Whether the task was skipped or run
 }
 
 // Ok returns whether or not the task was successful, true if

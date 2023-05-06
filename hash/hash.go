@@ -112,7 +112,7 @@ func (c Concurrent) Hash(files []string) (string, error) {
 
 		// Include the filepath in the hash so a rename counts as a change
 		hashItem := [][]byte{r.hash, []byte(r.file)}
-		joinedHashItem := []byte(bytes.Join(hashItem, []byte(""))) // nolint: unconvert
+		joinedHashItem := []byte(bytes.Join(hashItem, []byte(""))) //nolint: unconvert
 		accumulator = append(accumulator, joinedHashItem)
 	}
 
@@ -147,7 +147,7 @@ func worker(results chan<- result, files <-chan string, wg *sync.WaitGroup) {
 		if err != nil {
 			res.err = err
 		}
-		info, _ := f.Stat()
+		info, _ := f.Stat() //nolint: errcheck // The file is already open here so we can ignore the error
 		// Skip directories
 		if info.IsDir() {
 			continue

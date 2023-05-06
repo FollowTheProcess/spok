@@ -302,10 +302,10 @@ func makeGraph() *Graph {
 	graph.AddVertex(v5)
 
 	// v2 depends on v1
-	_ = graph.AddEdge(v1, v2)
+	_ = graph.AddEdge(v1, v2) //nolint: errcheck
 
 	// v4 depends on v3
-	_ = graph.AddEdge(v3, v4)
+	_ = graph.AddEdge(v3, v4) //nolint: errcheck
 
 	return graph
 }

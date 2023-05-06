@@ -32,6 +32,8 @@ const (
 	RINTERP             // }}
 )
 
+const displayLength = 15
+
 // Token represents a spok lexical token.
 type Token struct {
 	Value string // Value, e.g. "("
@@ -47,7 +49,7 @@ func (t Token) String() string {
 		return "EOF"
 	case t.Type == ERROR:
 		return t.Value
-	case len(t.Value) > 15:
+	case len(t.Value) > displayLength:
 		return fmt.Sprintf("%.15q...", t.Value)
 	}
 	return fmt.Sprintf("%q", t.Value)
