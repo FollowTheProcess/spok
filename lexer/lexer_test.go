@@ -958,7 +958,8 @@ var lexTests = []lexTest{
 }
 
 // collect gathers the emitted tokens into a slice for comparison.
-func collect(t *lexTest) (tokens []token.Token) {
+func collect(t *lexTest) []token.Token {
+	var tokens []token.Token
 	l := New(t.input)
 	for {
 		tok := l.NextToken()
@@ -967,7 +968,7 @@ func collect(t *lexTest) (tokens []token.Token) {
 			break
 		}
 	}
-	return
+	return tokens
 }
 
 // equal compares to slices of tokens for equality.

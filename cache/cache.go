@@ -12,6 +12,9 @@ import (
 const (
 	Dir  string = ".spok"      // Dir is the directory under which the spok cache is kept
 	File string = "cache.json" // File is filename of the spok cache file
+
+	filePerms = 0o666 // filePerms is the file permissions for the spok cache file
+	dirPerms  = 0o755 // dirPerms is the directory permissions for the spok cache directory
 )
 
 var Path = filepath.Join(Dir, File) // Path is the whole filepath to the spok cache file
@@ -57,7 +60,7 @@ func Init(path string, names ...string) error {
 		cache.inner[name] = ""
 	}
 
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), dirPerms); err != nil {
 		return err
 	}
 
@@ -79,7 +82,7 @@ func (c *Cache) Dump(path string) error {
 		return err
 	}
 
-	err = os.WriteFile(path, contents, 0o666)
+	err = os.WriteFile(path, contents, filePerms)
 	if err != nil {
 		return fmt.Errorf("Could not write spok cache at %q: %s", path, err)
 	}
@@ -100,7 +103,7 @@ func (c *Cache) Set(name, digest string) {
 
 // makeGitIgnore puts a .gitignore file in the .spok directory.
 func makeGitIgnore(dir string) error {
-	err := os.WriteFile(filepath.Join(dir, ".gitignore"), []byte("*\n"), 0o666)
+	err := os.WriteFile(filepath.Join(dir, ".gitignore"), []byte("*\n"), filePerms)
 	if err != nil {
 		return err
 	}
@@ -110,7 +113,7 @@ func makeGitIgnore(dir string) error {
 // makeCacheDirTag creates the CACHEDIR.TAG file in the .spok directory.
 func makeCacheDirTag(dir string) error {
 	contents := []byte("Signature: 8a477f597d28d172789f06886806bc55")
-	err := os.WriteFile(filepath.Join(dir, "CACHEDIR.TAG"), contents, 0o666)
+	err := os.WriteFile(filepath.Join(dir, "CACHEDIR.TAG"), contents, filePerms)
 	if err != nil {
 		return err
 	}

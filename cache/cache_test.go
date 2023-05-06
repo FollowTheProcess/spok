@@ -196,6 +196,7 @@ func TestInit(t *testing.T) {
 // makeCache writes a cache JSON to a temporary file, returning it
 // and a cleanup function to be deferred.
 func makeCache(t *testing.T, text string) (*os.File, func()) {
+	t.Helper()
 	file, err := os.CreateTemp("", "cache.json")
 	if err != nil {
 		t.Fatalf("Could not create temp file: %v", err)

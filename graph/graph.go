@@ -116,7 +116,7 @@ func (g *Graph) Sort() ([]*Vertex, error) {
 	for !zeroInDegreeQueue.IsEmpty() {
 		// Only error here is pop from empty queue, but we know
 		// the queue is not empty in this loop so no point checking
-		vertex, _ := zeroInDegreeQueue.Pop() // Pop a vertex off the queue
+		vertex, _ := zeroInDegreeQueue.Pop() //nolint: errcheck
 
 		// Add it to the result slice
 		result = append(result, vertex)

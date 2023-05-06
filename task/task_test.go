@@ -693,7 +693,7 @@ func TestResultsJSON(t *testing.T) {
 					Skipped: false,
 				},
 			},
-			want: `[{"task":"test","command_results":[{"cmd":"echo hello","stdout":"hello\n","stderr":"","status":0}],"skipped":false}]`,
+			want: `[{"task":"test","results":[{"cmd":"echo hello","stdout":"hello\n","stderr":"","status":0}],"skipped":false}]`,
 		},
 	}
 

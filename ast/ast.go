@@ -25,6 +25,11 @@ const (
 	NodeCommand                  // A spok task command.
 )
 
+const (
+	// Average spokfile has about 2000 characters.
+	bufferGrowSize = 2000
+)
+
 // Tree represents the entire AST for a spokfile.
 type Tree struct {
 	Nodes []Node // List of all AST nodes.
@@ -33,7 +38,7 @@ type Tree struct {
 // String allows us to pretty print an entire file for e.g. automatic formatting.
 func (t Tree) String() string {
 	s := &strings.Builder{}
-	s.Grow(2000) // Average spokfile has about 2000 characters
+	s.Grow(bufferGrowSize)
 	t.Write(s)
 	return s.String()
 }
@@ -173,7 +178,6 @@ type Task struct {
 
 func (t Task) String() string {
 	s := strings.Builder{}
-	s.Grow(250) // An average spok task has about 250 characters
 
 	deps := make([]string, 0, len(t.Dependencies))
 	commands := make([]string, 0, len(t.Commands))
