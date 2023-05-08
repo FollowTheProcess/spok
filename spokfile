@@ -48,6 +48,9 @@ task lint(fmt, "**/*.go") {
     golangci-lint run --fix
 }
 
+# Run tests and linting
+task check(test, lint, "**/*.go") {}
+
 # Calculate test coverage and render the html
 task cover("**/*.go") -> (COVERAGE_DATA, COVERAGE_HTML) {
     SPOK_INTEGRATION_TEST=true go test -race -cover -covermode=atomic -coverprofile={{.COVERAGE_DATA}} ./...

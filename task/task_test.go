@@ -382,7 +382,7 @@ func TestTaskRun(t *testing.T) {
 			name:    "empty",
 			task:    Task{Name: "empty"},
 			want:    nil,
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name: "simple",
