@@ -29,14 +29,11 @@ type Task struct {
 	GlobOutputs      []string // Filepaths this task outputs that are specified as glob patterns
 }
 
-// Run runs a task commands in order, echoing each one to out and
-// returning the list of results containing the exit status,
-// stdout and stderr of each command.
+// Run runs a task commands in order, echoing each one to out and returning the list of results
+// containing the exit status, stdout and stderr of each command.
+//
+// If the task has no commands, this becomes a no-op.
 func (t *Task) Run(runner shell.Runner, stream iostream.IOStream, env []string) (shell.Results, error) {
-	if len(t.Commands) == 0 {
-		return nil, fmt.Errorf("Task %q has no commands", t.Name)
-	}
-
 	echoStyle := color.New(color.FgHiWhite, color.Bold)
 
 	var results shell.Results
