@@ -94,7 +94,7 @@ func (g *Graph) AddEdge(parent, child *Vertex) error {
 
 // Sort topologically sorts the graph and returns a vertex slice in the correct order.
 func (g *Graph) Sort() ([]*Vertex, error) {
-	zeroInDegreeQueue := queue.New[*Vertex]()
+	zeroInDegreeQueue := queue.New[*Vertex](queue.WithCapacity(len(g.vertices)))
 	result := make([]*Vertex, 0, len(g.vertices))
 
 	for _, vertex := range g.vertices {
