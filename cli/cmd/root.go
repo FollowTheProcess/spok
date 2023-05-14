@@ -4,8 +4,37 @@ package cmd
 import (
 	"github.com/FollowTheProcess/spok/cli/app"
 	"github.com/FollowTheProcess/spok/iostream"
-	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
+)
+
+const (
+	short = "It's a build system Jim, but not as we know it!"
+	long  = `
+It's a build system Jim, but not as we know it!
+
+Spok is a lightweight build system and command runner, inspired by things like
+make, just etc.
+
+However, spok offers a number of additional features such as:
+
+- Cleaner, more developer-friendly syntax
+- Full cross compatibility
+- No dependency on any form of shell
+- Load .env files by default
+- Incremental runs based on file hashing and sum checks
+`
+	example = `
+# Spok prints all tasks by default
+$ spok
+
+# Run tasks named 'test' and 'lint'
+$ spok test lint
+
+# Show all defined variables in the 'spokfile'
+$ spok --vars
+
+# Format the spokfile
+$ spok --fmt`
 )
 
 var (
@@ -25,36 +54,9 @@ func BuildRootCmd() *cobra.Command {
 		Args:          cobra.ArbitraryArgs,
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		Short:         "It's a build system Jim, but not as we know it!",
-		Long: heredoc.Doc(`
-
-		It's a build system Jim, but not as we know it!
-
-		Spok is a lightweight build system and command runner, inspired by things like
-		make, just etc.
-
-		However, spok offers a number of additional features such as:
-
-		- Cleaner, more developer-friendly syntax
-		- Full cross compatibility
-		- No dependency on any form of shell
-		- Load .env files by default
-		- Incremental runs based on file hashing and sum checks
-		`),
-		Example: heredoc.Doc(`
-
-		# Spok prints all tasks by default
-		$ spok
-
-		# Run tasks named 'test' and 'lint'
-		$ spok test lint
-
-		# Show all defined variables in the 'spokfile'
-		$ spok --vars
-
-		# Format the spokfile
-		$ spok --fmt
-		`),
+		Short:         short,
+		Long:          long,
+		Example:       example,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return spok.Run(args)
 		},
