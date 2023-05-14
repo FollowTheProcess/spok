@@ -55,7 +55,6 @@ type App struct {
 	stream  iostream.IOStream // Where spok writes output to
 	Options *Options          // All the CLI options
 	logger  logger.Logger     // Spok's logger, prints debug messages to stderr if --verbose is used
-	printer msg.Printer       // Spok's printer, prints user messages to stdout
 }
 
 // Options holds all the flag options for spok, these will be at their zero values
@@ -76,13 +75,9 @@ type Options struct {
 // New creates and returns a new App.
 func New(stream iostream.IOStream) *App {
 	options := &Options{}
-	printer := msg.Default()
-	printer.Stdout = stream.Stdout
-	printer.Stderr = stream.Stderr
 	spok := &App{
 		stream:  stream,
 		Options: options,
-		printer: printer,
 	}
 	return spok
 }
@@ -133,7 +128,7 @@ func (a *App) Run(tasks []string) error {
 
 	switch {
 	case a.Options.Fmt:
-		a.printer.Infof("Formatting spokfile at %q", a.Options.Spokfile)
+		msg.Finfo(a.stream.Stdout, "Formatting spokfile at %q", a.Options.Spokfile)
 		return os.WriteFile(a.Options.Spokfile, []byte(tree.String()), filePerms)
 	case a.Options.Variables:
 		return a.showVariables(spokfile)
@@ -258,10 +253,9 @@ func (a *App) runTasks(spokfile *file.SpokFile, runner shell.Runner, tasks ...st
 			}
 		}
 		if result.Skipped {
-			skipStyle := color.New(color.FgYellow, color.Bold)
-			skipStyle.Fprintf(a.stream.Stdout, "- Task %q skipped as none of its dependencies have changed\n", result.Task)
+			msg.Fwarn(a.stream.Stdout, "Task %q skipped as none of it's dependencies have changed", result.Task)
 		} else {
-			a.printer.Goodf("Task %q completed successfully", result.Task)
+			msg.Fsuccess(a.stream.Stdout, "Task %q completed successfully", result.Task)
 		}
 	}
 
@@ -393,7 +387,7 @@ func (a *App) clean(spokfile *file.SpokFile) error {
 	toRemove = append(toRemove, cachePath)
 
 	if len(toRemove) == 0 {
-		a.printer.Good("Nothing to remove")
+		msg.Fsuccess(a.stream.Stdout, "Nothing to remove")
 		return nil
 	}
 
@@ -402,17 +396,15 @@ func (a *App) clean(spokfile *file.SpokFile) error {
 		if err != nil {
 			return fmt.Errorf("Could not remove %s: %w", file, err)
 		}
-		a.printer.Textf("Removed %s", file)
+		fmt.Fprintf(a.stream.Stdout, "Removed %s\n", file)
 	}
-	a.printer.Good("Done")
+	msg.Fsuccess(a.stream.Stdout, "Done")
 	return nil
 }
 
 // setStream reassigns all the app's IO streams to match the one passed in.
 func (a *App) setStream(stream iostream.IOStream) {
 	a.stream = stream
-	a.printer.Stdout = stream.Stdout
-	a.printer.Stderr = stream.Stderr
 }
 
 func exists(path string) bool {
