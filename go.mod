@@ -10,7 +10,7 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/joho/godotenv v1.5.1
 	github.com/juju/ansiterm v1.0.0
-	github.com/lithammer/fuzzysearch v1.1.7
+	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/spf13/cobra v1.7.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
