@@ -12,28 +12,25 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  GO_VERSION: "1.20"
-
 jobs:
   test:
     name: Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
 
     steps:
-      - name: Set up Go ${{ env.GO_VERSION }}
-        uses: actions/setup-go@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Download Dependencies
-        run: go mod download
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
 
       - name: Run Tests
         run: go test -race ./...
@@ -45,16 +42,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up Go ${{ env.GO_VERSION }}
-        uses: actions/setup-go@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Download Dependencies
-        run: go mod download
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
 
       - name: Run Tests
         run: go test -race -cover -covermode=atomic -coverprofile=./coverage.out ./...
@@ -71,13 +65,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up Go ${{ env.GO_VERSION }}
-        uses: actions/setup-go@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
 
       - name: Run Linting
         uses: golangci/golangci-lint-action@v3
@@ -125,7 +119,11 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
 
-    needs: [test, lint, docs, publish-docs]
+    needs:
+      - test
+      - lint
+      - docs
+      - publish-docs
 
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
 
@@ -138,22 +136,27 @@ jobs:
       - name: Fetch Existing Tags
         run: git fetch --force --tags
 
+      - name: Install Syft
+        uses: jaxxstorm/action-install-gh-release@v1.10.0
+        with:
+          repo: anchore/syft
+
       - name: Parse Release Version
         id: version
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Set up Go ${{ env.GO_VERSION }}
+      - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: go.mod
 
-      - name: Publish Release Notes
+      - name: Publish Draft Release
         uses: release-drafter/release-drafter@v5
         with:
-            version: ${{ steps.version.outputs.version }}
-            publish: true
+          version: ${{ steps.version.outputs.version }}
+          publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
