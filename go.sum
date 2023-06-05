@@ -1,7 +1,7 @@
 github.com/FollowTheProcess/collections v0.3.0 h1:k64mzTy8g3Xzxr2FhvabYNhmQfBh2DE/SC4bXIdjzPA=
 github.com/FollowTheProcess/collections v0.3.0/go.mod h1:nrtSOeH0ETm72Q829IHkx+Mmv+qOHQvgYdJmqFPyJvI=
-github.com/FollowTheProcess/msg v0.6.0 h1:KsBZ8W80iseQzioCmn8RZPYBqvcVM6ZIMP+pz0LLnnI=
-github.com/FollowTheProcess/msg v0.6.0/go.mod h1:mMA4Q0tbZ6wfDH0X1gJLof2nxZxFzv/V7W1FWb2P8uw=
+github.com/FollowTheProcess/msg v0.6.1 h1:3MjZhxxp8cH1noktnwKUrmvaY4MeWVY7ZlyjFaGTsXQ=
+github.com/FollowTheProcess/msg v0.6.1/go.mod h1:mMA4Q0tbZ6wfDH0X1gJLof2nxZxFzv/V7W1FWb2P8uw=
 github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=
 github.com/bmatcuk/doublestar/v4 v4.6.0 h1:HTuxyug8GyFbRkrffIpzNCSK4luc0TY3wzXvzIZhEXc=
 github.com/bmatcuk/doublestar/v4 v4.6.0/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
