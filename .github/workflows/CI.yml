@@ -37,6 +37,22 @@ jobs:
         env:
           SPOK_INTEGRATION_TEST: true
 
+  fuzz:
+    name: Fuzz
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+
+      - name: Run Fuzz Tests
+        run: go test ./lexer -fuzz FuzzLexer -fuzztime 1m
+
   cov:
     name: Coverage
     runs-on: ubuntu-latest
@@ -121,6 +137,7 @@ jobs:
 
     needs:
       - test
+      - fuzz
       - lint
       - docs
       - publish-docs

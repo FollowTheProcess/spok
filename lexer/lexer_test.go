@@ -1209,6 +1209,21 @@ func TestLexerIntegration(t *testing.T) {
 	}
 }
 
+// FuzzLexer fuzzes our lexer with random string input to make sure it never panics.
+func FuzzLexer(f *testing.F) {
+	f.Add(fullSpokfile)
+
+	f.Fuzz(func(t *testing.T, s string) {
+		l := New(s)
+		for {
+			tok := l.NextToken()
+			if tok.Type == token.EOF || tok.Type == token.ERROR {
+				break
+			}
+		}
+	})
+}
+
 // BenchmarkLexFullSpokfile determines the performance of lexing the integration spokfile above.
 func BenchmarkLexFullSpokfile(b *testing.B) {
 	l := New(fullSpokfile)
