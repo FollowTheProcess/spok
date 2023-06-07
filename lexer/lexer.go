@@ -73,6 +73,9 @@ func (l *Lexer) all() string {
 
 // current returns the rune the lexer is currently sat on.
 func (l *Lexer) current() rune {
+	if l.atEOF() {
+		return rune(0)
+	}
 	return rune(l.input[l.pos])
 }
 

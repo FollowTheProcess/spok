@@ -44,12 +44,12 @@ task bench("**/*.go") {
 }
 
 # Lint the project and auto-fix errors if possible
-task lint(fmt, "**/*.go") {
+task lint("**/*.go") {
     golangci-lint run --fix
 }
 
 # Run tests and linting
-task check(test, lint, "**/*.go") {}
+task check(test, lint) {}
 
 # Calculate test coverage and render the html
 task cover("**/*.go") -> (COVERAGE_DATA, COVERAGE_HTML) {
