@@ -1,4 +1,4 @@
-package task
+package task_test
 
 import (
 	"fmt"
@@ -9,51 +9,23 @@ import (
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/FollowTheProcess/spok/shell"
+	"github.com/FollowTheProcess/spok/task"
 	"github.com/google/go-cmp/cmp"
 )
-
-func TestExpandVars(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name    string
-		vars    map[string]string
-		command string
-		want    string
-	}{
-		{
-			name:    "simple",
-			vars:    map[string]string{"REPO": "https://github.com/FollowTheProcess/spok.git"},
-			command: "git clone {{.REPO}}",
-			want:    "git clone https://github.com/FollowTheProcess/spok.git",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := expandVars(tt.command, tt.vars)
-			if err != nil {
-				t.Errorf("expandVars returned an error: %v", err)
-			}
-			if got != tt.want {
-				t.Errorf("got %q, wanted %q", got, tt.want)
-			}
-		})
-	}
-}
 
 func TestNewTask(t *testing.T) {
 	t.Parallel()
 	testdata := mustGetTestData()
 	tests := []struct {
 		name    string
-		want    Task
+		want    task.Task
 		vars    map[string]string
 		in      ast.Task
 		wantErr bool
 	}{
 		{
 			name: "simple",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -72,7 +44,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "simple with vars",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task with global variables",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -94,7 +66,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with a file dependency",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -113,7 +85,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with a named dependency",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: []string{"fmt"},
@@ -132,7 +104,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi file dependency",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -157,7 +129,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi task dependency",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: []string{"fmt", "lint"},
@@ -179,7 +151,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with double glob dependency",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -199,7 +171,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with single glob dependency",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -219,7 +191,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with single file output",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -240,7 +212,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with glob output",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -262,7 +234,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi file output",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -289,7 +261,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with single named output",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -310,7 +282,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "task with multi named output",
-			want: Task{
+			want: task.Task{
 				Doc:              "A simple test task",
 				Name:             "simple",
 				TaskDependencies: nil,
@@ -334,7 +306,7 @@ func TestNewTask(t *testing.T) {
 		},
 		{
 			name: "complex task with everything",
-			want: Task{
+			want: task.Task{
 				Doc:              "Very complex things here",
 				Name:             "complex",
 				TaskDependencies: nil,
@@ -358,13 +330,13 @@ func TestNewTask(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := New(tt.in, testdata, tt.vars) // Initialise root at testdata
+			got, err := task.New(tt.in, testdata, tt.vars) // Initialise root at testdata
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("newTask() err = %v, wanted %v", err, tt.wantErr)
 			}
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf("Task mismatch (-want +got):\n%s", diff)
+				t.Errorf("task.Task mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -374,19 +346,19 @@ func TestTaskRun(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name    string
-		task    Task
+		task    task.Task
 		want    shell.Results
 		wantErr bool
 	}{
 		{
 			name:    "empty",
-			task:    Task{Name: "empty"},
+			task:    task.Task{Name: "empty"},
 			want:    nil,
 			wantErr: false,
 		},
 		{
 			name: "simple",
-			task: Task{Name: "simple", Commands: []string{
+			task: task.Task{Name: "simple", Commands: []string{
 				"echo hello",
 			}},
 			want: shell.Results{{
@@ -399,7 +371,7 @@ func TestTaskRun(t *testing.T) {
 		},
 		{
 			name: "stderr",
-			task: Task{Name: "stderr", Commands: []string{
+			task: task.Task{Name: "stderr", Commands: []string{
 				"echo hello stderr >&2",
 			}},
 			want: shell.Results{{
@@ -412,7 +384,7 @@ func TestTaskRun(t *testing.T) {
 		},
 		{
 			name: "multiple",
-			task: Task{Name: "multiple", Commands: []string{
+			task: task.Task{Name: "multiple", Commands: []string{
 				"echo hello",
 				"echo hello stderr >&2",
 				"true",
@@ -428,7 +400,7 @@ func TestTaskRun(t *testing.T) {
 		},
 		{
 			name: "error in the middle",
-			task: Task{Name: "multiple", Commands: []string{
+			task: task.Task{Name: "multiple", Commands: []string{
 				"echo hello",
 				"false",                 // 1 status code here
 				"echo hello stderr >&2", // Should still see these
@@ -444,7 +416,7 @@ func TestTaskRun(t *testing.T) {
 		},
 		{
 			name: "bad syntax",
-			task: Task{Name: "bad", Commands: []string{
+			task: task.Task{Name: "bad", Commands: []string{
 				"(*^$$",
 			}},
 			want:    nil,
@@ -461,7 +433,7 @@ func TestTaskRun(t *testing.T) {
 			}
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf("Result mismatch (-want +got):\n%s", diff)
+				t.Errorf("task.Result mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -471,12 +443,12 @@ func TestResultOk(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name   string
-		result Result
+		result task.Result
 		want   bool
 	}{
 		{
 			name: "one success",
-			result: Result{
+			result: task.Result{
 				CommandResults: shell.Results{
 					{Stdout: "Hello", Stderr: "", Status: 0},
 				},
@@ -485,7 +457,7 @@ func TestResultOk(t *testing.T) {
 		},
 		{
 			name: "one failure",
-			result: Result{
+			result: task.Result{
 				CommandResults: shell.Results{
 					{Stdout: "", Stderr: "Hello", Status: 1},
 				},
@@ -494,7 +466,7 @@ func TestResultOk(t *testing.T) {
 		},
 		{
 			name: "multiple successes",
-			result: Result{
+			result: task.Result{
 				CommandResults: shell.Results{
 					{Stdout: "Hello", Stderr: "", Status: 0},
 					{Stdout: "There", Stderr: "", Status: 0},
@@ -506,7 +478,7 @@ func TestResultOk(t *testing.T) {
 		},
 		{
 			name: "multiple failures",
-			result: Result{
+			result: task.Result{
 				CommandResults: shell.Results{
 					{Stdout: "Hello", Stderr: "", Status: 1},
 					{Stdout: "There", Stderr: "", Status: 1},
@@ -518,7 +490,7 @@ func TestResultOk(t *testing.T) {
 		},
 		{
 			name: "failure in the middle",
-			result: Result{
+			result: task.Result{
 				CommandResults: shell.Results{
 					{Stdout: "Hello", Stderr: "", Status: 0},
 					{Stdout: "There", Stderr: "", Status: 1},
@@ -543,12 +515,12 @@ func TestResultsOk(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name    string
-		results Results
+		results task.Results
 		want    bool
 	}{
 		{
 			name: "one success",
-			results: Results{
+			results: task.Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -561,7 +533,7 @@ func TestResultsOk(t *testing.T) {
 		},
 		{
 			name: "one failure",
-			results: Results{
+			results: task.Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -574,7 +546,7 @@ func TestResultsOk(t *testing.T) {
 		},
 		{
 			name: "multiple successes",
-			results: Results{
+			results: task.Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -601,7 +573,7 @@ func TestResultsOk(t *testing.T) {
 		},
 		{
 			name: "multiple failures",
-			results: Results{
+			results: task.Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -628,7 +600,7 @@ func TestResultsOk(t *testing.T) {
 		},
 		{
 			name: "multiple both",
-			results: Results{
+			results: task.Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -675,11 +647,11 @@ func TestResultsJSON(t *testing.T) {
 	tests := []struct {
 		name    string
 		want    string
-		results Results
+		results task.Results
 	}{
 		{
 			name: "single result",
-			results: Results{
+			results: task.Results{
 				{
 					Task: "test",
 					CommandResults: shell.Results{
@@ -724,7 +696,7 @@ func BenchmarkNewTask(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := New(input, testdata, make(map[string]string))
+		_, err := task.New(input, testdata, make(map[string]string))
 		if err != nil {
 			b.Fatalf("newTask returned an error: %v", err)
 		}
