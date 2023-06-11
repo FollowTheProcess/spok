@@ -30,6 +30,18 @@ func (v *Vertex) Children() []*Vertex {
 	return v.children.Items()
 }
 
+// HasChild returns whether or not the current Vertex has the given
+// Vertex as a direct child.
+func (v *Vertex) HasChild(child *Vertex) bool {
+	return v.children.Contains(child)
+}
+
+// HasParent returns whether or not the current Vertex has the given
+// Vertex as a direct parent.
+func (v *Vertex) HasParent(parent *Vertex) bool {
+	return v.parents.Contains(parent)
+}
+
 // NewVertex creates and returns a new Vertex.
 func NewVertex(task task.Task) *Vertex {
 	return &Vertex{
