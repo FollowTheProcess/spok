@@ -1,4 +1,4 @@
-package lexer
+package lexer //nolint: testpackage // We need access to all the private lex functions
 
 import (
 	"os"

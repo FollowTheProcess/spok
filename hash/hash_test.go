@@ -1,4 +1,4 @@
-package hash
+package hash_test
 
 import (
 	"fmt"
@@ -8,6 +8,8 @@ import (
 	"runtime"
 	"testing"
 	"time"
+
+	"github.com/FollowTheProcess/spok/hash"
 )
 
 const (
@@ -20,7 +22,7 @@ const (
 
 func TestAlwaysHasher(t *testing.T) {
 	t.Parallel()
-	hasher := AlwaysRun{}
+	hasher := hash.AlwaysRun{}
 	got, _ := hasher.Hash([]string{"doesn't", "matter"}) //nolint: errcheck // We don't care about the error here
 	if got != "DIFFERENT" {
 		t.Errorf("got %s, wanted %s", got, "DIFFERENT")
@@ -32,7 +34,7 @@ func TestHashFilesIsDeterministic(t *testing.T) {
 	files, cleanup := makeFiles(t)
 	defer cleanup()
 
-	hasher := New()
+	hasher := hash.New()
 	// Run the hasher a number of times and see if the output varies
 	runs := 100
 
@@ -63,7 +65,7 @@ func TestHashDifferentContents(t *testing.T) {
 	files, cleanup := makeFilesDifferentContent(t)
 	defer cleanup()
 
-	hasher := New()
+	hasher := hash.New()
 
 	digest, err := hasher.Hash(files)
 	if err != nil {
@@ -95,7 +97,7 @@ func TestHashSkipsDirectories(t *testing.T) {
 	files, cleanup := makeFilesWithDirectory(t)
 	defer cleanup()
 
-	hasher := New()
+	hasher := hash.New()
 
 	digest, err := hasher.Hash(files)
 	if err != nil {
@@ -133,7 +135,7 @@ func TestHashDifferentName(t *testing.T) {
 	files, cleanup := makeFilesDifferentName(t)
 	defer cleanup()
 
-	hasher := New()
+	hasher := hash.New()
 
 	digest, err := hasher.Hash(files)
 	if err != nil {
@@ -382,4 +384,12 @@ func randSeq() string {
 	}
 
 	return string(b)
+}
+
+// min returns the minimum of 2 ints.
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

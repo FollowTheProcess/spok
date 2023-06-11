@@ -1,56 +1,59 @@
-package builtins
+package builtins_test
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
+
+	"github.com/FollowTheProcess/spok/builtins"
 )
 
 func TestBuiltins(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		fn      Builtin
+		fn      builtins.Builtin
 		name    string
 		want    string
 		args    []string
 		wantErr bool
 	}{
 		{
-			fn:      join,
+			fn:      mustGet("join"),
 			name:    "join",
 			want:    abs(filepath.Join("hello", "filepath", "parts")),
 			args:    []string{"hello", "filepath", "parts"},
 			wantErr: false,
 		},
 		{
-			fn:      execute,
+			fn:      mustGet("exec"),
 			name:    "exec",
 			want:    "hello",
 			args:    []string{"echo hello"}, // exec takes a single string
 			wantErr: false,
 		},
 		{
-			fn:      execute,
+			fn:      mustGet("exec"),
 			name:    "exec more than 1 arg",
 			want:    "",
 			args:    []string{"echo hello", "uh oh"},
 			wantErr: true,
 		},
 		{
-			fn:      execute,
+			fn:      mustGet("exec"),
 			name:    "exec non-zero exit code",
 			want:    "",
 			args:    []string{"exit 1"},
 			wantErr: true,
 		},
 		{
-			fn:      execute,
+			fn:      mustGet("exec"),
 			name:    "exec single arg",
 			want:    "",
 			args:    []string{"echo"},
 			wantErr: false,
 		},
 		{
-			fn:      execute,
+			fn:      mustGet("exec"),
 			name:    "bad syntax",
 			want:    "",
 			args:    []string{"(*^$$"},
@@ -75,12 +78,12 @@ func TestBuiltins(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	t.Parallel()
-	_, ok := Get("exec")
+	_, ok := builtins.Get("exec")
 	if !ok {
 		t.Fatal("Get failed to retrieve 'exec' which is known to exist")
 	}
 
-	_, ok = Get("dingle")
+	_, ok = builtins.Get("dingle")
 	if ok {
 		t.Fatal("Get returned true for getting 'dingle' which doesn't exist")
 	}
@@ -94,4 +97,13 @@ func abs(path string) string {
 		panic(err)
 	}
 	return abs
+}
+
+// Gets a builtin and panics if it's not there.
+func mustGet(fn string) builtins.Builtin {
+	f, ok := builtins.Get(fn)
+	if !ok {
+		panic(fmt.Sprintf("builtin %s not found", fn))
+	}
+	return f
 }

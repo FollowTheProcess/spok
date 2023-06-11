@@ -1,4 +1,4 @@
-package parser
+package parser //nolint: testpackage // We need access to all the private parse methods
 
 import (
 	"os"
