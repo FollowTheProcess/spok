@@ -23,7 +23,7 @@ linters:
     - nilerr
     - nilnil
     - nolintlint
-    - nonamedreturns
+    - nakedret
     - predeclared
     - reassign
     - revive
@@ -37,6 +37,15 @@ linters:
     - whitespace
 
 linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+
+  exhaustive:
+    check:
+      - switch
+      - map
+
   gocyclo:
     min-complexity: 20
 
@@ -44,12 +53,74 @@ linters-settings:
     go: "1.20"
     checks: ["all"]
 
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-
   gosimple:
     checks: ["all"]
 
   govet:
     enable-all: true
+
+  revive:
+    max-open-files: 256
+    ignore-generated-header: true
+    rules:
+      - name: argument-limit
+        disabled: false
+        arguments: [5]
+
+      - name: atomic
+        disabled: false
+
+      - name: blank-imports
+        disabled: false
+
+      - name: call-to-gc
+        disabled: false
+
+      - name: constant-logical-expr
+        disabled: false
+
+      - name: context-as-argument
+        disabled: false
+
+      - name: datarace
+        disabled: false
+
+      - name: deep-exit
+        disabled: false
+
+      - name: defer
+        disabled: false
+
+      - name: dot-imports
+        disabled: false
+
+      - name: early-return
+        disabled: false
+
+      - name: exported
+        arguments:
+          - checkPrivateReceivers
+
+      - name: modifies-value-receiver
+        disabled: false
+
+      - name: package-comments
+        disabled: false
+
+      - name: range
+        disabled: false
+
+      - name: range-val-in-closure
+        disabled: false
+
+      - name: range-val-address
+        disabled: false
+
+      - name: time-equal
+        disabled: false
+
+      - name: use-any
+        disabled: false
+
+      - name: waitgroup-by-value
+        disabled: false
