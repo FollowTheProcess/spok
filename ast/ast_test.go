@@ -1,53 +1,54 @@
-package ast
+package ast_test
 
 import (
 	"strings"
 	"testing"
 
+	"github.com/FollowTheProcess/spok/ast"
 	"github.com/google/go-cmp/cmp"
 )
 
 func TestType(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		node Node
+		node ast.Node
 		name string
-		want NodeType
+		want ast.NodeType
 	}{
 		{
 			name: "comment",
-			node: Comment{NodeType: NodeComment},
-			want: NodeComment,
+			node: ast.Comment{NodeType: ast.NodeComment},
+			want: ast.NodeComment,
 		},
 		{
 			name: "ident",
-			node: Comment{NodeType: NodeIdent},
-			want: NodeIdent,
+			node: ast.Comment{NodeType: ast.NodeIdent},
+			want: ast.NodeIdent,
 		},
 		{
 			name: "assign",
-			node: Assign{NodeType: NodeAssign},
-			want: NodeAssign,
+			node: ast.Assign{NodeType: ast.NodeAssign},
+			want: ast.NodeAssign,
 		},
 		{
 			name: "string",
-			node: String{NodeType: NodeString},
-			want: NodeString,
+			node: ast.String{NodeType: ast.NodeString},
+			want: ast.NodeString,
 		},
 		{
 			name: "function",
-			node: Function{NodeType: NodeFunction},
-			want: NodeFunction,
+			node: ast.Function{NodeType: ast.NodeFunction},
+			want: ast.NodeFunction,
 		},
 		{
 			name: "task",
-			node: Task{NodeType: NodeTask},
-			want: NodeTask,
+			node: ast.Task{NodeType: ast.NodeTask},
+			want: ast.NodeTask,
 		},
 		{
 			name: "command",
-			node: Command{NodeType: NodeCommand},
-			want: NodeCommand,
+			node: ast.Command{NodeType: ast.NodeCommand},
+			want: ast.NodeCommand,
 		},
 	}
 
@@ -64,65 +65,65 @@ func TestLiteral(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name string
-		node Node
+		node ast.Node
 		want string
 	}{
 		{
 			name: "comment",
-			node: Comment{Text: "I'm a comment", NodeType: NodeComment},
+			node: ast.Comment{Text: "I'm a comment", NodeType: ast.NodeComment},
 			want: "# I'm a comment\n",
 		},
 		{
 			name: "ident",
-			node: Ident{Name: "ident", NodeType: NodeIdent},
+			node: ast.Ident{Name: "ident", NodeType: ast.NodeIdent},
 			want: "ident",
 		},
 		{
 			name: "assign string",
-			node: Assign{
-				Value:    String{Text: "Hello"},
-				Name:     Ident{Name: "VALUE"},
-				NodeType: NodeAssign,
+			node: ast.Assign{
+				Value:    ast.String{Text: "Hello"},
+				Name:     ast.Ident{Name: "VALUE"},
+				NodeType: ast.NodeAssign,
 			},
 			want: "VALUE := \"Hello\"\n",
 		},
 		{
 			name: "assign builtin",
-			node: Assign{
-				Value: Function{
-					Name:      Ident{Name: "exec"},
-					Arguments: []Node{String{Text: "true"}},
+			node: ast.Assign{
+				Value: ast.Function{
+					Name:      ast.Ident{Name: "exec"},
+					Arguments: []ast.Node{ast.String{Text: "true"}},
 				},
-				Name:     Ident{Name: "VALUE"},
-				NodeType: NodeAssign,
+				Name:     ast.Ident{Name: "VALUE"},
+				NodeType: ast.NodeAssign,
 			},
 			want: "VALUE := exec(\"true\")\n",
 		},
 		{
 			name: "string",
-			node: String{Text: "hello", NodeType: NodeString},
+			node: ast.String{Text: "hello", NodeType: ast.NodeString},
 			want: "hello",
 		},
 		{
 			name: "function",
-			node: Function{
-				Name:      Ident{Name: "join"},
-				Arguments: []Node{String{Text: "dir"}, String{Text: "another"}},
-				NodeType:  NodeFunction,
+			node: ast.Function{
+				Name:      ast.Ident{Name: "join"},
+				Arguments: []ast.Node{ast.String{Text: "dir"}, ast.String{Text: "another"}},
+				NodeType:  ast.NodeFunction,
 			},
 			want: "join(\"dir\", \"another\")",
 		},
 		{
 			name: "task",
-			node: Task{
-				Name:         Ident{Name: "test"},
-				Docstring:    Comment{Text: "I'm a test task"},
-				Dependencies: []Node{String{Text: "**/*.go"}},
-				Outputs:      []Node{String{Text: "./bin/main"}},
-				Commands: []Command{
+			node: ast.Task{
+				Name:         ast.Ident{Name: "test"},
+				Docstring:    ast.Comment{Text: "I'm a test task"},
+				Dependencies: []ast.Node{ast.String{Text: "**/*.go"}},
+				Outputs:      []ast.Node{ast.String{Text: "./bin/main"}},
+				Commands: []ast.Command{
 					{Command: "go test ./..."},
 				},
-				NodeType: NodeTask,
+				NodeType: ast.NodeTask,
 			},
 			want: `# I'm a test task
 task test("**/*.go") -> "./bin/main" {
@@ -133,7 +134,7 @@ task test("**/*.go") -> "./bin/main" {
 		},
 		{
 			name: "command",
-			node: Command{Command: "git commit", NodeType: NodeCommand},
+			node: ast.Command{Command: "git commit", NodeType: ast.NodeCommand},
 			want: "git commit",
 		},
 	}
@@ -151,65 +152,65 @@ func TestWrite(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name string
-		node Node
+		node ast.Node
 		want string
 	}{
 		{
 			name: "comment",
-			node: Comment{Text: "I'm a comment", NodeType: NodeComment},
+			node: ast.Comment{Text: "I'm a comment", NodeType: ast.NodeComment},
 			want: "# I'm a comment\n",
 		},
 		{
 			name: "ident",
-			node: Ident{Name: "ident", NodeType: NodeIdent},
+			node: ast.Ident{Name: "ident", NodeType: ast.NodeIdent},
 			want: "ident",
 		},
 		{
 			name: "assign string",
-			node: Assign{
-				Value:    String{Text: "Hello"},
-				Name:     Ident{Name: "VALUE"},
-				NodeType: NodeAssign,
+			node: ast.Assign{
+				Value:    ast.String{Text: "Hello"},
+				Name:     ast.Ident{Name: "VALUE"},
+				NodeType: ast.NodeAssign,
 			},
 			want: "VALUE := \"Hello\"\n",
 		},
 		{
 			name: "assign builtin",
-			node: Assign{
-				Value: Function{
-					Name:      Ident{Name: "exec"},
-					Arguments: []Node{String{Text: "true"}},
+			node: ast.Assign{
+				Value: ast.Function{
+					Name:      ast.Ident{Name: "exec"},
+					Arguments: []ast.Node{ast.String{Text: "true"}},
 				},
-				Name:     Ident{Name: "VALUE"},
-				NodeType: NodeAssign,
+				Name:     ast.Ident{Name: "VALUE"},
+				NodeType: ast.NodeAssign,
 			},
 			want: "VALUE := exec(\"true\")\n",
 		},
 		{
 			name: "string",
-			node: String{Text: "hello", NodeType: NodeString},
+			node: ast.String{Text: "hello", NodeType: ast.NodeString},
 			want: `"hello"`,
 		},
 		{
 			name: "function",
-			node: Function{
-				Name:      Ident{Name: "join"},
-				Arguments: []Node{String{Text: "dir"}, String{Text: "another"}},
-				NodeType:  NodeFunction,
+			node: ast.Function{
+				Name:      ast.Ident{Name: "join"},
+				Arguments: []ast.Node{ast.String{Text: "dir"}, ast.String{Text: "another"}},
+				NodeType:  ast.NodeFunction,
 			},
 			want: "join(\"dir\", \"another\")",
 		},
 		{
 			name: "task",
-			node: Task{
-				Name:         Ident{Name: "test"},
-				Docstring:    Comment{Text: "I'm a test task"},
-				Dependencies: []Node{String{Text: "**/*.go"}},
-				Outputs:      []Node{String{Text: "./bin/main"}},
-				Commands: []Command{
+			node: ast.Task{
+				Name:         ast.Ident{Name: "test"},
+				Docstring:    ast.Comment{Text: "I'm a test task"},
+				Dependencies: []ast.Node{ast.String{Text: "**/*.go"}},
+				Outputs:      []ast.Node{ast.String{Text: "./bin/main"}},
+				Commands: []ast.Command{
 					{Command: "go test ./..."},
 				},
-				NodeType: NodeTask,
+				NodeType: ast.NodeTask,
 			},
 			want: `# I'm a test task
 task test("**/*.go") -> "./bin/main" {
@@ -220,7 +221,7 @@ task test("**/*.go") -> "./bin/main" {
 		},
 		{
 			name: "command",
-			node: Command{Command: "git commit", NodeType: NodeCommand},
+			node: ast.Command{Command: "git commit", NodeType: ast.NodeCommand},
 			want: "git commit",
 		},
 	}
@@ -238,26 +239,26 @@ task test("**/*.go") -> "./bin/main" {
 
 func TestAppend(t *testing.T) {
 	t.Parallel()
-	tree := Tree{
-		Nodes: []Node{
-			Comment{
+	tree := ast.Tree{
+		Nodes: []ast.Node{
+			ast.Comment{
 				Text:     " I'm a comment",
-				NodeType: NodeComment,
+				NodeType: ast.NodeComment,
 			},
 		},
 	}
 
-	tree.Append(Ident{Name: "GLOBAL", NodeType: NodeIdent})
+	tree.Append(ast.Ident{Name: "GLOBAL", NodeType: ast.NodeIdent})
 
-	want := Tree{
-		Nodes: []Node{
-			Comment{
+	want := ast.Tree{
+		Nodes: []ast.Node{
+			ast.Comment{
 				Text:     " I'm a comment",
-				NodeType: NodeComment,
+				NodeType: ast.NodeComment,
 			},
-			Ident{
+			ast.Ident{
 				Name:     "GLOBAL",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
 		},
 	}
@@ -271,21 +272,21 @@ func TestIsEmpty(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name  string
-		tree  Tree
+		tree  ast.Tree
 		empty bool
 	}{
 		{
 			name:  "empty",
-			tree:  Tree{},
+			tree:  ast.Tree{},
 			empty: true,
 		},
 		{
 			name: "not empty",
-			tree: Tree{
-				Nodes: []Node{
-					Comment{
+			tree: ast.Tree{
+				Nodes: []ast.Node{
+					ast.Comment{
 						Text:     " Hello",
-						NodeType: NodeComment,
+						NodeType: ast.NodeComment,
 					},
 				},
 			},
@@ -355,268 +356,268 @@ task makestuff() -> (DOCS, BUILD) {
 
 `
 
-var fullSpokfileAST = Tree{
-	Nodes: []Node{
-		Comment{
+var fullSpokfileAST = ast.Tree{
+	Nodes: []ast.Node{
+		ast.Comment{
 			Text:     " This is a top level comment",
-			NodeType: NodeComment,
+			NodeType: ast.NodeComment,
 		},
-		Comment{
+		ast.Comment{
 			Text:     " This variable is presumably important later",
-			NodeType: NodeComment,
+			NodeType: ast.NodeComment,
 		},
-		Assign{
-			Name: Ident{
+		ast.Assign{
+			Name: ast.Ident{
 				Name:     "GLOBAL",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			Value: String{
+			Value: ast.String{
 				Text:     "very important stuff here",
-				NodeType: NodeString,
+				NodeType: ast.NodeString,
 			},
-			NodeType: NodeAssign,
+			NodeType: ast.NodeAssign,
 		},
-		Assign{
-			Value: Function{
-				Name: Ident{
+		ast.Assign{
+			Value: ast.Function{
+				Name: ast.Ident{
 					Name:     "exec",
-					NodeType: NodeIdent,
+					NodeType: ast.NodeIdent,
 				},
-				Arguments: []Node{
-					String{
+				Arguments: []ast.Node{
+					ast.String{
 						Text:     "git rev-parse HEAD",
-						NodeType: NodeString,
+						NodeType: ast.NodeString,
 					},
-				}, NodeType: NodeFunction,
+				}, NodeType: ast.NodeFunction,
 			},
-			Name: Ident{
+			Name: ast.Ident{
 				Name:     "GIT_COMMIT",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			NodeType: NodeAssign,
+			NodeType: ast.NodeAssign,
 		},
-		Task{
-			Name: Ident{
+		ast.Task{
+			Name: ast.Ident{
 				Name:     "test",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			Docstring: Comment{
+			Docstring: ast.Comment{
 				Text:     " Run the project unit tests",
-				NodeType: NodeComment,
+				NodeType: ast.NodeComment,
 			},
-			Dependencies: []Node{
-				Ident{
+			Dependencies: []ast.Node{
+				ast.Ident{
 					Name:     "fmt",
-					NodeType: NodeIdent,
+					NodeType: ast.NodeIdent,
 				},
 			},
-			Outputs: []Node{},
-			Commands: []Command{
+			Outputs: []ast.Node{},
+			Commands: []ast.Command{
 				{
 					Command:  "go test -race ./...",
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 			},
-			NodeType: NodeTask,
+			NodeType: ast.NodeTask,
 		},
-		Task{
-			Name: Ident{
+		ast.Task{
+			Name: ast.Ident{
 				Name:     "fmt",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			Docstring: Comment{
+			Docstring: ast.Comment{
 				Text:     " Format the project source",
-				NodeType: NodeComment,
+				NodeType: ast.NodeComment,
 			},
-			Dependencies: []Node{
-				String{
+			Dependencies: []ast.Node{
+				ast.String{
 					Text:     "**/*.go",
-					NodeType: NodeString,
+					NodeType: ast.NodeString,
 				},
 			},
-			Outputs: []Node{},
-			Commands: []Command{
+			Outputs: []ast.Node{},
+			Commands: []ast.Command{
 				{
 					Command:  "go fmt ./...",
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 			},
-			NodeType: NodeTask,
+			NodeType: ast.NodeTask,
 		},
-		Task{
-			Name: Ident{
+		ast.Task{
+			Name: ast.Ident{
 				Name:     "many",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			Docstring: Comment{
+			Docstring: ast.Comment{
 				Text:     " Do many things",
-				NodeType: NodeComment,
+				NodeType: ast.NodeComment,
 			},
-			Dependencies: []Node{},
-			Outputs:      []Node{},
-			Commands: []Command{
+			Dependencies: []ast.Node{},
+			Outputs:      []ast.Node{},
+			Commands: []ast.Command{
 				{
 					Command:  "line 1",
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 				{
 					Command:  "line 2",
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 				{
 					Command:  "line 3",
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 				{
 					Command:  "line 4",
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 			},
-			NodeType: NodeTask,
+			NodeType: ast.NodeTask,
 		},
-		Task{
-			Name: Ident{
+		ast.Task{
+			Name: ast.Ident{
 				Name:     "build",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			Docstring: Comment{
+			Docstring: ast.Comment{
 				Text:     " Compile the project",
-				NodeType: NodeComment,
+				NodeType: ast.NodeComment,
 			},
-			Dependencies: []Node{
-				String{
+			Dependencies: []ast.Node{
+				ast.String{
 					Text:     "**/*.go",
-					NodeType: NodeString,
+					NodeType: ast.NodeString,
 				},
 			},
-			Outputs: []Node{
-				String{
+			Outputs: []ast.Node{
+				ast.String{
 					Text:     "./bin/main",
-					NodeType: NodeString,
+					NodeType: ast.NodeString,
 				},
 			},
-			Commands: []Command{
+			Commands: []ast.Command{
 				{
 					Command:  `go build -ldflags="-X main.version=test -X main.commit=7cb0ec5609efb5fe0"`,
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 			},
-			NodeType: NodeTask,
+			NodeType: ast.NodeTask,
 		},
-		Task{
-			Name: Ident{
+		ast.Task{
+			Name: ast.Ident{
 				Name:     "show",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			Docstring: Comment{
+			Docstring: ast.Comment{
 				Text:     " Show the global variables",
-				NodeType: NodeComment,
+				NodeType: ast.NodeComment,
 			},
-			Dependencies: []Node{},
-			Outputs:      []Node{},
-			Commands: []Command{
+			Dependencies: []ast.Node{},
+			Outputs:      []ast.Node{},
+			Commands: []ast.Command{
 				{
 					Command:  "echo {{.GLOBAL}}",
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 			},
-			NodeType: NodeTask,
+			NodeType: ast.NodeTask,
 		},
-		Task{
-			Name: Ident{
+		ast.Task{
+			Name: ast.Ident{
 				Name:     "moar_things",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			Docstring: Comment{
+			Docstring: ast.Comment{
 				Text:     " Generate multiple outputs",
-				NodeType: NodeComment,
+				NodeType: ast.NodeComment,
 			},
-			Dependencies: []Node{},
-			Outputs: []Node{
-				String{
+			Dependencies: []ast.Node{},
+			Outputs: []ast.Node{
+				ast.String{
 					Text:     "output1.go",
-					NodeType: NodeString,
+					NodeType: ast.NodeString,
 				},
-				String{
+				ast.String{
 					Text:     "output2.go",
-					NodeType: NodeString,
+					NodeType: ast.NodeString,
 				},
 			},
-			Commands: []Command{
+			Commands: []ast.Command{
 				{
 					Command:  "do some stuff here",
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 			},
-			NodeType: NodeTask,
+			NodeType: ast.NodeTask,
 		},
-		Task{
-			Name: Ident{
+		ast.Task{
+			Name: ast.Ident{
 				Name:     "no_comment",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			Docstring:    Comment{},
-			Dependencies: []Node{},
-			Outputs:      []Node{},
-			Commands: []Command{
+			Docstring:    ast.Comment{},
+			Dependencies: []ast.Node{},
+			Outputs:      []ast.Node{},
+			Commands: []ast.Command{
 				{
 					Command:  `echo "this task has no docstring"`,
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 			},
-			NodeType: NodeTask,
+			NodeType: ast.NodeTask,
 		},
-		Task{
-			Name: Ident{
+		ast.Task{
+			Name: ast.Ident{
 				Name:     "makedocs",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			Docstring: Comment{
+			Docstring: ast.Comment{
 				Text:     " Generate output from a variable",
-				NodeType: NodeComment,
+				NodeType: ast.NodeComment,
 			},
-			Dependencies: []Node{},
-			Outputs: []Node{
-				Ident{
+			Dependencies: []ast.Node{},
+			Outputs: []ast.Node{
+				ast.Ident{
 					Name:     "DOCS",
-					NodeType: NodeIdent,
+					NodeType: ast.NodeIdent,
 				},
 			},
-			Commands: []Command{
+			Commands: []ast.Command{
 				{
 					Command:  `echo "making docs"`,
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 			},
-			NodeType: NodeTask,
+			NodeType: ast.NodeTask,
 		},
-		Task{
-			Name: Ident{
+		ast.Task{
+			Name: ast.Ident{
 				Name:     "makestuff",
-				NodeType: NodeIdent,
+				NodeType: ast.NodeIdent,
 			},
-			Docstring: Comment{
+			Docstring: ast.Comment{
 				Text:     " Generate multiple outputs in variables",
-				NodeType: NodeComment,
+				NodeType: ast.NodeComment,
 			},
-			Dependencies: []Node{},
-			Outputs: []Node{
-				Ident{
+			Dependencies: []ast.Node{},
+			Outputs: []ast.Node{
+				ast.Ident{
 					Name:     "DOCS",
-					NodeType: NodeIdent,
+					NodeType: ast.NodeIdent,
 				},
-				Ident{
+				ast.Ident{
 					Name:     "BUILD",
-					NodeType: NodeIdent,
+					NodeType: ast.NodeIdent,
 				},
 			},
-			Commands: []Command{
+			Commands: []ast.Command{
 				{
 					Command:  `echo "doing things"`,
-					NodeType: NodeCommand,
+					NodeType: ast.NodeCommand,
 				},
 			},
-			NodeType: NodeTask,
+			NodeType: ast.NodeTask,
 		},
 	},
 }
