@@ -1,4 +1,4 @@
-package file
+package file //nolint: testpackage // Need access to private stuff
 
 import (
 	"fmt"
