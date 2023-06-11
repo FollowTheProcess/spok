@@ -1,10 +1,12 @@
-package cache
+package cache_test
 
 import (
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/FollowTheProcess/spok/cache"
 )
 
 const cacheText string = `
@@ -18,17 +20,14 @@ func TestLoad(t *testing.T) {
 		file, cleanup := makeCache(t, cacheText)
 		defer cleanup()
 
-		cached, err := Load(file.Name())
+		cached, err := cache.Load(file.Name())
 		if err != nil {
 			t.Fatalf("cache.Load returned an error: %v", err)
 		}
 
-		want := &Cache{
-			inner: map[string]string{
-				"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-				"another":  "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
-			},
-		}
+		want := cache.New()
+		want.Set("testtask", "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537")
+		want.Set("another", "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b")
 
 		if !reflect.DeepEqual(cached, want) {
 			t.Errorf("got %#v, wanted %#v", cached, want)
@@ -36,7 +35,7 @@ func TestLoad(t *testing.T) {
 	})
 
 	t.Run("missing file", func(t *testing.T) {
-		_, err := Load("missing.json")
+		_, err := cache.Load("missing.json")
 		if err == nil {
 			t.Fatal("Expected an error but got nil")
 		}
@@ -46,7 +45,7 @@ func TestLoad(t *testing.T) {
 		file, cleanup := makeCache(t, "I'm not JSON")
 		defer cleanup()
 
-		_, err := Load(file.Name())
+		_, err := cache.Load(file.Name())
 		if err == nil {
 			t.Fatal("Expected an error but got nil")
 		}
@@ -54,12 +53,9 @@ func TestLoad(t *testing.T) {
 }
 
 func TestDump(t *testing.T) {
-	cached := &Cache{
-		inner: map[string]string{
-			"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-			"another":  "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
-		},
-	}
+	cached := cache.New()
+	cached.Set("testtask", "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537")
+	cached.Set("another", "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b")
 
 	file, err := os.CreateTemp("", ".cache.json")
 	if err != nil {
@@ -71,7 +67,7 @@ func TestDump(t *testing.T) {
 		t.Fatalf("cache.Dump returned an error: %v", err)
 	}
 
-	loaded, err := Load(file.Name())
+	loaded, err := cache.Load(file.Name())
 	if err != nil {
 		t.Fatalf("cache.Load return an error: %v", err)
 	}
@@ -101,7 +97,7 @@ func TestExists(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Exists(tt.path); got != tt.want {
+			if got := cache.Exists(tt.path); got != tt.want {
 				t.Errorf("got %v, wanted %v", got, tt.want)
 			}
 		})
@@ -109,36 +105,34 @@ func TestExists(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	cached := &Cache{
-		inner: map[string]string{
-			"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-			"another":  "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
-		},
-	}
-
-	want := &Cache{
-		inner: map[string]string{
-			"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-			"another":  "something else",
-			"new":      "I'm new here",
-		},
-	}
+	cached := cache.New()
+	cached.Set("testtask", "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537")
+	cached.Set("another", "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b")
 
 	cached.Set("another", "something else")
-	cached.Set("new", "I'm new here")
+	cached.Set("something", "I'm new here")
 
-	if !reflect.DeepEqual(cached, want) {
-		t.Errorf("got %#v, wanted %#v", cached, want)
+	another, ok := cached.Get("another")
+	if !ok {
+		t.Fatal("another was not in the cache")
+	}
+	something, ok := cached.Get("something")
+	if !ok {
+		t.Fatal("something was not in the cache")
+	}
+
+	if another != "something else" {
+		t.Error("another was not 'something else'")
+	}
+	if something != "I'm new here" {
+		t.Error("something was not 'Im new here'")
 	}
 }
 
 func TestGet(t *testing.T) {
-	cached := &Cache{
-		inner: map[string]string{
-			"testtask": "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537",
-			"another":  "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b",
-		},
-	}
+	cached := cache.New()
+	cached.Set("testtask", "02f15ca4e81f467b84267f82eef52277b4cc29ee71d2f5b9f8b3ada6711b2537")
+	cached.Set("another", "3703972e88411fdc03c96659d3943fa45b363562cbd909ebbfe9f305e4ba572b")
 
 	got, ok := cached.Get("testtask")
 	if !ok {
@@ -156,37 +150,34 @@ func TestInit(t *testing.T) {
 	}
 	defer os.RemoveAll(tmp)
 
-	if err = Init(filepath.Join(tmp, Dir, File), "one", "two", "three"); err != nil {
+	if err = cache.Init(filepath.Join(tmp, cache.Dir, cache.File), "one", "two", "three"); err != nil {
 		t.Fatalf("cache.Init returned an error: %v", err)
 	}
 
-	gitIgnorePath := filepath.Join(tmp, Dir, ".gitignore")
+	gitIgnorePath := filepath.Join(tmp, cache.Dir, ".gitignore")
 	if !exists(gitIgnorePath) {
 		t.Errorf(".gitignore not found at %s", gitIgnorePath)
 	}
 
-	cachePath := filepath.Join(tmp, Dir, File)
+	cachePath := filepath.Join(tmp, cache.Dir, cache.File)
 	if !exists(cachePath) {
 		t.Errorf("cache.json not found at %s", cachePath)
 	}
 
-	dirTagPath := filepath.Join(tmp, Dir, "CACHEDIR.TAG")
+	dirTagPath := filepath.Join(tmp, cache.Dir, "CACHEDIR.TAG")
 	if !exists(dirTagPath) {
 		t.Errorf("CACHEDIR.TAG not found at %s", dirTagPath)
 	}
 
-	loaded, err := Load(cachePath)
+	loaded, err := cache.Load(cachePath)
 	if err != nil {
 		t.Fatalf("Could not load cache: %v", err)
 	}
 
-	want := &Cache{
-		inner: map[string]string{
-			"one":   "",
-			"two":   "",
-			"three": "",
-		},
-	}
+	want := cache.New()
+	want.Set("one", "")
+	want.Set("two", "")
+	want.Set("three", "")
 
 	if !reflect.DeepEqual(loaded, want) {
 		t.Errorf("Got %#v, wanted %#v", loaded, want)
