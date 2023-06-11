@@ -1,15 +1,17 @@
-package token
+package token_test
 
 import (
 	"fmt"
 	"testing"
+
+	"github.com/FollowTheProcess/spok/token"
 )
 
 func TestToken_String(t *testing.T) {
 	t.Parallel()
 	type fields struct {
 		Value string
-		Type  Type
+		Type  token.Type
 		Pos   int
 		Line  int
 	}
@@ -21,32 +23,32 @@ func TestToken_String(t *testing.T) {
 		{
 			name:   "error",
 			want:   "Error message value",
-			fields: fields{Value: "Error message value", Type: ERROR},
+			fields: fields{Value: "Error message value", Type: token.ERROR},
 		},
 		{
 			name:   "eof",
 			want:   "EOF",
-			fields: fields{Value: "", Type: EOF},
+			fields: fields{Value: "", Type: token.EOF},
 		},
 		{
 			name:   "comment",
 			want:   fmt.Sprintf("%q", "A comment"),
-			fields: fields{Value: "A comment", Type: COMMENT},
+			fields: fields{Value: "A comment", Type: token.COMMENT},
 		},
 		{
 			name:   "something long",
 			want:   fmt.Sprintf("%q...", "A very very ver"),
-			fields: fields{Value: "A very very very long comment", Type: COMMENT},
+			fields: fields{Value: "A very very very long comment", Type: token.COMMENT},
 		},
 		{
 			name:   "hash",
 			want:   fmt.Sprintf("%q", "#"),
-			fields: fields{Value: "#", Type: HASH},
+			fields: fields{Value: "#", Type: token.HASH},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tr := Token{
+			tr := token.Token{
 				Value: tt.fields.Value,
 				Type:  tt.fields.Type,
 				Pos:   tt.fields.Pos,
@@ -63,12 +65,12 @@ func TestToken_Is(t *testing.T) {
 	t.Parallel()
 	type fields struct {
 		Value string
-		Type  Type
+		Type  token.Type
 		Pos   int
 		Line  int
 	}
 	type args struct {
-		typ Type
+		typ token.Type
 	}
 	tests := []struct {
 		name   string
@@ -78,20 +80,20 @@ func TestToken_Is(t *testing.T) {
 	}{
 		{
 			name:   "same type",
-			fields: fields{Value: "A comment", Type: COMMENT},
-			args:   args{typ: COMMENT},
+			fields: fields{Value: "A comment", Type: token.COMMENT},
+			args:   args{typ: token.COMMENT},
 			want:   true,
 		},
 		{
 			name:   "different type",
-			fields: fields{Value: "A comment", Type: COMMENT},
-			args:   args{typ: TASK},
+			fields: fields{Value: "A comment", Type: token.COMMENT},
+			args:   args{typ: token.TASK},
 			want:   false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tr := Token{
+			tr := token.Token{
 				Value: tt.fields.Value,
 				Type:  tt.fields.Type,
 				Pos:   tt.fields.Pos,
@@ -109,27 +111,27 @@ func TestType_String(t *testing.T) {
 	tests := []struct {
 		name string
 		want string
-		i    Type
+		i    token.Type
 	}{
 		{
 			name: "error",
 			want: "ERROR",
-			i:    ERROR,
+			i:    token.ERROR,
 		},
 		{
 			name: "left paren",
 			want: "(",
-			i:    LPAREN,
+			i:    token.LPAREN,
 		},
 		{
 			name: "task",
 			want: "task",
-			i:    TASK,
+			i:    token.TASK,
 		},
 		{
 			name: "declare",
 			want: ":=",
-			i:    DECLARE,
+			i:    token.DECLARE,
 		},
 	}
 	for _, tt := range tests {
