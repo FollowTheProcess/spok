@@ -92,10 +92,14 @@ func (i IntegratedRunner) Run(cmd string, stream iostream.IOStream, task string,
 	stdoutMultiWriter := io.MultiWriter(stdout, stream.Stdout)
 	stderrMultiWriter := io.MultiWriter(stderr, stream.Stderr)
 
+	execHandler := func(interp.ExecHandlerFunc) interp.ExecHandlerFunc {
+		return interp.DefaultExecHandler(timeout)
+	}
+
 	runner, err := interp.New(
 		interp.Params("-e"),
 		interp.Env(expand.ListEnviron(env...)),
-		interp.ExecHandler(interp.DefaultExecHandler(timeout)),
+		interp.ExecHandlers(execHandler),
 		interp.OpenHandler(interp.DefaultOpenHandler()),
 		interp.StdIO(nil, stdoutMultiWriter, stderrMultiWriter),
 		interp.Dir(""),
