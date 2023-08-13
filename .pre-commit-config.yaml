@@ -20,4 +20,4 @@ repos:
       - id: codespell
         args:
           - --skip
-          - "*.css,*.js"
+          - "*.css,*.js,go.sum"
