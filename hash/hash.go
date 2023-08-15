@@ -181,11 +181,3 @@ func (b sortByteSlices) Less(i, j int) bool {
 func (b sortByteSlices) Swap(i, j int) {
 	b[j], b[i] = b[i], b[j]
 }
-
-// min returns the minimum of 2 ints.
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}

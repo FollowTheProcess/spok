@@ -385,11 +385,3 @@ func randSeq() string {
 
 	return string(b)
 }
-
-// min returns the minimum of 2 ints.
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
