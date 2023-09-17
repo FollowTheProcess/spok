@@ -46,6 +46,7 @@ linters-settings:
     check:
       - switch
       - map
+    default-signifies-exhaustive: true
 
   gocyclo:
     min-complexity: 20
