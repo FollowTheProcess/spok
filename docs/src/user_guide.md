@@ -131,7 +131,7 @@ task lots("**/*.go", "**/*.py", "some/specific/file.txt") {
 
 In a word... no! Spok is designed to be *fast*:
 
-- The expansion of glob patterns happens once, when the spokfile is parsed, and the results are cached in memory for re-use
+- The expansion of glob patterns happens once, when the spokfile is parsed, and the results are cached in memory for reuse
 - The opening, reading and hashing of file contents happens concurrently across all your cores
 - It's written in Go so it's naturally pretty fast anyway!
 
