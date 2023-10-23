@@ -1,7 +1,7 @@
 github.com/FollowTheProcess/collections v0.4.0 h1:VMyPS9z8h/HQ5Hc2kI1LVwguaSStSjQsxU3RGv3jnLA=
 github.com/FollowTheProcess/collections v0.4.0/go.mod h1:wIPFes/QbkV5tvwNJEpgFAo/4hanRm33G63jNoyg8UY=
-github.com/FollowTheProcess/msg v0.7.0 h1:SMlT4BBrihOPksA3UeDd5YwNG1huq0ztDtEysCiBfzk=
-github.com/FollowTheProcess/msg v0.7.0/go.mod h1:HL9SNpRDtQxWCk/6T33EkmYHeSS9QBbcW+b785BDg4w=
+github.com/FollowTheProcess/msg v1.0.0 h1:ZIvbZ5WKlIoySPZfZfbjLn3nZN/1IWoTdjfJSkQ96NI=
+github.com/FollowTheProcess/msg v1.0.0/go.mod h1:HL9SNpRDtQxWCk/6T33EkmYHeSS9QBbcW+b785BDg4w=
 github.com/bmatcuk/doublestar/v4 v4.6.0 h1:HTuxyug8GyFbRkrffIpzNCSK4luc0TY3wzXvzIZhEXc=
 github.com/bmatcuk/doublestar/v4 v4.6.0/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
