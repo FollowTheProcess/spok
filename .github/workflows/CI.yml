@@ -92,6 +92,9 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Clean Mod Cache # See https://github.com/golangci/golangci-lint-action/issues/135
+        run: go clean -modcache
+
       - name: Run Linting
         uses: golangci/golangci-lint-action@v3
         with:
