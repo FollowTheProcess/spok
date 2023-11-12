@@ -13,11 +13,11 @@ import (
 
 // Vertex represents a single node in the graph.
 type Vertex struct {
-	parents  set.Set[*Vertex] // The direct parents of this vertex
-	children set.Set[*Vertex] // The direct children of this vertex
-	Name     string           // Uniquely identifiable name
-	Task     task.Task        // The actual underlying task represented by this vertex
-	inDegree int              // Number of incoming edges
+	parents  *set.Set[*Vertex] // The direct parents of this vertex
+	children *set.Set[*Vertex] // The direct children of this vertex
+	Name     string            // Uniquely identifiable name
+	Task     task.Task         // The actual underlying task represented by this vertex
+	inDegree int               // Number of incoming edges
 }
 
 // Parents returns the vertices parents.
