@@ -61,11 +61,15 @@ func (r Results) Ok() bool {
 // IntegratedRunner implements Runner by using a 100% go implementation
 // of a shell interpreter, this is the most cross-compatible version of a shell
 // runner possible as it does not depend on any external shell.
-type IntegratedRunner struct{}
+type IntegratedRunner struct {
+	parser *syntax.Parser
+}
 
 // NewIntegratedRunner returns a shell runner with no external dependency.
 func NewIntegratedRunner() IntegratedRunner {
-	return IntegratedRunner{}
+	return IntegratedRunner{
+		parser: syntax.NewParser(),
+	}
 }
 
 // Run implements Runner for an IntegratedRunner, using a 100% go implementation of a shell interpreter.
@@ -73,7 +77,7 @@ func NewIntegratedRunner() IntegratedRunner {
 // Command stdout and stderr will be collected into the returned Result and optionally also printed to
 // the writers in the IOStream, this allows output to be captured or discarded easily.
 func (i IntegratedRunner) Run(cmd string, stream iostream.IOStream, task string, env []string) (Result, error) {
-	prog, err := syntax.NewParser().Parse(strings.NewReader(cmd), "")
+	prog, err := i.parser.Parse(strings.NewReader(cmd), "")
 	if err != nil {
 		return Result{}, fmt.Errorf("Command %q in task %q not valid shell syntax: %w", cmd, task, err)
 	}
