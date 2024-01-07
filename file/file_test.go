@@ -76,10 +76,11 @@ func TestExpandGlobs(t *testing.T) {
 		{
 			name: "outputs",
 			file: &SpokFile{
-				Path:  filepath.Join(testdata, "spokfile"),
-				Dir:   testdata,
-				Vars:  make(map[string]string),
-				Globs: make(map[string][]string),
+				logger: noOpLogger,
+				Path:   filepath.Join(testdata, "spokfile"),
+				Dir:    testdata,
+				Vars:   make(map[string]string),
+				Globs:  make(map[string][]string),
 				Tasks: map[string]task.Task{
 					"test": {
 						Doc:         "A simple test task",
@@ -89,9 +90,10 @@ func TestExpandGlobs(t *testing.T) {
 				},
 			},
 			want: &SpokFile{
-				Path: filepath.Join(testdata, "spokfile"),
-				Dir:  testdata,
-				Vars: make(map[string]string),
+				logger: noOpLogger,
+				Path:   filepath.Join(testdata, "spokfile"),
+				Dir:    testdata,
+				Vars:   make(map[string]string),
 				Globs: map[string][]string{
 					"**/*.test": {
 						mustAbs(testdata, "top.test"),
@@ -114,7 +116,7 @@ func TestExpandGlobs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.file.expandGlobs(noOpLogger); err != nil {
+			if err := tt.file.expandGlobs(); err != nil {
 				t.Fatalf("ExpandGlobs returned an error: %v", err)
 			}
 
@@ -462,6 +464,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "simple",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -491,6 +494,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "simple with glob dependencies",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -531,6 +535,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "simple with env vars",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -563,6 +568,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "missing task",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -580,6 +586,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "non zero exit",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -609,6 +616,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "multiple commands",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -659,6 +667,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "multiple tasks choose one",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -694,6 +703,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "multiple tasks choose other",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -729,6 +739,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "multiple tasks choose both",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -799,6 +810,7 @@ func TestRunForce(t *testing.T) {
 		defer os.RemoveAll(".spok")
 
 		spokfile := &SpokFile{
+			logger: noOpLogger,
 			Tasks: map[string]task.Task{
 				"test": {
 					Name: "test",
@@ -847,6 +859,7 @@ func TestRunForce(t *testing.T) {
 		defer os.RemoveAll(".spok")
 
 		spokfile := &SpokFile{
+			logger: noOpLogger,
 			Tasks: map[string]task.Task{
 				"test": {
 					Name: "test",
@@ -896,6 +909,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 		defer os.RemoveAll(".spok")
 
 		spokfile := &SpokFile{
+			logger: noOpLogger,
 			Tasks: map[string]task.Task{
 				"test": {
 					Name: "test",
@@ -944,6 +958,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 		defer os.RemoveAll(".spok")
 
 		spokfile := &SpokFile{
+			logger: noOpLogger,
 			Tasks: map[string]task.Task{
 				"test": {
 					Name: "test",
@@ -997,6 +1012,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 	}{
 		{
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -1012,6 +1028,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 		},
 		{
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"build": {
 						Name: "build",
@@ -1027,6 +1044,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 		},
 		{
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"build": {
 						Name: "build",
