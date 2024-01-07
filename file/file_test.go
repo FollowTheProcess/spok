@@ -11,6 +11,7 @@ import (
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 // testLogger is a no op logger that implements the interface
@@ -117,7 +118,7 @@ func TestExpandGlobs(t *testing.T) {
 				t.Fatalf("ExpandGlobs returned an error: %v", err)
 			}
 
-			if diff := cmp.Diff(tt.want, tt.file); diff != "" {
+			if diff := cmp.Diff(tt.want, tt.file, cmpopts.IgnoreUnexported(*tt.want, *tt.file)); diff != "" {
 				t.Errorf("File mismatch (-want +got):\n%s", diff)
 			}
 		})
@@ -436,8 +437,14 @@ func TestFromAST(t *testing.T) {
 				t.Fatalf("fromTree() err = %v, wantErr = %v", err, tt.wantErr)
 			}
 
-			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf("File mismatch (-want +got):\n%s", diff)
+			if tt.want != nil {
+				if diff := cmp.Diff(tt.want, got, cmpopts.IgnoreUnexported(*tt.want)); diff != "" {
+					t.Errorf("File mismatch (-want +got):\n%s", diff)
+				}
+			} else {
+				if diff := cmp.Diff(tt.want, got); diff != "" {
+					t.Errorf("File mismatch (-want +got):\n%s", diff)
+				}
 			}
 		})
 	}
@@ -1483,7 +1490,7 @@ func TestBuildFullSpokfile(t *testing.T) {
 		t.Fatalf("fromAST returned an error: %v", err)
 	}
 
-	if diff := cmp.Diff(spokFileWant, got); diff != "" {
+	if diff := cmp.Diff(spokFileWant, got, cmpopts.IgnoreUnexported(*spokFileWant, *got)); diff != "" {
 		t.Errorf("File mismatch (-want +got):\n%s", diff)
 	}
 }

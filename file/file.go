@@ -30,11 +30,12 @@ const NAME = "spokfile"
 
 // SpokFile represents a concrete spokfile.
 type SpokFile struct {
-	Vars  map[string]string    // Global variables in IDENT: value form (functions already evaluated)
-	Tasks map[string]task.Task // Map of task name to the task itself
-	Globs map[string][]string  // Map of glob pattern to their concrete filepaths (avoids recalculating)
-	Path  string               // The absolute path to the spokfile
-	Dir   string               // The directory under which the spokfile sits
+	logger logger.Logger        // Shared logger
+	Vars   map[string]string    // Global variables in IDENT: value form (functions already evaluated)
+	Tasks  map[string]task.Task // Map of task name to the task itself
+	Globs  map[string][]string  // Map of glob pattern to their concrete filepaths (avoids recalculating)
+	Path   string               // The absolute path to the spokfile
+	Dir    string               // The directory under which the spokfile sits
 }
 
 // HasTask returns whether or not the SpokFile has a task with the given name.
