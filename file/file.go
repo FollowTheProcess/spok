@@ -81,6 +81,7 @@ func (s *SpokFile) expandGlobs(logger logger.Logger) error {
 			if err != nil {
 				return err
 			}
+			count += len(matches)
 			s.Globs[pattern] = matches
 		}
 	}
