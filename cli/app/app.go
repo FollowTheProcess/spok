@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"time"
 
 	"github.com/FollowTheProcess/msg"
 	"github.com/FollowTheProcess/spok/cache"
@@ -108,7 +109,7 @@ func (a *App) Run(tasks []string) error {
 	// Flush the logger
 	defer a.logger.Sync() //nolint: errcheck
 
-	a.logger.Debug("Parsing spokfile at %s", a.Options.Spokfile)
+	parseStart := time.Now()
 	contents, err := os.ReadFile(a.Options.Spokfile)
 	if err != nil {
 		return err
@@ -118,6 +119,7 @@ func (a *App) Run(tasks []string) error {
 	if err != nil {
 		return err
 	}
+	a.logger.Debug("Parsed spokfile at %s in %v", a.Options.Spokfile, time.Since(parseStart))
 
 	spokfile, err := file.New(tree, filepath.Dir(a.Options.Spokfile), a.logger)
 	if err != nil {
