@@ -93,9 +93,10 @@ func (s *SpokFile) expandGlobs() error {
 // buildGraph takes in a list of requested tasks, examines their dependencies, constructs
 // and returns the dependency graph.
 func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
-	s.logger.Debug("Building dependency graph for requested tasks: %v", requested)
+	start := time.Now()
 	dag := graph.New()
-	// For all requested tasks
+
+	// TODO: Make this recursive so it will go through dependencies of dependencies
 	for _, name := range requested {
 		requestedTask, ok := s.Tasks[name]
 		if !ok {
@@ -140,6 +141,8 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 		}
 	}
 
+	s.logger.Debug("Built dependency graph for requested tasks: %v in %v", requested, time.Since(start))
+
 	return dag, nil
 }
 
@@ -160,11 +163,12 @@ func (s *SpokFile) Run(stream iostream.IOStream, runner shell.Runner, force bool
 	}
 
 	// Topological sort on the DAG to determine a run order
-	s.logger.Debug("Calculating topological sort of dependency graph")
+	sortStart := time.Now()
 	runOrder, err := dag.Sort()
 	if err != nil {
 		return nil, err
 	}
+	s.logger.Debug("Calculated topological sort of dependency graph in %v", time.Since(sortStart))
 
 	// Submit the run order to be executed and gather up the results
 	results, err := s.run(stream, runner, force, runOrder)
@@ -229,10 +233,12 @@ func (s *SpokFile) run(stream iostream.IOStream, runner shell.Runner, force bool
 			hasher = hash.New()
 		}
 
+		hashStart := time.Now()
 		currentDigest, err := hasher.Hash(toHash)
 		if err != nil {
 			return nil, err
 		}
+		s.logger.Debug("Calculated digest of %d files in %v", len(toHash), time.Since(hashStart))
 
 		// By the time we get here, we know the cache file will exist (even if it has no digests)
 		// so we can go ahead and load as normal. If a task is not in the cache, it means it was
