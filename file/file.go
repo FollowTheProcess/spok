@@ -70,27 +70,18 @@ func (s *SpokFile) Env() []string {
 func (s *SpokFile) expandGlobs(logger logger.Logger) error {
 	start := time.Now()
 	count := 0
+	var toExpand []string
 	for _, task := range s.Tasks {
-		for _, pattern := range task.GlobDependencies {
-			if !s.hasGlob(pattern) {
-				matches, err := expandGlob(s.Dir, pattern)
-				if err != nil {
-					return err
-				}
-				count += len(matches)
-				s.Globs[pattern] = matches
+		toExpand = append(toExpand, task.GlobDependencies...)
+		toExpand = append(toExpand, task.GlobOutputs...)
+	}
+	for _, pattern := range toExpand {
+		if !s.hasGlob(pattern) {
+			matches, err := expandGlob(s.Dir, pattern)
+			if err != nil {
+				return err
 			}
-		}
-
-		for _, pattern := range task.GlobOutputs {
-			if !s.hasGlob(pattern) {
-				matches, err := expandGlob(s.Dir, pattern)
-				if err != nil {
-					return err
-				}
-				count += len(matches)
-				s.Globs[pattern] = matches
-			}
+			s.Globs[pattern] = matches
 		}
 	}
 	logger.Debug("Expanded globs to %d unique filepaths in %v", count, time.Since(start))
