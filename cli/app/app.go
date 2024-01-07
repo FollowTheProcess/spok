@@ -119,7 +119,7 @@ func (a *App) Run(tasks []string) error {
 		return err
 	}
 
-	spokfile, err := file.New(tree, filepath.Dir(a.Options.Spokfile))
+	spokfile, err := file.New(tree, filepath.Dir(a.Options.Spokfile), a.logger)
 	if err != nil {
 		return err
 	}
@@ -238,7 +238,7 @@ func (a *App) initialise() error {
 
 // runTasks is a helper that runs the request spokfile tasks.
 func (a *App) runTasks(spokfile *file.SpokFile, runner shell.Runner, tasks ...string) error {
-	results, err := spokfile.Run(a.logger, a.stream, runner, a.Options.Force, tasks...)
+	results, err := spokfile.Run(a.stream, runner, a.Options.Force, tasks...)
 	if err != nil {
 		return err
 	}

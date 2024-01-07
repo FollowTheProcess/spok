@@ -30,11 +30,12 @@ const NAME = "spokfile"
 
 // SpokFile represents a concrete spokfile.
 type SpokFile struct {
-	Vars  map[string]string    // Global variables in IDENT: value form (functions already evaluated)
-	Tasks map[string]task.Task // Map of task name to the task itself
-	Globs map[string][]string  // Map of glob pattern to their concrete filepaths (avoids recalculating)
-	Path  string               // The absolute path to the spokfile
-	Dir   string               // The directory under which the spokfile sits
+	logger logger.Logger        // Shared logger
+	Vars   map[string]string    // Global variables in IDENT: value form (functions already evaluated)
+	Tasks  map[string]task.Task // Map of task name to the task itself
+	Globs  map[string][]string  // Map of glob pattern to their concrete filepaths (avoids recalculating)
+	Path   string               // The absolute path to the spokfile
+	Dir    string               // The directory under which the spokfile sits
 }
 
 // HasTask returns whether or not the SpokFile has a task with the given name.
@@ -67,7 +68,7 @@ func (s *SpokFile) Env() []string {
 
 // expandGlobs gathers up all the glob patterns in every task in the spokfile and expands them
 // saving the results to the Globs map as e.g. {"**/*.go": ["file1.go", "file2.go"]}.
-func (s *SpokFile) expandGlobs(logger logger.Logger) error {
+func (s *SpokFile) expandGlobs() error {
 	start := time.Now()
 	count := 0
 	var toExpand []string
@@ -85,14 +86,14 @@ func (s *SpokFile) expandGlobs(logger logger.Logger) error {
 			s.Globs[pattern] = matches
 		}
 	}
-	logger.Debug("Expanded globs to %d unique filepaths in %v", count, time.Since(start))
+	s.logger.Debug("Expanded globs to %d unique filepaths in %v", count, time.Since(start))
 	return nil
 }
 
 // buildGraph takes in a list of requested tasks, examines their dependencies, constructs
 // and returns the dependency graph.
-func (s *SpokFile) buildGraph(logger logger.Logger, requested ...string) (*graph.Graph, error) {
-	logger.Debug("Building dependency graph for requested tasks: %v", requested)
+func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
+	s.logger.Debug("Building dependency graph for requested tasks: %v", requested)
 	dag := graph.New()
 	// For all requested tasks
 	for _, name := range requested {
@@ -124,7 +125,7 @@ func (s *SpokFile) buildGraph(logger logger.Logger, requested ...string) (*graph
 				}
 				return nil, err
 			}
-			logger.Debug("Task %s depends on task %s", requestedTask.Name, depTask.Name)
+			s.logger.Debug("Task %s depends on task %s", requestedTask.Name, depTask.Name)
 			depVertex := graph.NewVertex(depTask)
 			if !dag.ContainsVertex(dep) {
 				dag.AddVertex(depVertex)
@@ -145,28 +146,28 @@ func (s *SpokFile) buildGraph(logger logger.Logger, requested ...string) (*graph
 // Run runs the specified tasks, it takes force which is a boolean flag set by the CLI which
 // always reruns tasks and an io.Writer which is used only to echo the commands being run, the command's stdout and stderr
 // is stored in the result.
-func (s *SpokFile) Run(logger logger.Logger, stream iostream.IOStream, runner shell.Runner, force bool, tasks ...string) (task.Results, error) {
+func (s *SpokFile) Run(stream iostream.IOStream, runner shell.Runner, force bool, tasks ...string) (task.Results, error) {
 	// Perform glob expansion for every glob pattern in the whole file and save
 	// the list of filepaths to the Globs map
-	if err := s.expandGlobs(logger); err != nil {
+	if err := s.expandGlobs(); err != nil {
 		return nil, err
 	}
 
 	// Build the task dependency graph based on the requested tasks and their dependencies
-	dag, err := s.buildGraph(logger, tasks...)
+	dag, err := s.buildGraph(tasks...)
 	if err != nil {
 		return nil, err
 	}
 
 	// Topological sort on the DAG to determine a run order
-	logger.Debug("Calculating topological sort of dependency graph")
+	s.logger.Debug("Calculating topological sort of dependency graph")
 	runOrder, err := dag.Sort()
 	if err != nil {
 		return nil, err
 	}
 
 	// Submit the run order to be executed and gather up the results
-	results, err := s.run(logger, stream, runner, force, runOrder)
+	results, err := s.run(stream, runner, force, runOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -175,14 +176,14 @@ func (s *SpokFile) Run(logger logger.Logger, stream iostream.IOStream, runner sh
 }
 
 // run is the implementation of the public Run method.
-func (s *SpokFile) run(logger logger.Logger, stream iostream.IOStream, runner shell.Runner, force bool, runOrder []*graph.Vertex) (task.Results, error) {
+func (s *SpokFile) run(stream iostream.IOStream, runner shell.Runner, force bool, runOrder []*graph.Vertex) (task.Results, error) {
 	results := make(task.Results, 0, len(runOrder))
 
 	cachePath := filepath.Join(s.Dir, cache.Path)
 	if !cache.Exists(cachePath) {
 		// Spok has not run at all before and the cache does not exist
 		// so just dump a placeholder cache in with all the task names and empty digest entries
-		logger.Debug("Spok cache at %s not found, initialising new cache", cachePath)
+		s.logger.Debug("Spok cache at %s not found, initialising new cache", cachePath)
 		if err := cache.Init(cachePath, maps.Keys(s.Tasks)...); err != nil {
 			return nil, err
 		}
@@ -207,13 +208,13 @@ func (s *SpokFile) run(logger logger.Logger, stream iostream.IOStream, runner sh
 		for _, pattern := range vertex.Task.GlobDependencies {
 			globs := s.Globs[pattern]
 			toHash = append(toHash, globs...)
-			logger.Debug("Task %s glob dependency pattern %q expanded to %d files", vertex.Task.Name, pattern, len(globs))
+			s.logger.Debug("Task %s glob dependency pattern %q expanded to %d files", vertex.Task.Name, pattern, len(globs))
 		}
 
 		// Second, any non-glob file dependencies
 		toHash = append(toHash, vertex.Task.FileDependencies...)
 
-		logger.Debug("Task %s depends on %d files", vertex.Task.Name, len(toHash))
+		s.logger.Debug("Task %s depends on %d files", vertex.Task.Name, len(toHash))
 
 		// If the task did not declare any file dependencies, let's not
 		// update the cache, this way it will always run
@@ -241,7 +242,7 @@ func (s *SpokFile) run(logger logger.Logger, stream iostream.IOStream, runner sh
 			cachedState.Set(vertex.Task.Name, "")
 		}
 
-		logger.Debug("Task %s current checksum: %.15s cached checksum: %.15s", vertex.Task.Name, currentDigest, cachedDigest)
+		s.logger.Debug("Task %s current checksum: %.15s cached checksum: %.15s", vertex.Task.Name, currentDigest, cachedDigest)
 
 		var result shell.Results
 		skipped := false
@@ -272,7 +273,7 @@ func (s *SpokFile) run(logger logger.Logger, stream iostream.IOStream, runner sh
 	// Only update the cache if force was not set, the task declares file dependencies
 	// and the task run was successful
 	if !force && updateCache && results.Ok() {
-		logger.Debug("Updating cached state")
+		s.logger.Debug("Updating cached state")
 		if err := cachedState.Dump(cachePath); err != nil {
 			return nil, err
 		}
@@ -328,13 +329,15 @@ func Find(logger logger.Logger, start, stop string) (string, error) {
 // New converts a parsed spok AST into a concrete File object,
 // root is the absolute path to the directory to use as root for glob
 // expansion, typically the path to the directory the spokfile sits in.
-func New(tree ast.Tree, root string) (*SpokFile, error) {
-	var file SpokFile
-	file.Path = filepath.Join(root, NAME)
-	file.Dir = root
-	file.Vars = make(map[string]string)
-	file.Tasks = make(map[string]task.Task)
-	file.Globs = make(map[string][]string)
+func New(tree ast.Tree, root string, logger logger.Logger) (*SpokFile, error) {
+	file := SpokFile{
+		logger: logger,
+		Path:   filepath.Join(root, NAME),
+		Dir:    root,
+		Vars:   make(map[string]string),
+		Tasks:  make(map[string]task.Task),
+		Globs:  make(map[string][]string),
+	}
 
 	for _, node := range tree.Nodes {
 		switch {

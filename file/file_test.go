@@ -11,6 +11,7 @@ import (
 	"github.com/FollowTheProcess/spok/shell"
 	"github.com/FollowTheProcess/spok/task"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 // testLogger is a no op logger that implements the interface
@@ -75,10 +76,11 @@ func TestExpandGlobs(t *testing.T) {
 		{
 			name: "outputs",
 			file: &SpokFile{
-				Path:  filepath.Join(testdata, "spokfile"),
-				Dir:   testdata,
-				Vars:  make(map[string]string),
-				Globs: make(map[string][]string),
+				logger: noOpLogger,
+				Path:   filepath.Join(testdata, "spokfile"),
+				Dir:    testdata,
+				Vars:   make(map[string]string),
+				Globs:  make(map[string][]string),
 				Tasks: map[string]task.Task{
 					"test": {
 						Doc:         "A simple test task",
@@ -88,9 +90,10 @@ func TestExpandGlobs(t *testing.T) {
 				},
 			},
 			want: &SpokFile{
-				Path: filepath.Join(testdata, "spokfile"),
-				Dir:  testdata,
-				Vars: make(map[string]string),
+				logger: noOpLogger,
+				Path:   filepath.Join(testdata, "spokfile"),
+				Dir:    testdata,
+				Vars:   make(map[string]string),
 				Globs: map[string][]string{
 					"**/*.test": {
 						mustAbs(testdata, "top.test"),
@@ -113,11 +116,11 @@ func TestExpandGlobs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.file.expandGlobs(noOpLogger); err != nil {
+			if err := tt.file.expandGlobs(); err != nil {
 				t.Fatalf("ExpandGlobs returned an error: %v", err)
 			}
 
-			if diff := cmp.Diff(tt.want, tt.file); diff != "" {
+			if diff := cmp.Diff(tt.want, tt.file, cmpopts.IgnoreUnexported(*tt.want, *tt.file)); diff != "" {
 				t.Errorf("File mismatch (-want +got):\n%s", diff)
 			}
 		})
@@ -431,13 +434,19 @@ func TestFromAST(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := New(tt.tree, testdata)
+			got, err := New(tt.tree, testdata, noOpLogger)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("fromTree() err = %v, wantErr = %v", err, tt.wantErr)
 			}
 
-			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf("File mismatch (-want +got):\n%s", diff)
+			if tt.want != nil {
+				if diff := cmp.Diff(tt.want, got, cmpopts.IgnoreUnexported(*tt.want)); diff != "" {
+					t.Errorf("File mismatch (-want +got):\n%s", diff)
+				}
+			} else {
+				if diff := cmp.Diff(tt.want, got); diff != "" {
+					t.Errorf("File mismatch (-want +got):\n%s", diff)
+				}
 			}
 		})
 	}
@@ -455,6 +464,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "simple",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -484,6 +494,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "simple with glob dependencies",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -524,6 +535,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "simple with env vars",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -556,6 +568,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "missing task",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -573,6 +586,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "non zero exit",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -602,6 +616,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "multiple commands",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -652,6 +667,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "multiple tasks choose one",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -687,6 +703,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "multiple tasks choose other",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -722,6 +739,7 @@ func TestRun(t *testing.T) {
 		{
 			name: "multiple tasks choose both",
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -774,7 +792,7 @@ func TestRun(t *testing.T) {
 			// of each test
 			defer os.RemoveAll(".spok")
 			runner := shell.NewIntegratedRunner()
-			got, err := tt.spokfile.Run(noOpLogger, iostream.Null(), runner, tt.force, tt.tasks...)
+			got, err := tt.spokfile.Run(iostream.Null(), runner, tt.force, tt.tasks...)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() err = %v, wantErr = %v", err, tt.wantErr)
 			}
@@ -792,6 +810,7 @@ func TestRunForce(t *testing.T) {
 		defer os.RemoveAll(".spok")
 
 		spokfile := &SpokFile{
+			logger: noOpLogger,
 			Tasks: map[string]task.Task{
 				"test": {
 					Name: "test",
@@ -804,7 +823,7 @@ func TestRunForce(t *testing.T) {
 		}
 
 		runner := shell.NewIntegratedRunner()
-		first, err := spokfile.Run(noOpLogger, iostream.Null(), runner, true, "test")
+		first, err := spokfile.Run(iostream.Null(), runner, true, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -820,7 +839,7 @@ func TestRunForce(t *testing.T) {
 
 		// Because force is true, second result should not be skipped either
 		// even though the cache won't have changed
-		second, err := spokfile.Run(noOpLogger, iostream.Null(), runner, true, "test")
+		second, err := spokfile.Run(iostream.Null(), runner, true, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -840,6 +859,7 @@ func TestRunForce(t *testing.T) {
 		defer os.RemoveAll(".spok")
 
 		spokfile := &SpokFile{
+			logger: noOpLogger,
 			Tasks: map[string]task.Task{
 				"test": {
 					Name: "test",
@@ -852,7 +872,7 @@ func TestRunForce(t *testing.T) {
 		}
 
 		runner := shell.NewIntegratedRunner()
-		first, err := spokfile.Run(noOpLogger, iostream.Null(), runner, false, "test")
+		first, err := spokfile.Run(iostream.Null(), runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -867,7 +887,7 @@ func TestRunForce(t *testing.T) {
 		}
 
 		// Because force is now false, the first result should run and the second should be skipped
-		second, err := spokfile.Run(noOpLogger, iostream.Null(), runner, false, "test")
+		second, err := spokfile.Run(iostream.Null(), runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -889,6 +909,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 		defer os.RemoveAll(".spok")
 
 		spokfile := &SpokFile{
+			logger: noOpLogger,
 			Tasks: map[string]task.Task{
 				"test": {
 					Name: "test",
@@ -901,7 +922,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 		}
 
 		runner := shell.NewIntegratedRunner()
-		first, err := spokfile.Run(noOpLogger, iostream.Null(), runner, false, "test")
+		first, err := spokfile.Run(iostream.Null(), runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -917,7 +938,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 
 		// Because the result was successful, it should have been cached
 		// force is false here so it should not be run again
-		second, err := spokfile.Run(noOpLogger, iostream.Null(), runner, false, "test")
+		second, err := spokfile.Run(iostream.Null(), runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -937,6 +958,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 		defer os.RemoveAll(".spok")
 
 		spokfile := &SpokFile{
+			logger: noOpLogger,
 			Tasks: map[string]task.Task{
 				"test": {
 					Name: "test",
@@ -949,7 +971,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 		}
 
 		runner := shell.NewIntegratedRunner()
-		first, err := spokfile.Run(noOpLogger, iostream.Null(), runner, false, "test")
+		first, err := spokfile.Run(iostream.Null(), runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -965,7 +987,7 @@ func TestRunDoesNotCacheFailure(t *testing.T) {
 
 		// Because the result was unsuccessful, it should not have been cached
 		// and should be run again
-		second, err := spokfile.Run(noOpLogger, iostream.Null(), runner, false, "test")
+		second, err := spokfile.Run(iostream.Null(), runner, false, "test")
 		if err != nil {
 			t.Fatalf("Run() returned an error: %v", err)
 		}
@@ -990,6 +1012,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 	}{
 		{
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"test": {
 						Name: "test",
@@ -1005,6 +1028,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 		},
 		{
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"build": {
 						Name: "build",
@@ -1020,6 +1044,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 		},
 		{
 			spokfile: &SpokFile{
+				logger: noOpLogger,
 				Tasks: map[string]task.Task{
 					"build": {
 						Name: "build",
@@ -1045,7 +1070,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			runner := shell.NewIntegratedRunner()
-			_, err := tt.spokfile.Run(noOpLogger, iostream.Null(), runner, false, tt.tasks...)
+			_, err := tt.spokfile.Run(iostream.Null(), runner, false, tt.tasks...)
 			if err == nil {
 				t.Fatalf("Run() did not return an error")
 			}
@@ -1060,6 +1085,7 @@ func TestRunFuzzyMatch(t *testing.T) {
 func TestBuildGraph(t *testing.T) {
 	t.Parallel()
 	spokfile := &SpokFile{
+		logger: noOpLogger,
 		Tasks: map[string]task.Task{
 			"test": {
 				Name:             "test",
@@ -1140,7 +1166,7 @@ func TestBuildGraph(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dag, err := spokfile.buildGraph(noOpLogger, tt.requested...)
+			dag, err := spokfile.buildGraph(tt.requested...)
 			if err != nil {
 				t.Fatalf("buildGraph returned an error: %v", err)
 			}
@@ -1478,12 +1504,12 @@ func TestBuildFullSpokfile(t *testing.T) {
 	}
 	t.Parallel()
 
-	got, err := New(fullSpokfileAST, getTestdata())
+	got, err := New(fullSpokfileAST, getTestdata(), noOpLogger)
 	if err != nil {
 		t.Fatalf("fromAST returned an error: %v", err)
 	}
 
-	if diff := cmp.Diff(spokFileWant, got); diff != "" {
+	if diff := cmp.Diff(spokFileWant, got, cmpopts.IgnoreUnexported(*spokFileWant, *got)); diff != "" {
 		t.Errorf("File mismatch (-want +got):\n%s", diff)
 	}
 }
