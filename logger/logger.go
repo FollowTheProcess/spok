@@ -4,7 +4,7 @@
 // the logger being a massive task.
 //
 // Spok's logging needs are fairly basic, it really only needs DEBUG level logs
-// for the --verbose flag.
+// for the --debug flag.
 package logger
 
 import "go.uber.org/zap"

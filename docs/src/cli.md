@@ -31,6 +31,7 @@ USAGE:
 
 FLAGS:
   -c, --clean             Remove all build artifacts.
+  -d, --debug             Show verbose logging output.
       --fmt               Format the spokfile.
   -f, --force             Bypass file hash checks and force running.
   -h, --help              help for spok
@@ -40,7 +41,6 @@ FLAGS:
   -s, --show              Show all tasks defined in the spokfile.
       --spokfile string   The path to the spokfile (defaults to '$CWD/spokfile').
   -V, --vars              Show all defined variables in spokfile.
-  -v, --verbose           Show verbose logging output.
       --version           version for spok
 
 ```
@@ -241,15 +241,15 @@ COMMIT    3f2a1c2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f
 
 </div>
 
-## `--verbose`
+## `--debug`
 
-If you're ever curious what's going on under the hood, you can use the `--verbose` flag to get a more detailed output of what Spok is doing during
+If you're ever curious what's going on under the hood, you can use the `--debug` flag to get a more detailed output of what Spok is doing during
 any other CLI operation:
 
 <div class="termy">
 
 ```console
-$ spok test --verbose
+$ spok test --debug
 
 2022-11-27T10:10:26.441Z DEBUG Looking in /Users/tomfleet/Development/spok for spokfile
 2022-11-27T10:10:26.442Z DEBUG Found spokfile at /Users/tomfleet/Development/spok/spokfile
