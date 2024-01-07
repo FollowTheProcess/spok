@@ -27,7 +27,7 @@ On top of this, `spok` provides:
 * Incremental runs based on file hashing and sum checks (not timestamps like e.g. [make]), so nothing runs if nothing's changed!
 * Incredibly fast execution! Expensive operations are cached, only does *any* work when it's absolutely necessary
 * Auto loading of `.env` files
-* Debug info with the `--verbose` flag
+* Debug info with the `--debug` flag
 * An auto `spokfile` formatter
 * More features TBC
 

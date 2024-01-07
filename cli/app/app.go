@@ -54,7 +54,7 @@ const (
 type App struct {
 	stream  iostream.IOStream // Where spok writes output to
 	Options *Options          // All the CLI options
-	logger  logger.Logger     // Spok's logger, prints debug messages to stderr if --verbose is used
+	logger  logger.Logger     // Spok's logger, prints debug messages to stderr if --debug is used
 }
 
 // Options holds all the flag options for spok, these will be at their zero values
@@ -66,7 +66,7 @@ type Options struct {
 	Init      bool   // The --init flag
 	Clean     bool   // The --clean flag
 	Force     bool   // The --force flag
-	Verbose   bool   // The --verbose flag
+	Debug     bool   // The --debug flag
 	Quiet     bool   // The --quiet flag
 	JSON      bool   // The --json flag
 	Show      bool   // The --show flag
@@ -90,8 +90,8 @@ func (a *App) Run(tasks []string) error {
 	}
 
 	if a.Options.Quiet {
-		if a.Options.Verbose {
-			return errors.New("--verbose cannot be used with --quiet")
+		if a.Options.Debug {
+			return errors.New("--debug cannot be used with --quiet")
 		}
 		a.setStream(iostream.Null())
 	}
@@ -161,7 +161,7 @@ func (a *App) setup() error {
 		return err
 	}
 
-	log, err := logger.NewZapLogger(a.Options.Verbose)
+	log, err := logger.NewZapLogger(a.Options.Debug)
 	if err != nil {
 		return err
 	}

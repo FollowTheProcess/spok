@@ -70,7 +70,7 @@ func BuildRootCmd() *cobra.Command {
 	flags.BoolVar(&spok.Options.Init, "init", false, "Initialise a new spokfile in $CWD.")
 	flags.BoolVarP(&spok.Options.Clean, "clean", "c", false, "Remove all build artifacts.")
 	flags.BoolVarP(&spok.Options.Force, "force", "f", false, "Bypass file hash checks and force running.")
-	flags.BoolVarP(&spok.Options.Verbose, "verbose", "v", false, "Show verbose logging output.")
+	flags.BoolVarP(&spok.Options.Debug, "debug", "d", false, "Show debug logging output.")
 	flags.BoolVarP(&spok.Options.Quiet, "quiet", "q", false, "Silence all CLI output.")
 	flags.BoolVarP(&spok.Options.JSON, "json", "j", false, "Output task results as JSON.")
 	flags.BoolVarP(&spok.Options.Show, "show", "s", false, "Show all tasks defined in the spokfile.")
