@@ -19,6 +19,13 @@
 *.out
 coverage.html
 
+# Taskfile
+.task
+
+# Comparative benchmarks
+before.txt
+after.txt
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
