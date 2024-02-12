@@ -160,7 +160,7 @@ jobs:
         run: git fetch --force --tags
 
       - name: Install Syft
-        uses: jaxxstorm/action-install-gh-release@v1.10.0
+        uses: jaxxstorm/action-install-gh-release@v1.11.0
         with:
           repo: anchore/syft
 
