@@ -695,7 +695,7 @@ func BenchmarkNewTask(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_, err := task.New(input, testdata, make(map[string]string))
 		if err != nil {
 			b.Fatalf("newTask returned an error: %v", err)
