@@ -20,7 +20,6 @@ builds:
       - -X github.com/FollowTheProcess/spok/cli/cmd.builtBy=GoReleaser
     env:
       - CGO_ENABLED=0
-      - GOEXPERIMENT=loopvar
     goos:
       - linux
       - darwin

@@ -39,7 +39,7 @@ func TestHashFilesIsDeterministic(t *testing.T) {
 	runs := 100
 
 	digests := make([]string, 0, runs)
-	for i := 0; i < runs; i++ {
+	for range runs {
 		digest, err := hasher.Hash(files)
 		if err != nil {
 			t.Fatalf("Hash returned an error: %v", err)
