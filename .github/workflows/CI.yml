@@ -93,7 +93,7 @@ jobs:
         run: go clean -modcache
 
       - name: Run Linting
-        uses: golangci/golangci-lint-action@v5
+        uses: golangci/golangci-lint-action@v6
         with:
           version: latest
 
