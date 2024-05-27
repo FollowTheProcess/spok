@@ -3,7 +3,7 @@ module github.com/FollowTheProcess/spok
 go 1.22
 
 require (
-	github.com/FollowTheProcess/collections v0.5.1
+	github.com/FollowTheProcess/collections v0.5.2
 	github.com/FollowTheProcess/msg v1.0.0
 	github.com/bmatcuk/doublestar/v4 v4.6.1
 	github.com/fatih/color v1.17.0
