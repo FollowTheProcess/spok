@@ -15,11 +15,11 @@ linters:
     - godot
     - gofumpt
     - goimports
-    - gomnd
     - gosimple
     - govet
     - ineffassign
     - misspell
+    - mnd
     - nilerr
     - nilnil
     - nolintlint
