@@ -11,7 +11,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/juju/ansiterm v1.0.0
 	github.com/lithammer/fuzzysearch v1.1.8
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 	mvdan.cc/sh/v3 v3.8.0
