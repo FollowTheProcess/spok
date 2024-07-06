@@ -277,7 +277,7 @@ func (a *App) runTasks(spokfile *file.SpokFile, runner shell.Runner, tasks ...st
 func (a *App) showTasks(spokfile *file.SpokFile) error {
 	writer := tabwriter.NewWriter(a.stream.Stdout, 0, tabWidth, 1, '\t', tabwriter.AlignRight)
 
-	titleStyle := color.New(color.FgHiWhite, color.Bold)
+	titleStyle := color.New(color.Bold)
 	taskStyle := color.New(color.FgHiCyan, color.Bold)
 	descStyle := color.New(color.FgHiBlack, color.Italic)
 
@@ -303,7 +303,7 @@ func (a *App) showTasks(spokfile *file.SpokFile) error {
 func (a *App) showVariables(spokfile *file.SpokFile) error {
 	writer := tabwriter.NewWriter(a.stream.Stdout, minWidth, tabWidth, padding, padChar, tabwriter.AlignRight)
 
-	titleStyle := color.New(color.FgHiWhite, color.Bold)
+	titleStyle := color.New(color.Bold)
 
 	fmt.Fprintf(a.stream.Stdout, "Variables defined in %s:\n", spokfile.Path)
 	titleStyle.Fprintln(writer, "Name\tValue")

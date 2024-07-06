@@ -25,7 +25,7 @@ task build("**/*.go", "go.sum") -> (PROJECT_BIN, GORELEASER_DIST) {
     go generate ./...
     go fmt ./...
     mkdir -p {{.PROJECT_BIN}}
-    goreleaser build --single-target --skip-before --snapshot --clean --output {{.PROJECT_BIN}}/{{.PROJECT_NAME}}
+    goreleaser build --single-target --skip=before --snapshot --clean --output {{.PROJECT_BIN}}/{{.PROJECT_NAME}}
 }
 
 # Run go fmt on all project files
