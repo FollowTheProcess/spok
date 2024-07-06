@@ -34,7 +34,7 @@ type Task struct {
 //
 // If the task has no commands, this becomes a no-op.
 func (t *Task) Run(runner shell.Runner, stream iostream.IOStream, env []string) (shell.Results, error) {
-	echoStyle := color.New(color.FgHiWhite, color.Bold)
+	echoStyle := color.New(color.Bold)
 
 	var results shell.Results
 	for _, cmd := range t.Commands {

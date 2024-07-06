@@ -6,12 +6,11 @@ import (
 	"github.com/fatih/color"
 )
 
-var headerStyle = color.New(color.FgWhite, color.Bold) // Setting header style to use in usage message (usage.go)
+var headerStyle = color.New(color.Bold, color.Underline) // Setting header style to use in usage message
 
 // Custom usage template with the header style applied, here by itself because it looks kind of messy.
 var usageTemplate = fmt.Sprintf(`%s:{{if .Runnable}}
-  {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
-  {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
+  {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}} {{.CommandPath}} [COMMAND]{{end}}{{if gt (len .Aliases) 0}}
 
 %s:
   {{.NameAndAliases}}{{end}}{{if .HasExample}}
@@ -33,5 +32,5 @@ Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
 
 Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
 `,
-	headerStyle.Sprint("USAGE"), headerStyle.Sprint("ALIASES"), headerStyle.Sprint("EXAMPLES"), headerStyle.Sprint("AVAILABLE COMMANDS"),
-	headerStyle.Sprint("FLAGS"), headerStyle.Sprint("GLOBAL FLAGS"))
+	headerStyle.Sprint("Usage"), headerStyle.Sprint("Aliases"), headerStyle.Sprint("Examples"), headerStyle.Sprint("Commands"),
+	headerStyle.Sprint("Options"), headerStyle.Sprint("Global Options"))
