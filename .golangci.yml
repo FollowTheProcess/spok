@@ -8,7 +8,6 @@ linters:
     - errchkjson
     - errname
     - exhaustive
-    - exportloopref
     - goconst
     - gocritic
     - gocyclo
