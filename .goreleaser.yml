@@ -19,7 +19,6 @@ builds:
       - -X github.com/FollowTheProcess/spok/cli/cmd.version={{.Version}}
       - -X github.com/FollowTheProcess/spok/cli/cmd.commit={{.Commit}}
       - -X github.com/FollowTheProcess/spok/cli/cmd.buildDate={{.Date}}
-      - -X github.com/FollowTheProcess/spok/cli/cmd.builtBy=GoReleaser
     env:
       - CGO_ENABLED=0
     goos:
