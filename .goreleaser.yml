@@ -77,7 +77,7 @@ checksum:
   name_template: "checksums.txt"
 
 snapshot:
-  name_template: "{{ .Tag }}-dev{{ .ShortCommit }}"
+  version_template: "{{ .Tag }}-dev{{ .ShortCommit }}"
 
 changelog:
   # The changelog is handled by release drafter
