@@ -6,7 +6,7 @@ toolchain go1.23.1
 
 require (
 	github.com/FollowTheProcess/cli v0.7.0
-	github.com/FollowTheProcess/collections v0.5.2
+	github.com/FollowTheProcess/collections v0.6.0
 	github.com/FollowTheProcess/msg v1.2.0
 	github.com/bmatcuk/doublestar/v4 v4.6.1
 	github.com/fatih/color v1.17.0
