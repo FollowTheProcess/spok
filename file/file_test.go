@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/FollowTheProcess/spok/ast"
@@ -1181,8 +1182,8 @@ func TestBuildGraph(t *testing.T) {
 					t.Fatalf("%s not a vertex in the graph", key)
 				}
 
-				if len(vertex.Parents()) != val {
-					t.Errorf("Wrong number of parents for vertex %q\nGot: %d\nWant: %d", key, len(vertex.Parents()), val)
+				if parents := slices.Collect(vertex.Parents()); len(parents) != val {
+					t.Errorf("Wrong number of parents for vertex %q\nGot: %d\nWant: %d", key, len(parents), val)
 				}
 			}
 
@@ -1192,8 +1193,8 @@ func TestBuildGraph(t *testing.T) {
 					t.Fatalf("%s not a vertex in the graph", key)
 				}
 
-				if len(vertex.Children()) != val {
-					t.Errorf("Wrong number of children for vertex %q\nGot: %d\nWant: %d", key, len(vertex.Children()), val)
+				if children := slices.Collect(vertex.Children()); len(children) != val {
+					t.Errorf("Wrong number of children for vertex %q\nGot: %d\nWant: %d", key, len(children), val)
 				}
 			}
 		})

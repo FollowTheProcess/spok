@@ -5,6 +5,7 @@ package graph
 import (
 	"errors"
 	"fmt"
+	"iter"
 
 	"github.com/FollowTheProcess/collections/queue"
 	"github.com/FollowTheProcess/collections/set"
@@ -21,12 +22,12 @@ type Vertex struct {
 }
 
 // Parents returns the vertices parents.
-func (v *Vertex) Parents() []*Vertex {
+func (v *Vertex) Parents() iter.Seq[*Vertex] {
 	return v.parents.Items()
 }
 
 // Children returns the vertices children.
-func (v *Vertex) Children() []*Vertex {
+func (v *Vertex) Children() iter.Seq[*Vertex] {
 	return v.children.Items()
 }
 
@@ -98,19 +99,19 @@ func (g *Graph) AddEdge(parent, child *Vertex) error {
 	}
 
 	// Create the connection
-	parentVertex.children.Add(child)
-	childVertex.parents.Add(parent)
+	parentVertex.children.Insert(child)
+	childVertex.parents.Insert(parent)
 
 	return nil
 }
 
 // Sort topologically sorts the graph and returns a vertex slice in the correct order.
 func (g *Graph) Sort() ([]*Vertex, error) {
-	zeroInDegreeQueue := queue.New[*Vertex](queue.WithCapacity(len(g.vertices)))
+	zeroInDegreeQueue := queue.New[*Vertex]()
 	result := make([]*Vertex, 0, len(g.vertices))
 
 	for _, vertex := range g.vertices {
-		vertex.inDegree = vertex.parents.Length() // Compute in degree for each vertex
+		vertex.inDegree = vertex.parents.Size() // Compute in degree for each vertex
 
 		// Put all vertices with 0 in-degree into the queue
 		if vertex.inDegree == 0 {
@@ -120,12 +121,12 @@ func (g *Graph) Sort() ([]*Vertex, error) {
 
 	// Bailout point: if there is not at least 1 vertex with 0 in-degree
 	// it's not a DAG and cannot be sorted
-	if zeroInDegreeQueue.IsEmpty() {
+	if zeroInDegreeQueue.Empty() {
 		return nil, errors.New("Task dependency graph contains a cycle and cannot be sorted")
 	}
 
 	// While queue is not empty
-	for !zeroInDegreeQueue.IsEmpty() {
+	for !zeroInDegreeQueue.Empty() {
 		// Only error here is pop from empty queue, but we know
 		// the queue is not empty in this loop so no point checking
 		vertex, _ := zeroInDegreeQueue.Pop() //nolint: errcheck
@@ -134,7 +135,7 @@ func (g *Graph) Sort() ([]*Vertex, error) {
 		result = append(result, vertex)
 
 		// For each child, reduce in-degree by 1
-		for _, child := range vertex.children.Items() {
+		for child := range vertex.children.Items() {
 			child.inDegree--
 
 			// If any are now 0, add to the queue
