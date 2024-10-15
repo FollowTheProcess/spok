@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FollowTheProcess/collections/dag"
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/builtins"
 	"github.com/FollowTheProcess/spok/cache"
-	"github.com/FollowTheProcess/spok/graph"
 	"github.com/FollowTheProcess/spok/hash"
 	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/FollowTheProcess/spok/logger"
@@ -92,9 +92,10 @@ func (s *SpokFile) expandGlobs() error {
 
 // buildGraph takes in a list of requested tasks, examines their dependencies, constructs
 // and returns the dependency graph.
-func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
+func (s *SpokFile) buildGraph(requested ...string) (*dag.Graph[string, task.Task], error) {
 	start := time.Now()
-	dag := graph.New()
+	// DAG of tasks using the name as the unique id
+	graph := dag.New[string, task.Task]()
 
 	// TODO: Make this recursive so it will go through dependencies of dependencies
 	for _, name := range requested {
@@ -108,10 +109,12 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 			}
 			return nil, err
 		}
-		// Create a vertex and add the task to the graph, if it's not already there
-		vertex := graph.NewVertex(requestedTask)
-		if !dag.ContainsVertex(name) {
-			dag.AddVertex(vertex)
+		// Add the task as a vertex to the graph if it doesn't already exist
+		if !graph.ContainsVertex(name) {
+			err := graph.AddVertex(name, requestedTask)
+			if err != nil {
+				return nil, fmt.Errorf("could not add vertex for task %s: %w", name, err)
+			}
 		}
 
 		// For all of this tasks dependencies, do the same
@@ -127,23 +130,26 @@ func (s *SpokFile) buildGraph(requested ...string) (*graph.Graph, error) {
 				return nil, err
 			}
 			s.logger.Debug("Task %s depends on task %s", requestedTask.Name, depTask.Name)
-			depVertex := graph.NewVertex(depTask)
-			if !dag.ContainsVertex(dep) {
-				dag.AddVertex(depVertex)
+			if !graph.ContainsVertex(dep) {
+				err := graph.AddVertex(dep, depTask)
+				if err != nil {
+					return nil, fmt.Errorf("could not add vertex for task %s: %w", dep, err)
+				}
 			}
 
 			// Now create the dependency connection between the parent task and this one
-			// depVertex is the parent here because it must be run before the task we're
+			// dep is the parent here because it must be run before the task we're
 			// currently in
-			if err := dag.AddEdge(depVertex, vertex); err != nil {
-				return nil, err
+			err := graph.AddEdge(dep, name)
+			if err != nil {
+				return nil, fmt.Errorf("could not add edge %s -> %s: %w", dep, name, err)
 			}
 		}
 	}
 
 	s.logger.Debug("Built dependency graph for requested tasks: %v in %v", requested, time.Since(start))
 
-	return dag, nil
+	return graph, nil
 }
 
 // Run runs the specified tasks, it takes force which is a boolean flag set by the CLI which
@@ -168,7 +174,11 @@ func (s *SpokFile) Run(stream iostream.IOStream, runner shell.Runner, force bool
 	if err != nil {
 		return nil, err
 	}
-	s.logger.Debug("Calculated topological sort of dependency graph in %v", time.Since(sortStart))
+	names := make([]string, 0, len(runOrder))
+	for _, taskToRun := range runOrder {
+		names = append(names, taskToRun.Name)
+	}
+	s.logger.Debug("Calculated topological sort of dependency graph %v in %v", names, time.Since(sortStart))
 
 	// Submit the run order to be executed and gather up the results
 	results, err := s.run(stream, runner, force, runOrder)
@@ -180,7 +190,7 @@ func (s *SpokFile) Run(stream iostream.IOStream, runner shell.Runner, force bool
 }
 
 // run is the implementation of the public Run method.
-func (s *SpokFile) run(stream iostream.IOStream, runner shell.Runner, force bool, runOrder []*graph.Vertex) (task.Results, error) {
+func (s *SpokFile) run(stream iostream.IOStream, runner shell.Runner, force bool, runOrder []task.Task) (task.Results, error) {
 	results := make(task.Results, 0, len(runOrder))
 
 	cachePath := filepath.Join(s.Dir, cache.Path)
@@ -203,22 +213,22 @@ func (s *SpokFile) run(stream iostream.IOStream, runner shell.Runner, force bool
 	// did not succeed
 	updateCache := true
 
-	for _, vertex := range runOrder {
+	for _, taskToRun := range runOrder {
 		// Gather up all the files to be hashed into a single slice
 		var toHash []string
 
 		// First, any glob file dependencies need their expanded files retrieving from
 		// the s.Globs map of pattern -> slice
-		for _, pattern := range vertex.Task.GlobDependencies {
+		for _, pattern := range taskToRun.GlobDependencies {
 			globs := s.Globs[pattern]
 			toHash = append(toHash, globs...)
-			s.logger.Debug("Task %s glob dependency pattern %q expanded to %d files", vertex.Task.Name, pattern, len(globs))
+			s.logger.Debug("Task %s glob dependency pattern %q expanded to %d files", taskToRun.Name, pattern, len(globs))
 		}
 
 		// Second, any non-glob file dependencies
-		toHash = append(toHash, vertex.Task.FileDependencies...)
+		toHash = append(toHash, taskToRun.FileDependencies...)
 
-		s.logger.Debug("Task %s depends on %d files", vertex.Task.Name, len(toHash))
+		s.logger.Debug("Task %s depends on %d files", taskToRun.Name, len(toHash))
 
 		// If the task did not declare any file dependencies, let's not
 		// update the cache, this way it will always run
@@ -243,12 +253,12 @@ func (s *SpokFile) run(stream iostream.IOStream, runner shell.Runner, force bool
 		// By the time we get here, we know the cache file will exist (even if it has no digests)
 		// so we can go ahead and load as normal. If a task is not in the cache, it means it was
 		// added to the spokfile since we last ran a cache, so add it to the current cachedState
-		cachedDigest, ok := cachedState.Get(vertex.Task.Name)
+		cachedDigest, ok := cachedState.Get(taskToRun.Name)
 		if !ok {
-			cachedState.Set(vertex.Task.Name, "")
+			cachedState.Set(taskToRun.Name, "")
 		}
 
-		s.logger.Debug("Task %s current checksum: %.15s cached checksum: %.15s", vertex.Task.Name, currentDigest, cachedDigest)
+		s.logger.Debug("Task %s current checksum: %.15s cached checksum: %.15s", taskToRun.Name, currentDigest, cachedDigest)
 
 		var result shell.Results
 		skipped := false
@@ -258,11 +268,11 @@ func (s *SpokFile) run(stream iostream.IOStream, runner shell.Runner, force bool
 			// The digest is either empty or out of date, in which case the action to be taken is the same
 			// update the cache digest and run the task
 			if updateCache {
-				cachedState.Set(vertex.Task.Name, currentDigest)
+				cachedState.Set(taskToRun.Name, currentDigest)
 			}
-			result, err = vertex.Task.Run(runner, stream, s.Env())
+			result, err = taskToRun.Run(runner, stream, s.Env())
 			if err != nil {
-				return nil, fmt.Errorf("Task %q encountered an error: %w", vertex.Task.Name, err)
+				return nil, fmt.Errorf("Task %q encountered an error: %w", taskToRun.Name, err)
 			}
 
 		case currentDigest == cachedDigest:
@@ -273,7 +283,7 @@ func (s *SpokFile) run(stream iostream.IOStream, runner shell.Runner, force bool
 		}
 
 		// Gather up all the task results
-		results = append(results, task.Result{CommandResults: result, Task: vertex.Task.Name, Skipped: skipped})
+		results = append(results, task.Result{CommandResults: result, Task: taskToRun.Name, Skipped: skipped})
 	}
 
 	// Only update the cache if force was not set, the task declares file dependencies
