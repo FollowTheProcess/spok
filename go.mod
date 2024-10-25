@@ -3,11 +3,11 @@ module github.com/FollowTheProcess/spok
 go 1.23
 
 require (
-	github.com/FollowTheProcess/cli v0.7.0
-	github.com/FollowTheProcess/collections v0.8.0
+	github.com/FollowTheProcess/cli v0.8.0
+	github.com/FollowTheProcess/collections v0.9.0
 	github.com/FollowTheProcess/msg v1.2.0
 	github.com/bmatcuk/doublestar/v4 v4.7.1
-	github.com/fatih/color v1.17.0
+	github.com/fatih/color v1.18.0
 	github.com/google/go-cmp v0.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/juju/ansiterm v1.0.0
