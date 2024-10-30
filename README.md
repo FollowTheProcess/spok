@@ -15,6 +15,9 @@
 
 * Free software: Apache Software License 2.0
 
+> [!NOTE]
+> Spok was somewhat of an educational project for me and whilst it works and I use it, I have a large number of improvements and new ideas in mind that are best suited to a fresh start (which I will do soon 👀). In the meantime Spok will continue to be supported but no large changes are likely to be made as my effort goes to the new thing (whatever that is)
+
 ## Project Description
 
 `spok` is a lightweight build system and command runner inspired by things like [make], [just] and others.
