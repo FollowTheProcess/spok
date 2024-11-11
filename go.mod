@@ -3,7 +3,7 @@ module github.com/FollowTheProcess/spok
 go 1.23
 
 require (
-	github.com/FollowTheProcess/cli v0.8.0
+	github.com/FollowTheProcess/cli v0.8.1
 	github.com/FollowTheProcess/collections v0.10.0
 	github.com/FollowTheProcess/msg v1.2.0
 	github.com/bmatcuk/doublestar/v4 v4.7.1
