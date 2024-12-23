@@ -1,7 +1,7 @@
 github.com/FollowTheProcess/cli v0.8.1 h1:cUKYrygoa3c3O9o94ILh+v7vYFfa5RWqPZHK8HUzSaw=
 github.com/FollowTheProcess/cli v0.8.1/go.mod h1:s6L0xJ8A7UxkXDpC7WDVcPXUVs5e6JtAeeyoRXAIp0U=
-github.com/FollowTheProcess/collections v0.13.0 h1:SmGoK2uWRR2aMfwU3Ruw0cY5srfOnZ6/kop3CcDxzgE=
-github.com/FollowTheProcess/collections v0.13.0/go.mod h1:NumxXSdfiQSfWivoZLmJsTrVEaE+ALTa29MQoWI84ww=
+github.com/FollowTheProcess/collections v0.17.0 h1:s7lBJLp9/lH8xLy+IcudOfVC/XXsZd52spBj7NEqU5o=
+github.com/FollowTheProcess/collections v0.17.0/go.mod h1:NumxXSdfiQSfWivoZLmJsTrVEaE+ALTa29MQoWI84ww=
 github.com/FollowTheProcess/msg v1.3.0 h1:0wyDhyvd+jzjgrJNxObJPgDvO4nJAjfnf63xx5s5FYw=
 github.com/FollowTheProcess/msg v1.3.0/go.mod h1:MfbeMtID8OAN3/p+Vorjw+EV/EdTy/NLSWqRYdScNDQ=
 github.com/FollowTheProcess/test v0.17.1 h1:j4TkMqzxvYoyAP9alaTNPgKOPUJHOBCs0z4fNJb7Kr0=
