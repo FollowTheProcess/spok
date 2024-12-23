@@ -92,12 +92,14 @@ func (s *SpokFile) expandGlobs() error {
 
 // buildGraph takes in a list of requested tasks, examines their dependencies, constructs
 // and returns the dependency graph.
-func (s *SpokFile) buildGraph(requested ...string) (*dag.Graph[string, task.Task], error) {
-	start := time.Now()
-	// DAG of tasks using the name as the unique id
-	graph := dag.New[string, task.Task]()
+func (s *SpokFile) buildGraph(graph *dag.Graph[string, task.Task], requested ...string) (*dag.Graph[string, task.Task], error) {
+	// If there's nothing left, we're done. We've recursed through the entire graph
+	if len(requested) == 0 {
+		return graph, nil
+	}
 
-	// TODO: Make this recursive so it will go through dependencies of dependencies
+	var next []string // Next tasks to run through this loop
+
 	for _, name := range requested {
 		requestedTask, ok := s.Tasks[name]
 		if !ok {
@@ -144,12 +146,12 @@ func (s *SpokFile) buildGraph(requested ...string) (*dag.Graph[string, task.Task
 			if err != nil {
 				return nil, fmt.Errorf("could not add edge %s -> %s: %w", dep, name, err)
 			}
+
+			next = requestedTask.TaskDependencies // Repeat for dependencies
 		}
 	}
 
-	s.logger.Debug("Built dependency graph for requested tasks: %v in %v", requested, time.Since(start))
-
-	return graph, nil
+	return s.buildGraph(graph, next...)
 }
 
 // Run runs the specified tasks, it takes force which is a boolean flag set by the CLI which
@@ -163,10 +165,13 @@ func (s *SpokFile) Run(stream iostream.IOStream, runner shell.Runner, force bool
 	}
 
 	// Build the task dependency graph based on the requested tasks and their dependencies
-	dag, err := s.buildGraph(tasks...)
+	start := time.Now()
+	graph := dag.New[string, task.Task]()
+	dag, err := s.buildGraph(graph, tasks...)
 	if err != nil {
 		return nil, err
 	}
+	s.logger.Debug("Built dependency graph for requested tasks: %v in %v", tasks, time.Since(start))
 
 	// Topological sort on the DAG to determine a run order
 	sortStart := time.Now()

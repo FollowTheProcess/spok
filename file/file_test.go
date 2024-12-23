@@ -784,6 +784,108 @@ func TestRun(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "deeply nested task dependencies",
+			spokfile: &SpokFile{
+				logger: noOpLogger,
+				Tasks: map[string]task.Task{
+					"one": {
+						Name: "one",
+						Commands: []string{
+							"echo one",
+						},
+					},
+					"two": {
+						Name: "two",
+						Commands: []string{
+							"echo two",
+						},
+						TaskDependencies: []string{"one"},
+					},
+					"three": {
+						Name: "three",
+						Commands: []string{
+							"echo three",
+						},
+						TaskDependencies: []string{"two"},
+					},
+					"four": {
+						Name: "four",
+						Commands: []string{
+							"echo four",
+						},
+						TaskDependencies: []string{"three"},
+					},
+					"five": {
+						Name: "five",
+						Commands: []string{
+							"echo five",
+						},
+						TaskDependencies: []string{"four"},
+					},
+				},
+			},
+			force:   false,
+			tasks:   []string{"five"},
+			wantErr: false,
+			want: task.Results{
+				{
+					CommandResults: shell.Results{
+						{
+							Cmd:    "echo one",
+							Stdout: "one\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+					Task: "one",
+				},
+				{
+					CommandResults: shell.Results{
+						{
+							Cmd:    "echo two",
+							Stdout: "two\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+					Task: "two",
+				},
+				{
+					CommandResults: shell.Results{
+						{
+							Cmd:    "echo three",
+							Stdout: "three\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+					Task: "three",
+				},
+				{
+					CommandResults: shell.Results{
+						{
+							Cmd:    "echo four",
+							Stdout: "four\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+					Task: "four",
+				},
+				{
+					CommandResults: shell.Results{
+						{
+							Cmd:    "echo five",
+							Stdout: "five\n",
+							Stderr: "",
+							Status: 0,
+						},
+					},
+					Task: "five",
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
