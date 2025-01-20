@@ -11,6 +11,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/FollowTheProcess/hue"
+	"github.com/FollowTheProcess/hue/tabwriter"
 	"github.com/FollowTheProcess/msg"
 	"github.com/FollowTheProcess/spok/cache"
 	"github.com/FollowTheProcess/spok/file"
@@ -18,9 +20,7 @@ import (
 	"github.com/FollowTheProcess/spok/logger"
 	"github.com/FollowTheProcess/spok/parser"
 	"github.com/FollowTheProcess/spok/shell"
-	"github.com/fatih/color"
 	"github.com/joho/godotenv"
-	"github.com/juju/ansiterm/tabwriter"
 )
 
 const demoSpokfile string = `# This is a spokfile example
@@ -45,10 +45,17 @@ const gitIgnoreText string = `
 
 const (
 	filePerms = 0o666 // The permissions to use when creating the spokfile
-	tabWidth  = 8     // The width of tabs in the output (tablewriter default)
-	minWidth  = 0     // The minimum width of columns in the output (tablewriter default)
-	padding   = 1     // The padding between columns in the output (tablewriter default)
-	padChar   = '\t'  // The character to use for padding in the output (tablewriter default)
+	minWidth  = 1     // The minimum width of columns in the output
+	tabWidth  = 8     // The width of tabs in the output
+	padding   = 2     // The padding between columns in the output
+	padChar   = ' '   // The character to use for padding in the output
+	flags     = 0     // Tabwriter flags
+)
+
+const (
+	titleStyle = hue.Bold
+	taskStyle  = hue.Cyan | hue.Bold
+	descStyle  = hue.BrightBlack | hue.Italic
 )
 
 // App represents the spok program.
@@ -277,10 +284,6 @@ func (a *App) runTasks(spokfile *file.SpokFile, runner shell.Runner, tasks ...st
 func (a *App) showTasks(spokfile *file.SpokFile) error {
 	writer := tabwriter.NewWriter(a.stream.Stdout, 0, tabWidth, 1, '\t', tabwriter.AlignRight)
 
-	titleStyle := color.New(color.Bold)
-	taskStyle := color.New(color.FgHiCyan, color.Bold)
-	descStyle := color.New(color.FgHiBlack, color.Italic)
-
 	// sort.Sort(task.ByName(spokfile.Tasks))
 	fmt.Fprintf(a.stream.Stdout, "Tasks defined in %s:\n", spokfile.Path)
 	titleStyle.Fprintln(writer, "Name\tDescription")
@@ -302,8 +305,6 @@ func (a *App) showTasks(spokfile *file.SpokFile) error {
 // showVariables shows all the defined spokfile variables and their set values.
 func (a *App) showVariables(spokfile *file.SpokFile) error {
 	writer := tabwriter.NewWriter(a.stream.Stdout, minWidth, tabWidth, padding, padChar, tabwriter.AlignRight)
-
-	titleStyle := color.New(color.Bold)
 
 	fmt.Fprintf(a.stream.Stdout, "Variables defined in %s:\n", spokfile.Path)
 	titleStyle.Fprintln(writer, "Name\tValue")

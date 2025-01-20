@@ -46,6 +46,7 @@ task bench("**/*.go") {
 # Lint the project and auto-fix errors if possible
 task lint("**/*.go") {
     golangci-lint run --fix
+    typos
 }
 
 # Run tests and linting
