@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/FollowTheProcess/cli v0.10.0
-	github.com/FollowTheProcess/collections v0.17.0
+	github.com/FollowTheProcess/collections v0.18.0
 	github.com/FollowTheProcess/msg v1.5.0
 	github.com/bmatcuk/doublestar/v4 v4.8.0
 	github.com/fatih/color v1.18.0
