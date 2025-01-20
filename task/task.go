@@ -10,10 +10,10 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/FollowTheProcess/hue"
 	"github.com/FollowTheProcess/spok/ast"
 	"github.com/FollowTheProcess/spok/iostream"
 	"github.com/FollowTheProcess/spok/shell"
-	"github.com/fatih/color"
 )
 
 // Task represents a spok Task.
@@ -29,13 +29,13 @@ type Task struct {
 	GlobOutputs      []string // Filepaths this task outputs that are specified as glob patterns
 }
 
+const echoStyle = hue.Bold
+
 // Run runs a task commands in order, echoing each one to out and returning the list of results
 // containing the exit status, stdout and stderr of each command.
 //
 // If the task has no commands, this becomes a no-op.
 func (t *Task) Run(runner shell.Runner, stream iostream.IOStream, env []string) (shell.Results, error) {
-	echoStyle := color.New(color.Bold)
-
 	var results shell.Results
 	for _, cmd := range t.Commands {
 		echoStyle.Fprintln(stream.Stdout, cmd)
