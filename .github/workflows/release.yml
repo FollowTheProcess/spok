@@ -65,7 +65,7 @@ jobs:
         uses: wntrblm/nox@2024.10.09
         with:
           python-versions: "3.13"
-  
+
       - name: Deploy Docs to GitHub Pages
         run: nox --non-interactive --session publish
         env:
