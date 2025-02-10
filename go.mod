@@ -3,9 +3,9 @@ module github.com/FollowTheProcess/spok
 go 1.23
 
 require (
-	github.com/FollowTheProcess/cli v0.11.0
+	github.com/FollowTheProcess/cli v0.12.0
 	github.com/FollowTheProcess/collections v0.18.0
-	github.com/FollowTheProcess/hue v0.3.1
+	github.com/FollowTheProcess/hue v0.4.0
 	github.com/FollowTheProcess/msg v1.5.0
 	github.com/bmatcuk/doublestar/v4 v4.8.1
 	github.com/google/go-cmp v0.6.0
