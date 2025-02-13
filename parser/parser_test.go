@@ -1332,8 +1332,7 @@ func BenchmarkParseFullSpokfile(b *testing.B) {
 		peekCount: 0,
 	}
 
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
+	for b.Loop() {
 		_, err := p.Parse()
 		if err != nil {
 			b.Fatalf("Parser produced an error: %v", err)
@@ -1937,8 +1936,7 @@ func TestGetContext(t *testing.T) {
 func BenchmarkParserIntegration(b *testing.B) {
 	p := New(fullSpokfile)
 
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
+	for b.Loop() {
 		_, err := p.Parse()
 		if err != nil {
 			b.Fatalf("Parser produced an error: %v", err)
