@@ -5,7 +5,7 @@ go 1.24
 require (
 	github.com/FollowTheProcess/cli v0.12.0
 	github.com/FollowTheProcess/collections v0.18.0
-	github.com/FollowTheProcess/hue v0.4.0
+	github.com/FollowTheProcess/hue v0.5.0
 	github.com/FollowTheProcess/msg v1.5.0
 	github.com/bmatcuk/doublestar/v4 v4.8.1
 	github.com/google/go-cmp v0.6.0
@@ -20,7 +20,7 @@ require (
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/term v0.28.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/term v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 )
