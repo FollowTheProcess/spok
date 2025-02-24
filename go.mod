@@ -8,7 +8,7 @@ require (
 	github.com/FollowTheProcess/hue v0.5.0
 	github.com/FollowTheProcess/msg v1.5.0
 	github.com/bmatcuk/doublestar/v4 v4.8.1
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lithammer/fuzzysearch v1.1.8
 	go.uber.org/zap v1.27.0
