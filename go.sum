@@ -2,8 +2,8 @@ github.com/FollowTheProcess/cli v0.13.0 h1:FRW4R16wZIX/o/mFduPU70wWVQTRea5CcHD00
 github.com/FollowTheProcess/cli v0.13.0/go.mod h1:xO6uc81RNHVrFe2Vu+AjLWgLUh7GGx0lz/h7Bqt6URU=
 github.com/FollowTheProcess/collections v0.18.0 h1:EBLOOvVxopo+1QyN8frHX05d7c58alirLhsi8mBWb7M=
 github.com/FollowTheProcess/collections v0.18.0/go.mod h1:BMV+xgSR+aly0Zf8oykFM1CASautFJgwyjUb9/GbYko=
-github.com/FollowTheProcess/hue v0.5.0 h1:MrvBx8icb/GM8osVEnH7xPxcBW9x6P7MaBJ68PUW/ao=
-github.com/FollowTheProcess/hue v0.5.0/go.mod h1:7E7L4ybEYTyZpGnQUWvbk7UjIvCX1bbj7JE4VaNLrkg=
+github.com/FollowTheProcess/hue v0.5.1 h1:Q+1xbRTG3tzLIIOq3316dCsvoN3eUrcZy6Vfm1mzDjI=
+github.com/FollowTheProcess/hue v0.5.1/go.mod h1:7E7L4ybEYTyZpGnQUWvbk7UjIvCX1bbj7JE4VaNLrkg=
 github.com/FollowTheProcess/msg v1.5.0 h1:F3kYQVVLwqDGzeWzWaasbB57YxWPD1APGrgYUEKcQAM=
 github.com/FollowTheProcess/msg v1.5.0/go.mod h1:i7TWMrTHik4xv+yD77qF9SSuJScGCvt7vy2ToaZda2g=
 github.com/FollowTheProcess/snapshot v0.4.1 h1:WIwvs+yZrK9886frLbNB98QWkAXTjIGnuvEjURHOrtE=
