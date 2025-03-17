@@ -28,7 +28,6 @@ linters:
     - revive
     - staticcheck
     - tagliatelle
-    - tenv
     - testpackage
     - thelper
     - unconvert
