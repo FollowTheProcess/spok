@@ -1,5 +1,6 @@
+version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
     - bodyclose
     - containedctx
@@ -12,17 +13,14 @@ linters:
     - gocritic
     - gocyclo
     - godot
-    - gofumpt
-    - goimports
-    - gosimple
     - govet
     - ineffassign
     - misspell
     - mnd
+    - nakedret
     - nilerr
     - nilnil
     - nolintlint
-    - nakedret
     - predeclared
     - reassign
     - revive
@@ -34,92 +32,86 @@ linters:
     - unparam
     - unused
     - whitespace
-
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-
-  exhaustive:
-    check:
-      - switch
-      - map
-    default-signifies-exhaustive: true
-
-  gocyclo:
-    min-complexity: 20
-
-  staticcheck:
-    checks: ["all"]
-
-  gosimple:
-    checks: ["all"]
-
-  govet:
-    enable-all: true
-
-  revive:
-    max-open-files: 256
-    ignore-generated-header: true
-    rules:
-      - name: argument-limit
-        disabled: false
-        arguments: [5]
-
-      - name: atomic
-        disabled: false
-
-      - name: blank-imports
-        disabled: false
-
-      - name: call-to-gc
-        disabled: false
-
-      - name: constant-logical-expr
-        disabled: false
-
-      - name: context-as-argument
-        disabled: false
-
-      - name: datarace
-        disabled: false
-
-      - name: deep-exit
-        disabled: false
-
-      - name: defer
-        disabled: false
-
-      - name: dot-imports
-        disabled: false
-
-      - name: early-return
-        disabled: false
-
-      - name: exported
-        arguments:
-          - checkPrivateReceivers
-
-      - name: modifies-value-receiver
-        disabled: false
-
-      - name: package-comments
-        disabled: false
-
-      - name: range
-        disabled: false
-
-      - name: range-val-in-closure
-        disabled: false
-
-      - name: range-val-address
-        disabled: false
-
-      - name: time-equal
-        disabled: false
-
-      - name: use-any
-        disabled: false
-
-      - name: waitgroup-by-value
-        disabled: false
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    exhaustive:
+      check:
+        - switch
+        - map
+      default-signifies-exhaustive: true
+    gocyclo:
+      min-complexity: 20
+    govet:
+      enable-all: true
+    revive:
+      max-open-files: 256
+      rules:
+        - name: argument-limit
+          arguments:
+            - 5
+          disabled: false
+        - name: atomic
+          disabled: false
+        - name: blank-imports
+          disabled: false
+        - name: call-to-gc
+          disabled: false
+        - name: constant-logical-expr
+          disabled: false
+        - name: context-as-argument
+          disabled: false
+        - name: datarace
+          disabled: false
+        - name: deep-exit
+          disabled: false
+        - name: defer
+          disabled: false
+        - name: dot-imports
+          disabled: false
+        - name: early-return
+          disabled: false
+        - name: exported
+          arguments:
+            - checkPrivateReceivers
+        - name: modifies-value-receiver
+          disabled: false
+        - name: package-comments
+          disabled: false
+        - name: range
+          disabled: false
+        - name: range-val-in-closure
+          disabled: false
+        - name: range-val-address
+          disabled: false
+        - name: time-equal
+          disabled: false
+        - name: use-any
+          disabled: false
+        - name: waitgroup-by-value
+          disabled: false
+    staticcheck:
+      checks:
+        - all
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

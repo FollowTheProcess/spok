@@ -79,7 +79,7 @@ func NewIntegratedRunner() IntegratedRunner {
 func (i IntegratedRunner) Run(cmd string, stream iostream.IOStream, task string, env []string) (Result, error) {
 	prog, err := i.parser.Parse(strings.NewReader(cmd), "")
 	if err != nil {
-		return Result{}, fmt.Errorf("Command %q in task %q not valid shell syntax: %w", cmd, task, err)
+		return Result{}, fmt.Errorf("command %q in task %q not valid shell syntax: %w", cmd, task, err)
 	}
 
 	// os.Environ() is added to env so that if nothing is passed, the
