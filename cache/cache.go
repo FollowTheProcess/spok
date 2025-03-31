@@ -84,7 +84,7 @@ func (c *Cache) Dump(path string) error {
 
 	err = os.WriteFile(path, contents, filePerms)
 	if err != nil {
-		return fmt.Errorf("Could not write spok cache at %q: %s", path, err)
+		return fmt.Errorf("could not write spok cache at %q: %s", path, err)
 	}
 	return nil
 }

@@ -49,7 +49,7 @@ func execute(command ...string) (string, error) {
 		return "", err
 	}
 	if !result.Ok() {
-		return "", fmt.Errorf("Command %q exited with a non-zero exit code.\nStdout: %s\nStderr: %s", cmd, result.Stdout, result.Stderr)
+		return "", fmt.Errorf("command %q exited with a non-zero exit code.\nStdout: %s\nStderr: %s", cmd, result.Stdout, result.Stderr)
 	}
 
 	return strings.TrimSpace(result.Stdout), nil
