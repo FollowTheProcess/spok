@@ -194,7 +194,7 @@ func (a *App) setup() error {
 	}
 
 	if filepath.Base(a.Options.Spokfile) != file.NAME {
-		return fmt.Errorf("Invalid spokfile file name. Got %s, Expected %s", filepath.Base(a.Options.Spokfile), file.NAME)
+		return fmt.Errorf("invalid spokfile file name. Got %s, Expected %s", filepath.Base(a.Options.Spokfile), file.NAME)
 	}
 
 	a.logger.Debug("Found spokfile at %s", a.Options.Spokfile)
@@ -209,7 +209,7 @@ func (a *App) setup() error {
 	}
 
 	if err := godotenv.Load(dotenvPath); err != nil {
-		return fmt.Errorf("Could not load .env file: %w", err)
+		return fmt.Errorf("could not load .env file: %w", err)
 	}
 	a.logger.Debug("Loaded .env file at %s", dotenvPath)
 
@@ -257,7 +257,7 @@ func (a *App) runTasks(spokfile *file.SpokFile, runner shell.Runner, tasks ...st
 			for _, cmd := range result.CommandResults {
 				if !cmd.Ok() {
 					// We've found the one
-					return fmt.Errorf("Command %q in task %q exited with status %d", cmd.Cmd, result.Task, cmd.Status)
+					return fmt.Errorf("command %q in task %q exited with status %d", cmd.Cmd, result.Task, cmd.Status)
 				}
 			}
 		}
@@ -368,7 +368,7 @@ func (a *App) clean(spokfile *file.SpokFile) error {
 			// NamedOutputs are just idents that point to filepaths
 			actual, ok := spokfile.Vars[namedOutput]
 			if !ok {
-				return fmt.Errorf("Named output %s is not defined", namedOutput)
+				return fmt.Errorf("named output %s is not defined", namedOutput)
 			}
 			resolved, err := filepath.Abs(actual)
 			if err != nil {
@@ -397,7 +397,7 @@ func (a *App) clean(spokfile *file.SpokFile) error {
 	for _, file := range toRemove {
 		err := os.RemoveAll(file)
 		if err != nil {
-			return fmt.Errorf("Could not remove %s: %w", file, err)
+			return fmt.Errorf("could not remove %s: %w", file, err)
 		}
 		fmt.Fprintf(a.stream.Stdout, "Removed %s\n", file)
 	}

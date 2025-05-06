@@ -1228,8 +1228,7 @@ func FuzzLexer(f *testing.F) {
 func BenchmarkLexFullSpokfile(b *testing.B) {
 	l := New(fullSpokfile)
 
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
+	for b.Loop() {
 		for {
 			tok := l.NextToken()
 			if tok.Type == token.EOF || tok.Type == token.ERROR {

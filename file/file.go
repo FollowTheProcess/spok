@@ -104,10 +104,10 @@ func (s *SpokFile) buildGraph(graph *dag.Graph[string, task.Task], requested ...
 		requestedTask, ok := s.Tasks[name]
 		if !ok {
 			closest := s.findClosestMatch(name)
-			err := fmt.Errorf("Spokfile has no task %q", name)
+			err := fmt.Errorf("spokfile has no task %q", name)
 			if closest != "" {
 				// We have a close enough match to do a "did you mean X?"
-				err = fmt.Errorf("Spokfile has no task %q. Did you mean %q?", name, closest)
+				err = fmt.Errorf("spokfile has no task %q. Did you mean %q?", name, closest)
 			}
 			return nil, err
 		}
@@ -124,10 +124,10 @@ func (s *SpokFile) buildGraph(graph *dag.Graph[string, task.Task], requested ...
 			depTask, ok := s.Tasks[dep]
 			if !ok {
 				closest := s.findClosestMatch(dep)
-				err := fmt.Errorf("Task %q declares a dependency on task %q, which does not exist", requestedTask.Name, dep)
+				err := fmt.Errorf("task %q declares a dependency on task %q, which does not exist", requestedTask.Name, dep)
 				if closest != "" {
 					// We have a close enough match to do a "did you mean X?"
-					err = fmt.Errorf("Task %q declares a dependency on task %q, which does not exist. Did you mean %q?", requestedTask.Name, dep, closest)
+					err = fmt.Errorf("task %q declares a dependency on task %q, which does not exist. Did you mean %q?", requestedTask.Name, dep, closest)
 				}
 				return nil, err
 			}
@@ -210,7 +210,7 @@ func (s *SpokFile) run(stream iostream.IOStream, runner shell.Runner, force bool
 
 	cachedState, err := cache.Load(cachePath)
 	if err != nil {
-		return nil, fmt.Errorf("Could not load spok cache file at %q: %s", cachePath, err)
+		return nil, fmt.Errorf("could not load spok cache file at %q: %s", cachePath, err)
 	}
 
 	// Whether or not we want to update the cache after running e.g.
@@ -277,7 +277,7 @@ func (s *SpokFile) run(stream iostream.IOStream, runner shell.Runner, force bool
 			}
 			result, err = taskToRun.Run(runner, stream, s.Env())
 			if err != nil {
-				return nil, fmt.Errorf("Task %q encountered an error: %w", taskToRun.Name, err)
+				return nil, fmt.Errorf("task %q encountered an error: %w", taskToRun.Name, err)
 			}
 
 		case currentDigest == cachedDigest:
@@ -340,7 +340,7 @@ func Find(logger logger.Logger, start, stop string) (string, error) {
 				}
 				return abs, nil
 			} else if start == stop {
-				return "", errors.New("No spokfile found")
+				return "", errors.New("no spokfile found")
 			}
 		}
 		start = filepath.Dir(start)
@@ -379,23 +379,23 @@ func New(tree ast.Tree, root string, logger logger.Logger) (*SpokFile, error) {
 				args := make([]string, 0, len(function.Arguments))
 				for _, arg := range function.Arguments {
 					if arg.Type() != ast.NodeString {
-						return nil, fmt.Errorf("Spok builtin functions take only string arguments, got %s", arg.Type())
+						return nil, fmt.Errorf("spok builtin functions take only string arguments, got %s", arg.Type())
 					}
 					args = append(args, arg.Literal())
 				}
 				fn, ok := builtins.Get(function.Name.Name)
 				if !ok {
-					return nil, fmt.Errorf("Builtin function undefined: %s", function.Name.Name)
+					return nil, fmt.Errorf("builtin function undefined: %s", function.Name.Name)
 				}
 				val, err := fn(args...)
 				if err != nil {
-					return nil, fmt.Errorf("Builtin function %s returned an error: %s", function.Name.Name, err)
+					return nil, fmt.Errorf("builtin function %s returned an error: %s", function.Name.Name, err)
 				}
 				// Assign the value to the variable
 				file.Vars[assign.Name.Name] = val
 
 			default:
-				return nil, fmt.Errorf("Unexpected node in assignment %s: %s", assign.Value.Type(), assign.Value)
+				return nil, fmt.Errorf("unexpected node in assignment %s: %s", assign.Value.Type(), assign.Value)
 			}
 
 		case node.Type() == ast.NodeTask:
@@ -410,7 +410,7 @@ func New(tree ast.Tree, root string, logger logger.Logger) (*SpokFile, error) {
 			}
 
 			if file.HasTask(task.Name) {
-				return nil, fmt.Errorf("Duplicate task: spokfile already contains task named %q, duplicate tasks not allowed", task.Name)
+				return nil, fmt.Errorf("duplicate task: spokfile already contains task named %q, duplicate tasks not allowed", task.Name)
 			}
 
 			// Add the glob patterns from the tasks to the files' map of globs

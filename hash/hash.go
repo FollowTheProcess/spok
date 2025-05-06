@@ -107,7 +107,7 @@ func (c Concurrent) Hash(files []string) (string, error) {
 		// Accumulating errors as no matter what we'll need to range over the results
 		// channel to drain it
 		if r.err != nil {
-			errors = append(errors, fmt.Errorf("Could not get hash result for %s: %w", r.file, r.err))
+			errors = append(errors, fmt.Errorf("could not get hash result for %s: %w", r.file, r.err))
 		}
 
 		// Include the filepath in the hash so a rename counts as a change
