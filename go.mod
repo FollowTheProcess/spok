@@ -12,7 +12,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/lithammer/fuzzysearch v1.1.8
 	go.uber.org/zap v1.27.0
-	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6
+	golang.org/x/exp v0.0.0-20250531010427-b6e5de432a8b
 	mvdan.cc/sh/v3 v3.11.0
 )
 
