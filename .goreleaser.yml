@@ -32,23 +32,26 @@ builds:
     goarm:
       - "7"
 
-brews:
-  - repository:
-      owner: "FollowTheProcess"
-      name: homebrew-tap
-      token: "{{.Env.HOMEBREW_TAP_TOKEN}}"
-    goarm: "7"
-    directory: Formula
+homebrew_casks:
+  - name: spok
+    binary: spok
+    directory: Casks
+    description: It's a build system Jim, but not as we know it!
+    homepage: https://github.com/FollowTheProcess/spok
+    conflicts:
+      - formula: spok
     commit_author:
-      name: "Tom Fleet"
-      email: "tomfleet2018@gmail.com"
-    homepage: "https://github.com/FollowTheProcess/spok"
-    description: "It's a build system Jim, but not as we know it!"
-    license: "Apache Software License 2.0"
-    install: |
-      bin.install "spok"
-    test: |
-      "#{bin}/spok --version"
+      name: Tom Fleet
+      email: me@followtheprocess.codes
+    repository:
+      owner: FollowTheProcess
+      name: homebrew-tap
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/spok"]
+          end
 
 archives:
   - id: spok
