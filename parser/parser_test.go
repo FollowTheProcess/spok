@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/FollowTheProcess/spok/ast"
-	"github.com/FollowTheProcess/spok/token"
 	"github.com/google/go-cmp/cmp"
+	"go.followtheprocess.codes/spok/ast"
+	"go.followtheprocess.codes/spok/token"
 )
 
 // testLexer is an object that implements the lexer.Tokeniser interface
@@ -915,7 +915,7 @@ func TestParseTask(t *testing.T) {
 				tLBrace,
 				newToken(token.COMMAND, "go fmt ./..."),
 				newToken(token.COMMAND, "go test -race ./..."),
-				newToken(token.COMMAND, `go build -ldflags="-X github.com/FollowTheProcess/spok/cli/cmd.version=dev"`),
+				newToken(token.COMMAND, `go build -ldflags="-X go.followtheprocess.codes/spok/cli/cmd.version=dev"`),
 				tRBrace,
 				tEOF,
 			},
@@ -958,7 +958,7 @@ func TestParseTask(t *testing.T) {
 						NodeType: ast.NodeCommand,
 					},
 					{
-						Command:  `go build -ldflags="-X github.com/FollowTheProcess/spok/cli/cmd.version=dev"`,
+						Command:  `go build -ldflags="-X go.followtheprocess.codes/spok/cli/cmd.version=dev"`,
 						NodeType: ast.NodeCommand,
 					},
 				},

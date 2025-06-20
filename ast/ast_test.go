@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/FollowTheProcess/spok/ast"
 	"github.com/google/go-cmp/cmp"
+	"go.followtheprocess.codes/spok/ast"
 )
 
 func TestType(t *testing.T) {

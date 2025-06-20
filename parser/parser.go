@@ -14,9 +14,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/FollowTheProcess/spok/ast"
-	"github.com/FollowTheProcess/spok/lexer"
-	"github.com/FollowTheProcess/spok/token"
+	"go.followtheprocess.codes/spok/ast"
+	"go.followtheprocess.codes/spok/lexer"
+	"go.followtheprocess.codes/spok/token"
 )
 
 // Parser is spok's AST parser.

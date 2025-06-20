@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/FollowTheProcess/msg"
-	"github.com/FollowTheProcess/spok/cli/cmd"
+	"go.followtheprocess.codes/msg"
+	"go.followtheprocess.codes/spok/cli/cmd"
 )
 
 func main() {

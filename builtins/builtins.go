@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/FollowTheProcess/spok/iostream"
-	"github.com/FollowTheProcess/spok/shell"
+	"go.followtheprocess.codes/spok/iostream"
+	"go.followtheprocess.codes/spok/shell"
 )
 
 // Builtin is a spok built in function.

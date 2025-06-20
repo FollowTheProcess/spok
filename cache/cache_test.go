@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/FollowTheProcess/spok/cache"
+	"go.followtheprocess.codes/spok/cache"
 )
 
 const cacheText string = `
