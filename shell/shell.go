@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FollowTheProcess/spok/iostream"
+	"go.followtheprocess.codes/spok/iostream"
 	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"

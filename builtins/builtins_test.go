@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/FollowTheProcess/spok/builtins"
+	"go.followtheprocess.codes/spok/builtins"
 )
 
 func TestBuiltins(t *testing.T) {

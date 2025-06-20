@@ -3,9 +3,9 @@ package shell_test
 import (
 	"testing"
 
-	"github.com/FollowTheProcess/spok/iostream"
-	"github.com/FollowTheProcess/spok/shell"
 	"github.com/google/go-cmp/cmp"
+	"go.followtheprocess.codes/spok/iostream"
+	"go.followtheprocess.codes/spok/shell"
 )
 
 func TestResultOk(t *testing.T) {

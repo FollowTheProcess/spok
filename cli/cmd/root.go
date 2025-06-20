@@ -4,9 +4,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/FollowTheProcess/cli"
-	"github.com/FollowTheProcess/spok/cli/app"
-	"github.com/FollowTheProcess/spok/iostream"
+	"go.followtheprocess.codes/cli"
+	"go.followtheprocess.codes/spok/cli/app"
+	"go.followtheprocess.codes/spok/iostream"
 )
 
 const (

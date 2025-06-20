@@ -16,9 +16,9 @@ builds:
     binary: "spok"
     ldflags:
       - -s -w
-      - -X github.com/FollowTheProcess/spok/cli/cmd.version={{.Version}}
-      - -X github.com/FollowTheProcess/spok/cli/cmd.commit={{.Commit}}
-      - -X github.com/FollowTheProcess/spok/cli/cmd.buildDate={{.Date}}
+      - -X go.followtheprocess.codes/spok/cli/cmd.version={{.Version}}
+      - -X go.followtheprocess.codes/spok/cli/cmd.commit={{.Commit}}
+      - -X go.followtheprocess.codes/spok/cli/cmd.buildDate={{.Date}}
     env:
       - CGO_ENABLED=0
     goos:

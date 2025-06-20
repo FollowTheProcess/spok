@@ -30,7 +30,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/FollowTheProcess/spok/token"
+	"go.followtheprocess.codes/spok/token"
 )
 
 // Tokeniser represents anything capable of producing a token.Token

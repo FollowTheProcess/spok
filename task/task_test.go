@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/FollowTheProcess/spok/ast"
-	"github.com/FollowTheProcess/spok/iostream"
-	"github.com/FollowTheProcess/spok/shell"
-	"github.com/FollowTheProcess/spok/task"
 	"github.com/google/go-cmp/cmp"
+	"go.followtheprocess.codes/spok/ast"
+	"go.followtheprocess.codes/spok/iostream"
+	"go.followtheprocess.codes/spok/shell"
+	"go.followtheprocess.codes/spok/task"
 )
 
 func TestNewTask(t *testing.T) {

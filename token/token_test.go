@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/FollowTheProcess/spok/token"
+	"go.followtheprocess.codes/spok/token"
 )
 
 func TestToken_String(t *testing.T) {

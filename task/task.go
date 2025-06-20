@@ -10,10 +10,10 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/FollowTheProcess/hue"
-	"github.com/FollowTheProcess/spok/ast"
-	"github.com/FollowTheProcess/spok/iostream"
-	"github.com/FollowTheProcess/spok/shell"
+	"go.followtheprocess.codes/hue"
+	"go.followtheprocess.codes/spok/ast"
+	"go.followtheprocess.codes/spok/iostream"
+	"go.followtheprocess.codes/spok/shell"
 )
 
 // Task represents a spok Task.

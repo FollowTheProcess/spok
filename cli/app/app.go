@@ -11,16 +11,16 @@ import (
 	"sort"
 	"time"
 
-	"github.com/FollowTheProcess/hue"
-	"github.com/FollowTheProcess/hue/tabwriter"
-	"github.com/FollowTheProcess/msg"
-	"github.com/FollowTheProcess/spok/cache"
-	"github.com/FollowTheProcess/spok/file"
-	"github.com/FollowTheProcess/spok/iostream"
-	"github.com/FollowTheProcess/spok/logger"
-	"github.com/FollowTheProcess/spok/parser"
-	"github.com/FollowTheProcess/spok/shell"
 	"github.com/joho/godotenv"
+	"go.followtheprocess.codes/hue"
+	"go.followtheprocess.codes/hue/tabwriter"
+	"go.followtheprocess.codes/msg"
+	"go.followtheprocess.codes/spok/cache"
+	"go.followtheprocess.codes/spok/file"
+	"go.followtheprocess.codes/spok/iostream"
+	"go.followtheprocess.codes/spok/logger"
+	"go.followtheprocess.codes/spok/parser"
+	"go.followtheprocess.codes/spok/shell"
 )
 
 const demoSpokfile string = `# This is a spokfile example

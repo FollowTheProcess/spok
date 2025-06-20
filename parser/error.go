@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/FollowTheProcess/spok/token"
+	"go.followtheprocess.codes/spok/token"
 )
 
 // illegalToken is an error that handles an unexpected token encounter during the parse

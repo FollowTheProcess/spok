@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/FollowTheProcess/spok/token"
+	"go.followtheprocess.codes/spok/token"
 )
 
 type lexTest struct {

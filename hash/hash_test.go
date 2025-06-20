@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FollowTheProcess/spok/hash"
+	"go.followtheprocess.codes/spok/hash"
 )
 
 const (
