@@ -10,6 +10,7 @@ package shell
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -114,12 +115,12 @@ func (i IntegratedRunner) Run(cmd string, stream iostream.IOStream, task string,
 
 	err = runner.Run(context.Background(), prog)
 	if err != nil {
-		// If ok then the error is an exit status, if not it's some other error
-		status, ok := interp.IsExitStatus(err)
-		if !ok {
+		var status interp.ExitStatus
+		if !errors.As(err, &status) {
 			// Not an exit status but some other error, bail out
 			return Result{}, err
 		}
+
 		// Exit status, set it on the result
 		result.Status = int(status)
 	}
