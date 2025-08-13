@@ -1,6 +1,8 @@
 module go.followtheprocess.codes/spok
 
-go 1.24
+go 1.24.0
+
+toolchain go1.24.6
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.9.1
@@ -12,7 +14,7 @@ require (
 	go.followtheprocess.codes/hue v0.6.0
 	go.followtheprocess.codes/msg v1.9.1
 	go.uber.org/zap v1.27.0
-	golang.org/x/exp v0.0.0-20250811191247-51f88131bc50
+	golang.org/x/exp v0.0.0-20250813145105-42675adae3e6
 	mvdan.cc/sh/v3 v3.12.0
 )
 
