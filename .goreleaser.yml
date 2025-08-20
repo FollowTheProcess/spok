@@ -38,8 +38,6 @@ homebrew_casks:
     directory: Casks
     description: It's a build system Jim, but not as we know it!
     homepage: https://github.com/FollowTheProcess/spok
-    conflicts:
-      - formula: spok
     commit_author:
       name: Tom Fleet
       email: me@followtheprocess.codes
