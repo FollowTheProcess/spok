@@ -23,12 +23,10 @@ github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7
 github.com/stretchr/testify v1.8.1 h1:w7B6lhMri9wdJUVmEZPGGhZzrYTPvgJArz7wNPgYKsk=
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
-go.followtheprocess.codes/cli v0.14.1 h1:QM94fqvRmNzB1Qlt6o4g/D0GqK20YfaN3YiBbefBccE=
-go.followtheprocess.codes/cli v0.14.1/go.mod h1:dGHHMkgiIuVKnY6ZK9ajbvcbjUVnX51ny8SCUVXtf4c=
+go.followtheprocess.codes/cli v0.15.0 h1:YcL5DvUbl3689tNZi+lgrYlfUtHRNTAA1zxNVVnAjqs=
+go.followtheprocess.codes/cli v0.15.0/go.mod h1:DFhcxAmqxy0acwXmNiqY34Vja1jMWKLvOQDUseCY6WM=
 go.followtheprocess.codes/collections v0.19.0 h1:USjEvQNh63hiEaNGeCSFvyM9wuuc4glAAC7QrhBoYFc=
 go.followtheprocess.codes/collections v0.19.0/go.mod h1:akAQnR4U/pO3MQEGl3xFpe8aMU5rWevA3oFKgfZKUvo=
-go.followtheprocess.codes/hue v0.7.0 h1:6HaZTGc4NYVnqqjYZTTBcVYRKb8MyfPe5yBHJiBfekg=
-go.followtheprocess.codes/hue v0.7.0/go.mod h1:gSn5xK6KJapih+eFgQk3woo1qg3/rx9XSrAanUIuDr8=
 go.followtheprocess.codes/hue v1.0.0 h1:0fYXAGR1o+w7Vja+Q+iVtqeEP3/CE6ET/pniyl8e9yo=
 go.followtheprocess.codes/hue v1.0.0/go.mod h1:gSn5xK6KJapih+eFgQk3woo1qg3/rx9XSrAanUIuDr8=
 go.followtheprocess.codes/msg v1.9.1 h1:Gm9lIG2S7Lt9OSrAGvLWe+i487MVz3KZNNi56LLHsuo=
