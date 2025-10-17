@@ -64,7 +64,7 @@ jobs:
           subject-path: dist/*
 
       - name: Set up Nox
-        uses: wntrblm/nox@2025.10.14
+        uses: wntrblm/nox@2025.10.16
         with:
           python-versions: "3.13"
 
