@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 permissions: {}
 
@@ -28,7 +28,7 @@ jobs:
         run: git fetch --force --tags
 
       - name: Install Syft
-        uses: anchore/sbom-action/download-syft@v0.20.9
+        uses: anchore/sbom-action/download-syft@latest
 
       - name: Parse Release Version
         id: version
