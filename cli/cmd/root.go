@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"go.followtheprocess.codes/cli"
+	"go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/spok/cli/app"
 	"go.followtheprocess.codes/spok/iostream"
 )
@@ -46,19 +47,18 @@ func BuildRootCmd() (*cli.Command, error) {
 		cli.Version(version),
 		cli.Commit(commit),
 		cli.BuildDate(buildDate),
-		cli.Flag(&spok.Options.Variables, "vars", cli.NoShortHand, false, "Show all defined variables in the spokfile"),
-		cli.Flag(&spok.Options.Fmt, "fmt", cli.NoShortHand, false, "Format the spokfile"),
-		cli.Flag(&spok.Options.Spokfile, "spokfile", cli.NoShortHand, "", "The path to the spokfile (defaults to '$CWD/spokfile')"),
-		cli.Flag(&spok.Options.Init, "init", cli.NoShortHand, false, "Initialise a new spokfile in $CWD"),
+		cli.Flag(&spok.Options.Variables, "vars", flag.NoShortHand, false, "Show all defined variables in the spokfile"),
+		cli.Flag(&spok.Options.Fmt, "fmt", flag.NoShortHand, false, "Format the spokfile"),
+		cli.Flag(&spok.Options.Spokfile, "spokfile", flag.NoShortHand, "", "The path to the spokfile (defaults to '$CWD/spokfile')"),
+		cli.Flag(&spok.Options.Init, "init", flag.NoShortHand, false, "Initialise a new spokfile in $CWD"),
 		cli.Flag(&spok.Options.Clean, "clean", 'c', false, "Remove all build artifacts"),
 		cli.Flag(&spok.Options.Force, "force", 'f', false, "Bypass file hash checks and force requested tasks to run"),
-		cli.Flag(&spok.Options.Debug, "debug", cli.NoShortHand, false, "Show debug info"),
+		cli.Flag(&spok.Options.Debug, "debug", flag.NoShortHand, false, "Show debug info"),
 		cli.Flag(&spok.Options.Quiet, "quiet", 'q', false, "Silence all CLI output."),
 		cli.Flag(&spok.Options.JSON, "json", 'j', false, "Output task results as JSON"),
 		cli.Flag(&spok.Options.Show, "show", 's', false, "Show all tasks defined in the spokfile"),
-		cli.Allow(cli.AnyArgs()),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			return spok.Run(args)
+		cli.Run(func(cmd *cli.Command) error {
+			return spok.Run(cmd.Args())
 		}),
 	)
 	if err != nil {
