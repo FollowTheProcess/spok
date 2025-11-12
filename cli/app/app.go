@@ -3,6 +3,7 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -92,7 +93,7 @@ func New(stream iostream.IOStream) *App {
 
 // Run is the entry point to the spok program, the only arguments spok accepts are names
 // of tasks, all other logic is handled via flags.
-func (a *App) Run(tasks []string) error {
+func (a *App) Run(ctx context.Context, tasks []string) error {
 	if a.Options.Init {
 		return a.initialise()
 	}

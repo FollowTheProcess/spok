@@ -7,7 +7,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lithammer/fuzzysearch v1.1.8
-	go.followtheprocess.codes/cli v0.17.0
+	go.followtheprocess.codes/cli v0.18.0
 	go.followtheprocess.codes/collections v0.19.0
 	go.followtheprocess.codes/hue v1.0.0
 	go.followtheprocess.codes/msg v1.9.2
@@ -19,6 +19,6 @@ require (
 require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/term v0.36.0 // indirect
+	golang.org/x/term v0.37.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 )
