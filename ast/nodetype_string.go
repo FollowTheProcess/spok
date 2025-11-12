@@ -22,8 +22,9 @@ const _NodeType_name = "NodeCommentNodeIdentNodeAssignNodeStringNodeFunctionNode
 var _NodeType_index = [...]uint8{0, 11, 20, 30, 40, 52, 60, 71}
 
 func (i NodeType) String() string {
-	if i < 0 || i >= NodeType(len(_NodeType_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_NodeType_index)-1 {
 		return "NodeType(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _NodeType_name[_NodeType_index[i]:_NodeType_index[i+1]]
+	return _NodeType_name[_NodeType_index[idx]:_NodeType_index[idx+1]]
 }
