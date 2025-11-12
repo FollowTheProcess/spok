@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Set up Nox
-        uses: wntrblm/nox@2025.10.16
+        uses: wntrblm/nox@2025.11.12
         with:
           python-versions: "3.13"
 
