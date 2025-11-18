@@ -7,7 +7,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lithammer/fuzzysearch v1.1.8
-	go.followtheprocess.codes/cli v0.18.0
+	go.followtheprocess.codes/cli v0.18.1
 	go.followtheprocess.codes/collections v0.19.0
 	go.followtheprocess.codes/hue v1.0.0
 	go.followtheprocess.codes/msg v1.9.2
