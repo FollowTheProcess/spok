@@ -1,6 +1,6 @@
 module go.followtheprocess.codes/spok
 
-go 1.25
+go 1.25.7
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
@@ -12,13 +12,13 @@ require (
 	go.followtheprocess.codes/hue v1.0.0
 	go.followtheprocess.codes/msg v1.9.2
 	go.uber.org/zap v1.27.1
-	golang.org/x/exp v0.0.0-20260209203927-2842357ff358
+	golang.org/x/exp v0.0.0-20260211191109-2735e65f0518
 	mvdan.cc/sh/v3 v3.12.0
 )
 
 require (
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/term v0.38.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/term v0.40.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 )
