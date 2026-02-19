@@ -12,7 +12,7 @@ require (
 	go.followtheprocess.codes/hue v1.0.0
 	go.followtheprocess.codes/msg v1.9.2
 	go.uber.org/zap v1.27.1
-	golang.org/x/exp v0.0.0-20260212183809-81e46e3db34a
+	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa
 	mvdan.cc/sh/v3 v3.12.0
 )
 
