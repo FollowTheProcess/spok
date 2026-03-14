@@ -42,7 +42,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Publish Draft Release
-        uses: release-drafter/release-drafter@v6
+        uses: release-drafter/release-drafter@v7
         with:
           version: ${{ steps.version.outputs.version }}
           publish: true
