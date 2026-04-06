@@ -17,7 +17,7 @@ jobs:
     name: CI
     permissions:
       contents: read
-    uses: FollowTheProcess/ci/.github/workflows/Go.yml@v3
+    uses: FollowTheProcess/ci/.github/workflows/Go.yml@v4
 
   docs:
     name: Docs
