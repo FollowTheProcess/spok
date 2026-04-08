@@ -9,7 +9,7 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.8
 	go.followtheprocess.codes/cli v0.19.0
 	go.followtheprocess.codes/collections v0.19.0
-	go.followtheprocess.codes/hue v1.0.0
+	go.followtheprocess.codes/hue v1.1.0
 	go.followtheprocess.codes/msg v1.9.2
 	go.uber.org/zap v1.27.1
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90
