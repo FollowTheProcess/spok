@@ -175,10 +175,8 @@ func (s *SpokFile) Run(stream iostream.IOStream, runner shell.Runner, force bool
 
 	// Topological sort on the DAG to determine a run order
 	sortStart := time.Now()
-	runOrder, err := dag.Sort()
-	if err != nil {
-		return nil, err
-	}
+	runOrder := dag.Sort()
+
 	names := make([]string, 0, len(runOrder))
 	for _, taskToRun := range runOrder {
 		names = append(names, taskToRun.Name)
