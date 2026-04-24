@@ -23,8 +23,8 @@ github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7
 github.com/stretchr/testify v1.8.1 h1:w7B6lhMri9wdJUVmEZPGGhZzrYTPvgJArz7wNPgYKsk=
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
-go.followtheprocess.codes/cli v0.19.0 h1:V0JjyQyJyu/aHYFFibpnUHfCu0R7qs2BGSZQR7MPadE=
-go.followtheprocess.codes/cli v0.19.0/go.mod h1:OKqn4Ps6y2cxUPBBxNfHBF5zRe4gIJk5a8u5SKnNuXs=
+go.followtheprocess.codes/cli v0.20.0 h1:oidHolLCF2iNart+3KhJMsGtBP+nlSWzlT9VvJAHx2Q=
+go.followtheprocess.codes/cli v0.20.0/go.mod h1:l1htpdaL3koow6fKy0tVjqAdHxpbHL8amYW/w1pD8I8=
 go.followtheprocess.codes/collections v0.20.0 h1:vIq1/esOKKF9nhjxtzfWeiysNiCSEUGNdU4PlrOQTnA=
 go.followtheprocess.codes/collections v0.20.0/go.mod h1:JmiCue4C99V1gkkBgBd446hwHHLRS49YcjfWZ1k/E+k=
 go.followtheprocess.codes/diff v0.2.0 h1:NuEPvXSUEIeBqpSukuhkAUchS1EaiH7PYSj9zesd8Uc=
@@ -33,10 +33,10 @@ go.followtheprocess.codes/hue v1.1.0 h1:bPq21YLdWxQ0ki4lIvXCYtgutaGaDUYaSIENDdrr
 go.followtheprocess.codes/hue v1.1.0/go.mod h1:VnCeVmYESGmX7fZJSFs59u8G+5zseCwGdFiJGHCFg4o=
 go.followtheprocess.codes/msg v1.9.2 h1:h97UeKDW23PncdM+7U91Q763Uq+QwJjVRj/NdIlREj0=
 go.followtheprocess.codes/msg v1.9.2/go.mod h1:/x18lCt8uyCWwrfMBXJkb4cV1yG9ipK++yoYECtU1tw=
-go.followtheprocess.codes/snapshot v0.9.1 h1:q90k4ZsV4WNrJkAXo6gLqYLgE3RipnzSOXU5o5Moyts=
-go.followtheprocess.codes/snapshot v0.9.1/go.mod h1:IKWetABJnYaG6rZAsINXAc6rB0TxoxdysBC3R2HvwWo=
-go.followtheprocess.codes/test v1.2.2 h1:iaUSB6BhzH/UAsVMhMjUW1uSVn8GMa2GgqPMqwxGwuo=
-go.followtheprocess.codes/test v1.2.2/go.mod h1:/Lq3YrwTqU/tb1wbO+Kt7Gs1I3qzFu/o/CUykOavoVA=
+go.followtheprocess.codes/snapshot v0.10.1 h1:GWNOdDxGtRiw0HVKnidhCHI0ymmZaaiHAARimyjNVU4=
+go.followtheprocess.codes/snapshot v0.10.1/go.mod h1:vCkJeHMLa4mOP451SrA9m+Ym5tumx66hXm318jAwf5Y=
+go.followtheprocess.codes/test v1.4.0 h1:LBZYn2MqOW20HLe1AJm3lMLplSWH+zycfC7mmS9NF2w=
+go.followtheprocess.codes/test v1.4.0/go.mod h1:/Lq3YrwTqU/tb1wbO+Kt7Gs1I3qzFu/o/CUykOavoVA=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
 go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=
