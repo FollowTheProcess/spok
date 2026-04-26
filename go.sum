@@ -23,8 +23,8 @@ github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7
 github.com/stretchr/testify v1.8.1 h1:w7B6lhMri9wdJUVmEZPGGhZzrYTPvgJArz7wNPgYKsk=
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
-go.followtheprocess.codes/cli v0.20.0 h1:oidHolLCF2iNart+3KhJMsGtBP+nlSWzlT9VvJAHx2Q=
-go.followtheprocess.codes/cli v0.20.0/go.mod h1:l1htpdaL3koow6fKy0tVjqAdHxpbHL8amYW/w1pD8I8=
+go.followtheprocess.codes/cli v0.20.1 h1:iy2z+dybwb+hpK57ZlnZNpLNlmjdUkaK64Xx6QcL28o=
+go.followtheprocess.codes/cli v0.20.1/go.mod h1:l1htpdaL3koow6fKy0tVjqAdHxpbHL8amYW/w1pD8I8=
 go.followtheprocess.codes/collections v0.20.0 h1:vIq1/esOKKF9nhjxtzfWeiysNiCSEUGNdU4PlrOQTnA=
 go.followtheprocess.codes/collections v0.20.0/go.mod h1:JmiCue4C99V1gkkBgBd446hwHHLRS49YcjfWZ1k/E+k=
 go.followtheprocess.codes/diff v0.2.0 h1:NuEPvXSUEIeBqpSukuhkAUchS1EaiH7PYSj9zesd8Uc=
