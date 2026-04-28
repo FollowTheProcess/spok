@@ -11,7 +11,7 @@ require (
 	go.followtheprocess.codes/collections v0.20.0
 	go.followtheprocess.codes/hue v1.1.0
 	go.followtheprocess.codes/msg v1.9.2
-	go.uber.org/zap v1.27.1
+	go.uber.org/zap v1.28.0
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f
 	mvdan.cc/sh/v3 v3.13.1
 )
