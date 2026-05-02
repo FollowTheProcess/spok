@@ -105,6 +105,15 @@ linters:
       - third_party$
       - builtin$
       - examples$
+    rules:
+      - path: _test\.go
+        linters:
+          - perfsprint # Doesn't matter in tests
+          - prealloc # These kinds of optimisations will make no difference to test code
+          - gosec # Tests don't need security stuff
+          - goconst # Sometimes repetition is okay in tests
+          - gochecknoglobals # e.g. global test flags
+          - maintidx # Flags table driven tests
 formatters:
   enable:
     - gofumpt
