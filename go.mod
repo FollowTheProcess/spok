@@ -9,7 +9,7 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.8
 	go.followtheprocess.codes/cli v0.21.0
 	go.followtheprocess.codes/collections v0.20.0
-	go.followtheprocess.codes/hue v1.1.0
+	go.followtheprocess.codes/hue v1.2.0
 	go.followtheprocess.codes/msg v1.10.0
 	go.uber.org/zap v1.28.0
 	golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a
@@ -18,7 +18,7 @@ require (
 
 require (
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/term v0.42.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/term v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
 )
